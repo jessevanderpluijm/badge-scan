@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes create-next-app@latest . --typescript --tailwind --app --eslint --src-dir --import-alias \"@/*\" --no-turbopack --use-npm --yes)",
+      "Bash(touch .env.local)",
+      "Bash(npx next *)",
+      "Bash(npm uninstall *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\nFinal URL: %{url_effective}\\\\n\" -L http://localhost:3001/events/6178b94f-bfad-476c-b991-bfdf5c3f83b5/badges)",
+      "Bash(tail -10 /tmp/badge-scan-dev.log | grep -E \"badges|404\")",
+      "WebFetch(domain:www.skills.sh)",
+      "Bash(gh api *)",
+      "Bash(python3 -c \"import sys,json; print\\('\\\\n'.join\\(f['type']+' '+f['path'] for f in json.load\\(sys.stdin\\)\\)\\)\")",
+      "Bash(gh auth *)",
+      "Bash(curl -s \"https://api.github.com/repos/coreyhaines31/marketingskills/git/trees/main?recursive=1\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(t['path']\\) for t in d.get\\('tree',[]\\) if 'content-strategy' in t['path'].lower\\(\\)]\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/coreyhaines31/marketingskills/main/skills/content-strategy/SKILL.md\" -o \"/tmp/content-strategy-SKILL.md\")",
+      "Read(//tmp/**)",
+      "Bash(ls -la .claude)",
+      "Bash(mkdir -p \".claude/skills/content-strategy/references\")",
+      "Bash(npx skills *)",
+      "Bash(PORT=3001 npm run dev)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(nslookup riojanwodawmmcotcbqn.supabase.co)",
+      "Bash(brew --version)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git -c user.email=jesse@weticket.com -c user.name=\"Jesse van der Pluijm\" commit -q -m \"Initial commit: Badge Scan SaaS\")",
+      "Bash(grep -E \"env\\\\.local$\")"
+    ]
+  }
+}

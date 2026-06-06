@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "defining-product-vision": {
+      "source": "refoundai/lenny-skills",
+      "sourceType": "github",
+      "skillPath": "skills/defining-product-vision/SKILL.md",
+      "computedHash": "ad91967dc8565e6f8868e34cbd003535a46b62f02429d43750f959caca1cbfba"
+    }
+  }
+}
