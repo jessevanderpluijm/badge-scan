@@ -25,7 +25,19 @@
       "Bash(git init *)",
       "Bash(git add *)",
       "Bash(git -c user.email=jesse@weticket.com -c user.name=\"Jesse van der Pluijm\" commit -q -m \"Initial commit: Badge Scan SaaS\")",
-      "Bash(grep -E \"env\\\\.local$\")"
+      "Bash(grep -E \"env\\\\.local$\")",
+      "Bash(npx --yes vercel@latest whoami)",
+      "Bash(npx --yes vercel@latest link --yes --project badge-scan)",
+      "Bash(npx --yes vercel@latest env ls)",
+      "Bash(npx --yes vercel@latest env add NEXT_PUBLIC_SUPABASE_URL production)",
+      "Bash(npx --yes vercel@latest env add NEXT_PUBLIC_SUPABASE_URL preview)",
+      "Bash(npx --yes vercel@latest env add NEXT_PUBLIC_SUPABASE_URL development)",
+      "Bash(npx --yes vercel@latest project ls)",
+      "Bash(curl -s -o /dev/null -w \"Deploy URL HTTP %{http_code}\\\\n\" \"https://badge-scan-pmm2snhqv-jesses-projects-00e54c07.vercel.app\")",
+      "Bash(curl -s \"https://badge-scan.vercel.app\")",
+      "Bash(curl -s -o /dev/null -w \"Login HTTP %{http_code}\\\\n\" \"https://badge-scan.vercel.app/login\")",
+      "Bash(curl -s -o /dev/null -w \"Partner WeTicket HTTP %{http_code}\\\\n\" \"https://badge-scan.vercel.app/badge-printing/weticket\")",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
