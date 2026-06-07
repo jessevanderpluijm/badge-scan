@@ -12,7 +12,6 @@ type FormState = {
   name: string;
   email: string;
   company: string;
-  eventDate: string;
   attendees: string;
   message: string;
 };
@@ -21,7 +20,6 @@ const EMPTY: FormState = {
   name: "",
   email: "",
   company: "",
-  eventDate: "",
   attendees: "",
   message: "",
 };
@@ -48,7 +46,6 @@ export function DemoForm() {
       name: form.name,
       email: form.email,
       company: form.company || null,
-      event_date: form.eventDate || null,
       expected_attendees: form.attendees ? Number(form.attendees) : null,
       message: form.message || null,
     });
@@ -135,16 +132,6 @@ export function DemoForm() {
             placeholder="e.g. 250"
           />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="eventDate">Next event date (optional)</Label>
-        <Input
-          id="eventDate"
-          type="date"
-          value={form.eventDate}
-          onChange={update("eventDate")}
-        />
       </div>
 
       <div className="space-y-2">
