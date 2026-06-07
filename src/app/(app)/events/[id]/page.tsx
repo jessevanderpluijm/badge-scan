@@ -1,30 +1,57 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ScanLine } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, ScanLine } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { UploadCsvDialog } from "./_components/upload-csv-dialog";
 import { EventActions } from "./_components/event-actions";
 import { AttendeeCheckinToggle } from "./_components/attendee-checkin-toggle";
+import { AttendeeRowActions } from "./_components/attendee-row-actions";
+
+const PAGE_SIZE = 50;
 
 export const dynamic = "force-dynamic";
 
+// Format an optional start/end date pair from the events table into a short
+// human label, e.g. "12 Aug 2026", "12 – 14 Aug 2026" or null when neither is set.
+function formatDateRange(start: string | null, end: string | null): string | null {
+  if (!start && !end) return null;
+  const fmt = (d: string) =>
+    new Date(d).toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  if (start && end && start !== end) return `${fmt(start)} – ${fmt(end)}`;
+  return fmt(start ?? end!);
+}
+
 export default async function EventPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { id } = await params;
+  const { page: pageParam } = await searchParams;
   const supabase = await createClient();
 
   const { data: event } = await supabase
     .from("events")
-    .select("id, name, created_at")
+    .select("id, name, created_at, start_date, end_date")
     .eq("id", id)
     .single();
 
   if (!event) notFound();
+
+  // Parse + clamp page from the URL. We don't know the total count yet, so
+  // we clamp again after the count query.
+  const requestedPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const from = (requestedPage - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
   const { data: attendees, count } = await supabase
     .from("attendees")
@@ -34,10 +61,23 @@ export default async function EventPage({
     )
     .eq("event_id", id)
     .order("created_at", { ascending: false })
-    .limit(50);
+    .range(from, to);
 
-  const usedCount =
-    attendees?.filter((a) => a.used_at !== null).length ?? 0;
+  const total = count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(requestedPage, totalPages);
+
+  // Stats cards (Checked in / Remaining) should reflect the whole event,
+  // not just the page that's currently in view. A separate head-only count
+  // query is cheap and avoids loading every row.
+  const { count: usedCount } = await supabase
+    .from("attendees")
+    .select("id", { count: "exact", head: true })
+    .eq("event_id", id)
+    .not("used_at", "is", null);
+  const checkedIn = usedCount ?? 0;
+  const firstShown = total === 0 ? 0 : from + 1;
+  const lastShown = Math.min(to + 1, total);
 
   return (
     <div className="space-y-6">
@@ -54,12 +94,13 @@ export default async function EventPage({
               {event.name}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {count ?? 0} {count === 1 ? "attendee" : "attendees"}
-              {(count ?? 0) > 0 && (
-                <span className="text-muted-foreground">
-                  {" · "}showing latest 50
-                </span>
+              {formatDateRange(event.start_date, event.end_date) && (
+                <>
+                  {formatDateRange(event.start_date, event.end_date)}
+                  {" · "}
+                </>
               )}
+              {total} {total === 1 ? "attendee" : "attendees"}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -70,7 +111,12 @@ export default async function EventPage({
             >
               <ScanLine className="h-4 w-4" /> Open scanner
             </Link>
-            <EventActions id={event.id} name={event.name} />
+            <EventActions
+              id={event.id}
+              name={event.name}
+              startDate={event.start_date ?? null}
+              endDate={event.end_date ?? null}
+            />
           </div>
         </div>
       </div>
@@ -78,25 +124,28 @@ export default async function EventPage({
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="p-5">
           <p className="text-sm text-muted-foreground">Total</p>
-          <p className="text-2xl font-semibold mt-1">{count ?? 0}</p>
+          <p className="text-2xl font-semibold mt-1">{total}</p>
         </Card>
         <Card className="p-5">
           <p className="text-sm text-muted-foreground">Checked in</p>
           <p className="text-2xl font-semibold mt-1 text-success">
-            {usedCount}
+            {checkedIn}
           </p>
         </Card>
         <Card className="p-5">
           <p className="text-sm text-muted-foreground">Remaining</p>
-          <p className="text-2xl font-semibold mt-1">
-            {(count ?? 0) - usedCount}
-          </p>
+          <p className="text-2xl font-semibold mt-1">{total - checkedIn}</p>
         </Card>
       </div>
 
       <Card>
-        <div className="p-6 border-b">
+        <div className="p-6 border-b flex items-center justify-between gap-3 flex-wrap">
           <h2 className="font-semibold">Attendees</h2>
+          {total > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Showing {firstShown}–{lastShown} of {total}
+            </p>
+          )}
         </div>
         {!attendees || attendees.length === 0 ? (
           <div className="p-12 text-center text-sm text-muted-foreground">
@@ -127,6 +176,7 @@ export default async function EventPage({
                   <th className="py-2.5 px-4 font-medium text-muted-foreground">
                     Status
                   </th>
+                  <th className="py-2.5 px-4 w-8"></th>
                 </tr>
               </thead>
               <tbody>
@@ -170,11 +220,49 @@ export default async function EventPage({
                           </span>
                         )}
                       </td>
+                      <td className="py-2 px-2">
+                        <AttendeeRowActions
+                          id={a.id}
+                          name={fullName}
+                          barcode={a.barcode}
+                        />
+                      </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t text-sm">
+                <span className="text-muted-foreground">
+                  Page {page} of {totalPages}
+                </span>
+                <div className="flex items-center gap-1">
+                  <Link
+                    href={`/events/${event.id}?page=${page - 1}`}
+                    aria-disabled={page <= 1}
+                    tabIndex={page <= 1 ? -1 : undefined}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                      page <= 1 && "pointer-events-none opacity-40",
+                    )}
+                  >
+                    <ChevronLeft className="h-4 w-4" /> Prev
+                  </Link>
+                  <Link
+                    href={`/events/${event.id}?page=${page + 1}`}
+                    aria-disabled={page >= totalPages}
+                    tabIndex={page >= totalPages ? -1 : undefined}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                      page >= totalPages && "pointer-events-none opacity-40",
+                    )}
+                  >
+                    Next <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Card>

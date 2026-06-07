@@ -48,16 +48,40 @@ export function Scanner({
   });
   const [busy, setBusy] = useState(false);
 
-  // Auto-focus the input and re-focus on any click / key press so the
-  // hardware scanner always lands in the right place.
+  // Auto-focus the input so the hardware scanner lands here, and re-claim
+  // focus when it slips to the body — but stay out of the way of dialogs,
+  // other inputs, and keyboard shortcuts (Cmd/Ctrl/Alt).
   useEffect(() => {
     inputRef.current?.focus();
-    const refocus = () => inputRef.current?.focus();
-    window.addEventListener("click", refocus);
-    window.addEventListener("keydown", refocus);
+
+    function isClaimable(target: Element | null) {
+      if (!target) return true;
+      if (target === inputRef.current) return false;
+      // Don't fight another input / button / dialog for focus.
+      if (target.closest('[role="dialog"], input, textarea, select, button, [contenteditable="true"]')) {
+        return false;
+      }
+      return true;
+    }
+
+    function onClick(e: MouseEvent) {
+      if (isClaimable(document.activeElement)) inputRef.current?.focus();
+      // Note: we intentionally don't preventDefault — a deliberate click on
+      // a link or button still works.
+      void e;
+    }
+
+    function onKeydown(e: KeyboardEvent) {
+      // Let copy/paste/devtools/etc through.
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (isClaimable(document.activeElement)) inputRef.current?.focus();
+    }
+
+    window.addEventListener("click", onClick);
+    window.addEventListener("keydown", onKeydown);
     return () => {
-      window.removeEventListener("click", refocus);
-      window.removeEventListener("keydown", refocus);
+      window.removeEventListener("click", onClick);
+      window.removeEventListener("keydown", onKeydown);
     };
   }, []);
 
@@ -113,11 +137,12 @@ export function Scanner({
     }
 
     const now = new Date().toISOString();
-    const { error: updateError } = await supabase
+    const { data: updated, error: updateError } = await supabase
       .from("attendees")
       .update({ used_at: now })
       .eq("id", existing.id)
-      .is("used_at", null);
+      .is("used_at", null)
+      .select("id, used_at");
 
     if (updateError) {
       pushResult({
@@ -126,6 +151,22 @@ export function Scanner({
         attendee: existing,
         at: Date.now(),
       });
+      setBusy(false);
+      return;
+    }
+
+    // No rows updated means another scanner station beat us to it between
+    // our SELECT and UPDATE. Treat as a duplicate so this station gets
+    // honest feedback instead of a misleading "valid" green screen.
+    if (!updated || updated.length === 0) {
+      pushResult({
+        status: "used",
+        barcode,
+        attendee: existing,
+        previousUsedAt: now,
+        at: Date.now(),
+      });
+      setStats((s) => ({ ...s, duplicate: s.duplicate + 1 }));
       setBusy(false);
       return;
     }

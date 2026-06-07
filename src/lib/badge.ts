@@ -1,4 +1,17 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
+import { PDFDocument, rgb, type PDFFont } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+
+// Inter ships in public/fonts and gets fetched + embedded into each badge
+// PDF. Why we don't use pdf-lib's StandardFonts.Helvetica anymore: Helvetica
+// is hard-wired to WinAnsi encoding, which silently breaks any non-Latin-1
+// glyph (Polish 'ł', Turkish 'ı', anything Cyrillic / CJK). Inter covers
+// the full latin block — plus pdf-lib subsets so each PDF stays small.
+async function fetchFontBytes(url: string): Promise<Uint8Array> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to load font ${url}: ${res.status}`);
+  const buf = await res.arrayBuffer();
+  return new Uint8Array(buf);
+}
 
 export type BadgeType = "butterfly" | "rectangle";
 export type BadgeField =
@@ -164,8 +177,8 @@ function drawPanel(opts: {
   bgImage: EmbeddedImage | null;
   logo: EmbeddedImage | null;
   fg: { r: number; g: number; b: number };
-  helvetica: PDFFont;
-  helveticaBold: PDFFont;
+  regularFont: PDFFont;
+  boldFont: PDFFont;
 }) {
   const {
     page,
@@ -177,8 +190,8 @@ function drawPanel(opts: {
     bgImage,
     logo,
     fg,
-    helvetica,
-    helveticaBold,
+    regularFont,
+    boldFont,
   } = opts;
 
   const padding = mmToPt(4);
@@ -240,7 +253,7 @@ function drawPanel(opts: {
   if (primaryText) {
     let fontSize = mmToPt(8);
     while (
-      helveticaBold.widthOfTextAtSize(primaryText, fontSize) > maxWidth &&
+      boldFont.widthOfTextAtSize(primaryText, fontSize) > maxWidth &&
       fontSize > mmToPt(3)
     ) {
       fontSize -= 1;
@@ -253,7 +266,7 @@ function drawPanel(opts: {
       y: drawY,
       maxWidth,
       fontSize,
-      font: helveticaBold,
+      font: boldFont,
       color: fg,
     });
     drawY -= mmToPt(2);
@@ -272,7 +285,7 @@ function drawPanel(opts: {
       y: drawY,
       maxWidth,
       fontSize,
-      font: helvetica,
+      font: regularFont,
       color: fg,
     });
     drawY -= mmToPt(1);
@@ -284,8 +297,13 @@ export async function generateBadgePdf(
   attendees: AttendeeForBadge[],
 ): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
-  const helvetica = await pdf.embedFont(StandardFonts.Helvetica);
-  const helveticaBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  pdf.registerFontkit(fontkit);
+  const [regularBytes, boldBytes] = await Promise.all([
+    fetchFontBytes("/fonts/Inter-Regular.woff"),
+    fetchFontBytes("/fonts/Inter-Bold.woff"),
+  ]);
+  const regularFont = await pdf.embedFont(regularBytes, { subset: true });
+  const boldFont = await pdf.embedFont(boldBytes, { subset: true });
 
   const dims = BADGE_DIMENSIONS_MM[design.type];
   const pageW = mmToPt(dims.pageWidth);
@@ -322,8 +340,8 @@ export async function generateBadgePdf(
         bgImage,
         logo,
         fg,
-        helvetica,
-        helveticaBold,
+        regularFont,
+        boldFont,
       });
     }
   }

@@ -70,12 +70,18 @@ export default function NewEventPage() {
 
   const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [eventId, setEventId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onCreate(e: React.FormEvent) {
     e.preventDefault();
+    if (startDate && endDate && endDate < startDate) {
+      setError("End date must be on or after the start date.");
+      return;
+    }
     setLoading(true);
     setError(null);
     const {
@@ -88,7 +94,12 @@ export default function NewEventPage() {
     }
     const { data, error } = await supabase
       .from("events")
-      .insert({ name: name.trim(), owner_id: user.id })
+      .insert({
+        name: name.trim(),
+        owner_id: user.id,
+        start_date: startDate || null,
+        end_date: endDate || null,
+      })
       .select("id")
       .single();
     setLoading(false);
@@ -134,6 +145,37 @@ export default function NewEventPage() {
                   required
                   autoFocus
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="start-date">
+                    Start date{" "}
+                    <span className="text-muted-foreground font-normal">
+                      (optional)
+                    </span>
+                  </Label>
+                  <Input
+                    id="start-date"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="end-date">
+                    End date{" "}
+                    <span className="text-muted-foreground font-normal">
+                      (optional)
+                    </span>
+                  </Label>
+                  <Input
+                    id="end-date"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    min={startDate || undefined}
+                  />
+                </div>
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
               <div className="flex justify-end">

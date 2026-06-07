@@ -9,10 +9,25 @@ export const dynamic = "force-dynamic";
 export default async function EventsPage() {
   const supabase = await createClient();
 
+  // Order by event date when it's set, else fall back to creation date so
+  // upcoming events surface first and old undated events stay near the bottom.
   const { data: events } = await supabase
     .from("events")
-    .select("id, name, created_at, attendees(count)")
+    .select("id, name, created_at, start_date, end_date, attendees(count)")
+    .order("start_date", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
+
+  function formatRange(start: string | null, end: string | null): string | null {
+    if (!start && !end) return null;
+    const fmt = (d: string) =>
+      new Date(d).toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    if (start && end && start !== end) return `${fmt(start)} – ${fmt(end)}`;
+    return fmt(start ?? end!);
+  }
 
   return (
     <div className="space-y-6">
@@ -60,7 +75,8 @@ export default async function EventsPage() {
                     <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                   </div>
                   <p className="text-xs text-muted-foreground mt-4">
-                    {new Date(e.created_at).toLocaleDateString()}
+                    {formatRange(e.start_date, e.end_date) ??
+                      `Created ${new Date(e.created_at).toLocaleDateString()}`}
                   </p>
                 </Card>
               </Link>
