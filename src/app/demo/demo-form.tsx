@@ -55,7 +55,12 @@ export function DemoForm() {
 
     setLoading(false);
     if (error) {
-      setError("Something went wrong. Please try again or email us directly.");
+      // Surface the real Supabase error to the user (and the console) so
+      // misconfigurations like a missing table or RLS policy are obvious.
+      console.error("demo_requests insert failed:", error);
+      const detail =
+        error.message || error.hint || error.code || "Unknown error";
+      setError(`Couldn't submit your request: ${detail}`);
       return;
     }
     setDone(true);
