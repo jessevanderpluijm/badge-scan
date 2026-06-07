@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { submitDemoRequest } from "./actions";
+import { type Locale, dict } from "@/lib/i18n";
+import { submitDemoRequest } from "@/lib/demo-actions";
 
 type FormState = {
   name: string;
@@ -24,16 +25,16 @@ const EMPTY: FormState = {
   message: "",
 };
 
-export function DemoForm() {
+export function DemoForm({ locale = "en" }: { locale?: Locale }) {
+  const t = dict[locale].demo.form;
   const [form, setForm] = useState<FormState>(EMPTY);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
   function update<K extends keyof FormState>(key: K) {
-    return (
-      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    ) => setForm((f) => ({ ...f, [key]: e.target.value }));
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }));
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -64,12 +65,9 @@ export function DemoForm() {
           <Check className="h-6 w-6 text-success" />
         </div>
         <h2 className="text-xl font-semibold tracking-tight">
-          Thanks — we&apos;ll be in touch.
+          {t.successHeading}
         </h2>
-        <p className="text-sm text-muted-foreground">
-          We&apos;ve received your request and will reach out shortly to set up
-          your demo.
-        </p>
+        <p className="text-sm text-muted-foreground">{t.successBody}</p>
       </div>
     );
   }
@@ -82,7 +80,7 @@ export function DemoForm() {
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">{t.name}</Label>
           <Input
             id="name"
             value={form.name}
@@ -92,7 +90,7 @@ export function DemoForm() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email">Work email</Label>
+          <Label htmlFor="email">{t.email}</Label>
           <Input
             id="email"
             type="email"
@@ -106,7 +104,7 @@ export function DemoForm() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="company">Company / organization</Label>
+          <Label htmlFor="company">{t.company}</Label>
           <Input
             id="company"
             value={form.company}
@@ -115,7 +113,7 @@ export function DemoForm() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="attendees">Expected attendees</Label>
+          <Label htmlFor="attendees">{t.attendees}</Label>
           <Input
             id="attendees"
             type="number"
@@ -123,32 +121,32 @@ export function DemoForm() {
             inputMode="numeric"
             value={form.attendees}
             onChange={update("attendees")}
-            placeholder="e.g. 250"
+            placeholder={t.attendeesPlaceholder}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="message">Anything we should know? (optional)</Label>
+        <Label htmlFor="message">{t.message}</Label>
         <textarea
           id="message"
           className={textareaClass}
           value={form.message}
           onChange={update("message")}
-          placeholder="Type of event, ticketing system you use, questions…"
+          placeholder={t.messagePlaceholder}
         />
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Sending…" : "Book a demo"}
+        {loading ? t.sending : t.submit}
       </Button>
 
       <p className="text-xs text-muted-foreground text-center">
-        Already a customer?{" "}
+        {t.alreadyCustomer}{" "}
         <a href="/login" className="underline hover:text-foreground">
-          Sign in
+          {t.signIn}
         </a>
       </p>
     </form>

@@ -36,7 +36,9 @@ export async function updateSession(request: NextRequest) {
   const isMarketing =
     pathname === "/" ||
     pathname === "/demo" ||
-    pathname.startsWith("/badge-printing");
+    pathname.startsWith("/badge-printing") ||
+    pathname === "/nl" ||
+    pathname.startsWith("/nl/");
   // Crawler-facing endpoints must stay publicly reachable, otherwise Google
   // sees a redirect to /login instead of the sitemap / robots manifest.
   const isCrawlerFile =

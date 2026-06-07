@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
 import { ArrowRight, Check } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
@@ -8,79 +6,50 @@ import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { Reviews } from "@/components/marketing/reviews";
 import { JsonLd, faqPageSchema } from "@/components/seo/json-ld";
-import { EVENT_TYPES } from "./event-types";
+import { type Locale, dict, localePath } from "@/lib/i18n";
+import type { EventType } from "@/app/(en)/badge-printing/for/[type]/event-types";
 
-export function generateStaticParams() {
-  return Object.keys(EVENT_TYPES).map((type) => ({ type }));
-}
-
-export async function generateMetadata({
-  params,
+export function EventTypePageContent({
+  locale,
+  data,
 }: {
-  params: Promise<{ type: string }>;
-}): Promise<Metadata> {
-  const { type } = await params;
-  const data = EVENT_TYPES[type];
-  if (!data) return {};
-  const title = `Badge printing for ${data.nameLower}`;
-  const description = `${data.oneLiner} On-demand badge printing for ${data.nameLower} (${data.dutchKeyword}) — designed for the Epson ColorWorks C4000.`;
-  const url = `/badge-printing/for/${data.slug}`;
-  return {
-    title,
-    description,
-    alternates: { canonical: url },
-    openGraph: { title, description, url, type: "website" },
-    twitter: { card: "summary_large_image", title, description },
-    keywords: [
-      `badge printing ${data.nameLower}`,
-      `badge printing ${data.dutchKeyword}`,
-      `${data.name} badge printing`,
-      `${data.dutchKeyword} badges`,
-      `${data.nameLower} check-in`,
-      "Epson ColorWorks C4000",
-      "on-demand badge printing",
-    ],
-  };
-}
-
-export default async function EventTypePage({
-  params,
-}: {
-  params: Promise<{ type: string }>;
+  locale: Locale;
+  data: EventType;
 }) {
-  const { type } = await params;
-  const data = EVENT_TYPES[type];
-  if (!data) notFound();
+  const t = dict[locale].eventTypePage;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <JsonLd data={faqPageSchema(data.faq)} />
-      <MarketingNav />
+      <MarketingNav locale={locale} />
 
       <section className="container py-16 sm:py-20">
         <div className="max-w-3xl space-y-6">
           <Link
-            href="/"
+            href={localePath(locale, "/")}
             className="text-sm text-muted-foreground hover:text-foreground"
           >
-            ← Back to home
+            {t.backLink}
           </Link>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
-            Badge printing for {data.nameLower}.
+            {dict[locale].footer.badgePrintingFor(data.nameLower)}.
           </h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
             {data.description}
           </p>
           <p className="text-sm text-muted-foreground">{data.audience}</p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link href="/demo" className={buttonVariants({ size: "lg" })}>
-              Book a demo <ArrowRight className="h-4 w-4" />
+            <Link
+              href={localePath(locale, "/demo")}
+              className={buttonVariants({ size: "lg" })}
+            >
+              {dict[locale].nav.bookDemo} <ArrowRight className="h-4 w-4" />
             </Link>
             <a
               href="#scenarios"
               className={buttonVariants({ variant: "outline", size: "lg" })}
             >
-              See how it fits
+              {t.seeHow}
             </a>
           </div>
         </div>
@@ -91,12 +60,9 @@ export default async function EventTypePage({
           <div className="grid lg:grid-cols-2 gap-10">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Where Badge Scan fits in your {data.nameLower}.
+                {t.scenariosHeading(data.nameLower)}
               </h2>
-              <p className="text-muted-foreground mt-3">
-                Common scenarios where event organisers turn to Badge Scan
-                instead of pre-printing or stickers.
-              </p>
+              <p className="text-muted-foreground mt-3">{t.scenariosSub}</p>
               <ul className="mt-6 space-y-3">
                 {data.scenarios.map((s) => (
                   <li key={s} className="flex items-start gap-3">
@@ -123,17 +89,14 @@ export default async function EventTypePage({
         </div>
       </section>
 
-      <Reviews />
+      <Reviews locale={locale} />
 
       <section className="container py-20">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">
-            {data.name} badge printing — FAQ
+            {t.faqHeading(data.name)}
           </h2>
-          <p className="text-muted-foreground mb-8">
-            Questions event organisers ask before moving their {data.nameLower}{" "}
-            badge flow to Badge Scan.
-          </p>
+          <p className="text-muted-foreground mb-8">{t.faqSub(data.nameLower)}</p>
           <dl className="divide-y border rounded-xl bg-card">
             {data.faq.map((f) => (
               <div key={f.q} className="p-5">
@@ -148,10 +111,11 @@ export default async function EventTypePage({
       </section>
 
       <FinalCta
-        heading={`Print badges for your ${data.nameLower} the easy way.`}
-        body={`Book a demo and see the full check-in and badge-printing flow for your ${data.nameLower}.`}
+        locale={locale}
+        heading={t.ctaHeading(data.nameLower)}
+        body={t.ctaBody(data.nameLower)}
       />
-      <MarketingFooter />
+      <MarketingFooter locale={locale} />
     </div>
   );
 }
