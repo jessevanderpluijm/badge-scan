@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { FinalCta } from "@/components/marketing/final-cta";
+import { JsonLd, faqPageSchema } from "@/components/seo/json-ld";
 import { PARTNERS } from "./partners";
 
 export function generateStaticParams() {
@@ -20,7 +21,7 @@ export async function generateMetadata({
   const { partner } = await params;
   const data = PARTNERS[partner];
   if (!data) return {};
-  const title = `Badge printing for ${data.name} | Badge Scan`;
+  const title = `Badge printing for ${data.name}`;
   const description = `${data.oneLiner} Export attendees, design a badge, print at check-in on an Epson ColorWorks C4000.`;
   const url = `/badge-printing/${data.slug}`;
   return {
@@ -61,6 +62,7 @@ export default async function PartnerPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <JsonLd data={faqPageSchema(data.faq)} />
       <MarketingNav />
 
       <section className="container py-16 sm:py-20 grid lg:grid-cols-2 gap-10 items-start">

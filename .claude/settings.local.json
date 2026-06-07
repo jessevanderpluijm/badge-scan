@@ -37,7 +37,12 @@
       "Bash(curl -s \"https://badge-scan.vercel.app\")",
       "Bash(curl -s -o /dev/null -w \"Login HTTP %{http_code}\\\\n\" \"https://badge-scan.vercel.app/login\")",
       "Bash(curl -s -o /dev/null -w \"Partner WeTicket HTTP %{http_code}\\\\n\" \"https://badge-scan.vercel.app/badge-printing/weticket\")",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(curl -s \"https://api.github.com/repos/cli/cli/releases/latest\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('version:',d['tag_name']\\); [print\\(a['browser_download_url']\\) for a in d['assets'] if 'macOS' in a['name'] and 'arm64' in a['name'] and a['name'].endswith\\('.tar.gz'\\)]\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(a['name']\\) for a in d['assets'] if 'macOS' in a['name'].lower\\(\\) or 'darwin' in a['name'].lower\\(\\) or 'arm' in a['name'].lower\\(\\)]\")",
+      "Bash(npx -y skills add https://github.com/coreyhaines31/marketingskills --skill seo-audit)",
+      "Bash(~/.local/bin/gh auth *)"
     ]
   }
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   ScanLine,
   Upload,
@@ -14,8 +15,26 @@ import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { Reviews } from "@/components/marketing/reviews";
+import { JsonLd } from "@/components/seo/json-ld";
+import { SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Badge Scan — Print event & conference badges on demand",
+  },
+  description:
+    "The easiest way to print name badges for conferences, trade shows and networking events. Upload your attendee list, design beautiful badges in minutes, and print on demand at the door.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Badge Scan — Print event & conference badges on demand",
+    description:
+      "Upload your attendee list, design badges in minutes, and print on demand at the door — straight from your browser.",
+    url: "/",
+    type: "website",
+  },
+};
 
 const TICKET_PARTNERS = [
   { slug: "weticket", name: "WeTicket" },
@@ -33,6 +52,33 @@ export default async function MarketingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": `${SITE_URL}/#organization`,
+              name: "Badge Scan",
+              url: SITE_URL,
+            },
+            {
+              "@type": "SoftwareApplication",
+              name: "Badge Scan",
+              applicationCategory: "BusinessApplication",
+              operatingSystem: "Web",
+              url: SITE_URL,
+              description:
+                "Self-serve check-in and on-demand badge printing for conferences, trade shows and networking events.",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "EUR",
+              },
+            },
+          ],
+        }}
+      />
       <MarketingNav />
       <Hero loggedIn={loggedIn} />
       <TicketingPartners />

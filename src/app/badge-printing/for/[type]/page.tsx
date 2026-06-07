@@ -7,6 +7,7 @@ import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { Reviews } from "@/components/marketing/reviews";
+import { JsonLd, faqPageSchema } from "@/components/seo/json-ld";
 import { EVENT_TYPES } from "./event-types";
 
 export function generateStaticParams() {
@@ -21,7 +22,7 @@ export async function generateMetadata({
   const { type } = await params;
   const data = EVENT_TYPES[type];
   if (!data) return {};
-  const title = `Badge printing for ${data.nameLower} | Badge Scan`;
+  const title = `Badge printing for ${data.nameLower}`;
   const description = `${data.oneLiner} On-demand badge printing for ${data.nameLower} (${data.dutchKeyword}) — designed for the Epson ColorWorks C4000.`;
   const url = `/badge-printing/for/${data.slug}`;
   return {
@@ -53,6 +54,7 @@ export default async function EventTypePage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <JsonLd data={faqPageSchema(data.faq)} />
       <MarketingNav />
 
       <section className="container py-16 sm:py-20">
