@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const routes = [
     "/",
+    "/demo",
     ...Object.keys(PARTNERS).map((slug) => `/badge-printing/${slug}`),
     ...Object.keys(EVENT_TYPES).map((slug) => `/badge-printing/for/${slug}`),
   ];

@@ -2,7 +2,7 @@ import { AuthCtaButton } from "@/components/marketing/auth-cta";
 
 export function FinalCta({
   heading = "Skip the badge-printing headache.",
-  body = "Set up your first event in under a minute. Free while you try it.",
+  body = "Book a demo and we'll show you check-in and on-demand badge printing end to end.",
 }: {
   heading?: string;
   body?: string;
@@ -17,7 +17,7 @@ export function FinalCta({
           {body}
         </p>
         <div className="mt-6 flex justify-center">
-          <AuthCtaButton loggedOutLabel="Get started free" variant="secondary" />
+          <AuthCtaButton loggedOutLabel="Book a demo" variant="secondary" />
         </div>
       </div>
     </section>

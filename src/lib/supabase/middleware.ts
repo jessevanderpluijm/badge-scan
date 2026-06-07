@@ -34,7 +34,9 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthPage = pathname.startsWith("/login");
   const isMarketing =
-    pathname === "/" || pathname.startsWith("/badge-printing");
+    pathname === "/" ||
+    pathname === "/demo" ||
+    pathname.startsWith("/badge-printing");
   const isPublic = isAuthPage || isMarketing || pathname.startsWith("/auth");
 
   if (!user && !isPublic) {

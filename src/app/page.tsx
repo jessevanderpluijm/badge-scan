@@ -100,7 +100,7 @@ function Hero() {
             Epson ColorWorks C4000.
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <AuthCtaButton loggedOutLabel="Start free" />
+            <AuthCtaButton loggedOutLabel="Book a demo" />
             <a
               href="#how-it-works"
               className={buttonVariants({ variant: "outline", size: "lg" })}
