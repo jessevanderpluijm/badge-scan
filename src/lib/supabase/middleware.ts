@@ -37,7 +37,16 @@ export async function updateSession(request: NextRequest) {
     pathname === "/" ||
     pathname === "/demo" ||
     pathname.startsWith("/badge-printing");
-  const isPublic = isAuthPage || isMarketing || pathname.startsWith("/auth");
+  // Crawler-facing endpoints must stay publicly reachable, otherwise Google
+  // sees a redirect to /login instead of the sitemap / robots manifest.
+  const isCrawlerFile =
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
+    pathname === "/opengraph-image" ||
+    pathname === "/twitter-image" ||
+    pathname === "/icon.svg";
+  const isPublic =
+    isAuthPage || isMarketing || isCrawlerFile || pathname.startsWith("/auth");
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
