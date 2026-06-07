@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { UploadCsvDialog } from "./_components/upload-csv-dialog";
 import { EventActions } from "./_components/event-actions";
 import { AttendeeCheckinToggle } from "./_components/attendee-checkin-toggle";
+import { AttendeeRowActions } from "./_components/attendee-row-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -127,6 +128,7 @@ export default async function EventPage({
                   <th className="py-2.5 px-4 font-medium text-muted-foreground">
                     Status
                   </th>
+                  <th className="py-2.5 px-4 w-8"></th>
                 </tr>
               </thead>
               <tbody>
@@ -169,6 +171,13 @@ export default async function EventPage({
                             Pending
                           </span>
                         )}
+                      </td>
+                      <td className="py-2 px-2">
+                        <AttendeeRowActions
+                          id={a.id}
+                          name={fullName}
+                          barcode={a.barcode}
+                        />
                       </td>
                     </tr>
                   );
