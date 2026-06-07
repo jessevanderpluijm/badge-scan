@@ -5,20 +5,17 @@ import {
   Upload,
   Palette,
   Printer,
-  ArrowRight,
   Check,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { Reviews } from "@/components/marketing/reviews";
+import { AuthCtaButton } from "@/components/marketing/auth-cta";
 import { JsonLd } from "@/components/seo/json-ld";
 import { SITE_URL } from "@/lib/seo";
-
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: {
@@ -43,13 +40,7 @@ const TICKET_PARTNERS = [
   { slug: "momice", name: "Momice" },
 ];
 
-export default async function MarketingPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const loggedIn = !!user;
-
+export default function MarketingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <JsonLd
@@ -80,7 +71,7 @@ export default async function MarketingPage() {
         }}
       />
       <MarketingNav />
-      <Hero loggedIn={loggedIn} />
+      <Hero />
       <TicketingPartners />
       <Features />
       <Reviews />
@@ -90,7 +81,7 @@ export default async function MarketingPage() {
   );
 }
 
-function Hero({ loggedIn }: { loggedIn: boolean }) {
+function Hero() {
   return (
     <section className="relative overflow-hidden">
       <div
@@ -109,13 +100,7 @@ function Hero({ loggedIn }: { loggedIn: boolean }) {
             Epson ColorWorks C4000.
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link
-              href={loggedIn ? "/events" : "/login"}
-              className={buttonVariants({ size: "lg" })}
-            >
-              {loggedIn ? "Open dashboard" : "Start free"}{" "}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            <AuthCtaButton loggedOutLabel="Start free" />
             <a
               href="#how-it-works"
               className={buttonVariants({ variant: "outline", size: "lg" })}

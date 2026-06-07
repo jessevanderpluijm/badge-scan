@@ -1,15 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, ScanLine } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
-import { buttonVariants } from "@/components/ui/button";
+import { ScanLine } from "lucide-react";
+import { NavAuthButtons } from "@/components/marketing/auth-cta";
 
-export async function MarketingNav() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const loggedIn = !!user;
-
+export function MarketingNav() {
   return (
     <header className="border-b">
       <div className="container flex h-14 items-center justify-between">
@@ -20,23 +13,7 @@ export async function MarketingNav() {
           <span className="font-semibold tracking-tight">Badge Scan</span>
         </Link>
         <nav className="flex items-center gap-2">
-          {loggedIn ? (
-            <Link href="/events" className={buttonVariants()}>
-              Open dashboard <ArrowRight className="h-4 w-4" />
-            </Link>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className={buttonVariants({ variant: "ghost" })}
-              >
-                Sign in
-              </Link>
-              <Link href="/login" className={buttonVariants()}>
-                Start free
-              </Link>
-            </>
-          )}
+          <NavAuthButtons />
         </nav>
       </div>
     </header>
