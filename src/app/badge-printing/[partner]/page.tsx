@@ -80,8 +80,8 @@ export default async function PartnerPage({
             {data.description}
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link href="/login" className={buttonVariants({ size: "lg" })}>
-              Start free <ArrowRight className="h-4 w-4" />
+            <Link href="/demo" className={buttonVariants({ size: "lg" })}>
+              Book a demo <ArrowRight className="h-4 w-4" />
             </Link>
             <a
               href="#how"
@@ -95,7 +95,7 @@ export default async function PartnerPage({
               `No ${data.name} integration setup`,
               "Print at the door on demand",
               "Compatible with any C4000 printer",
-              "Free to try",
+              "Personal onboarding",
             ].map((p) => (
               <li key={p} className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-success flex-shrink-0" />
@@ -183,7 +183,7 @@ export default async function PartnerPage({
 
       <FinalCta
         heading={`Ready to print ${data.name} badges?`}
-        body={`Set up your first event in under a minute. No ${data.name} integration required.`}
+        body={`Book a demo and we'll walk you through the ${data.name} flow end to end — no integration required.`}
       />
       <MarketingFooter />
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,53 +21,33 @@ function LoginForm() {
   const redirect = search.get("redirect") || "/events";
   const supabase = createClient();
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setInfo(null);
     setLoading(true);
 
-    if (mode === "signin") {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      setLoading(false);
-      if (error) return setError(error.message);
-      router.replace(redirect);
-      router.refresh();
-    } else {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      setLoading(false);
-      if (error) return setError(error.message);
-      if (data.session) {
-        router.replace(redirect);
-        router.refresh();
-      } else {
-        setInfo("Check your email to confirm your account, then sign in.");
-        setMode("signin");
-      }
-    }
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    setLoading(false);
+    if (error) return setError(error.message);
+    router.replace(redirect);
+    router.refresh();
   }
 
   return (
     <div className="w-full max-w-sm">
       <Card>
           <CardHeader>
-            <CardTitle>
-              {mode === "signin" ? "Sign in" : "Create account"}
-            </CardTitle>
+            <CardTitle>Sign in</CardTitle>
             <CardDescription>
-              {mode === "signin"
-                ? "Use your account to manage events."
-                : "Start managing events in seconds."}
+              Use your account to manage events.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -87,9 +68,7 @@ function LoginForm() {
                 <Input
                   id="password"
                   type="password"
-                  autoComplete={
-                    mode === "signin" ? "current-password" : "new-password"
-                  }
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   minLength={6}
@@ -100,27 +79,20 @@ function LoginForm() {
               {error && (
                 <p className="text-sm text-destructive">{error}</p>
               )}
-              {info && <p className="text-sm text-muted-foreground">{info}</p>}
 
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading
-                  ? "Please wait…"
-                  : mode === "signin"
-                    ? "Sign in"
-                    : "Create account"}
+                {loading ? "Please wait…" : "Sign in"}
               </Button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setMode(mode === "signin" ? "signup" : "signin")
-                }
-                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {mode === "signin"
-                  ? "Don't have an account? Sign up"
-                  : "Already have an account? Sign in"}
-              </button>
+              <p className="text-center text-sm text-muted-foreground">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/demo"
+                  className="text-foreground underline hover:no-underline"
+                >
+                  Book a demo
+                </Link>
+              </p>
             </form>
           </CardContent>
         </Card>

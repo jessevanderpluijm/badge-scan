@@ -41,8 +41,8 @@ export function NavAuthButtons() {
       <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
         Sign in
       </Link>
-      <Link href="/login" className={buttonVariants()}>
-        Start free
+      <Link href="/demo" className={buttonVariants()}>
+        Book a demo
       </Link>
     </>
   );
@@ -61,7 +61,7 @@ export function AuthCtaButton({
 
   return (
     <Link
-      href={loggedIn ? "/events" : "/login"}
+      href={loggedIn ? "/events" : "/demo"}
       className={cn(
         buttonVariants({ size: "lg", variant }),
         variant === "secondary" && "font-semibold",

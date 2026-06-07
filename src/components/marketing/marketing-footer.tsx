@@ -82,10 +82,10 @@ export function MarketingFooter() {
             </li>
             <li>
               <Link
-                href="/login"
+                href="/demo"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                Start free
+                Book a demo
               </Link>
             </li>
           </ul>

@@ -73,8 +73,8 @@ export default async function EventTypePage({
           </p>
           <p className="text-sm text-muted-foreground">{data.audience}</p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link href="/login" className={buttonVariants({ size: "lg" })}>
-              Start free <ArrowRight className="h-4 w-4" />
+            <Link href="/demo" className={buttonVariants({ size: "lg" })}>
+              Book a demo <ArrowRight className="h-4 w-4" />
             </Link>
             <a
               href="#scenarios"
@@ -149,7 +149,7 @@ export default async function EventTypePage({
 
       <FinalCta
         heading={`Print badges for your ${data.nameLower} the easy way.`}
-        body={`Set up your first ${data.name.toLowerCase()} in under a minute. Free while you try it.`}
+        body={`Book a demo and see the full check-in and badge-printing flow for your ${data.nameLower}.`}
       />
       <MarketingFooter />
     </div>
