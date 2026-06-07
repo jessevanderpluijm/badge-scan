@@ -30,15 +30,21 @@ import {
 export function EventActions({
   id,
   name,
+  startDate,
+  endDate,
 }: {
   id: string;
   name: string;
+  startDate: string | null;
+  endDate: string | null;
 }) {
   const router = useRouter();
   const supabase = createClient();
 
   const [editOpen, setEditOpen] = useState(false);
   const [editName, setEditName] = useState(name);
+  const [editStart, setEditStart] = useState(startDate ?? "");
+  const [editEnd, setEditEnd] = useState(endDate ?? "");
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
@@ -46,13 +52,26 @@ export function EventActions({
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const isDirty =
+    editName.trim() !== name ||
+    editStart !== (startDate ?? "") ||
+    editEnd !== (endDate ?? "");
+
   async function saveEdit(e: React.FormEvent) {
     e.preventDefault();
+    if (editStart && editEnd && editEnd < editStart) {
+      setEditError("End date must be on or after the start date.");
+      return;
+    }
     setEditError(null);
     setSaving(true);
     const { error } = await supabase
       .from("events")
-      .update({ name: editName.trim() })
+      .update({
+        name: editName.trim(),
+        start_date: editStart || null,
+        end_date: editEnd || null,
+      })
       .eq("id", id);
     setSaving(false);
     if (error) return setEditError(error.message);
@@ -74,6 +93,8 @@ export function EventActions({
 
   function openEdit() {
     setEditName(name);
+    setEditStart(startDate ?? "");
+    setEditEnd(endDate ?? "");
     setEditError(null);
     setEditOpen(true);
   }
@@ -108,9 +129,11 @@ export function EventActions({
         <form onSubmit={saveEdit}>
           <DialogHeader>
             <DialogTitle>Edit event</DialogTitle>
-            <DialogDescription>Rename your event.</DialogDescription>
+            <DialogDescription>
+              Update the name or the event dates.
+            </DialogDescription>
           </DialogHeader>
-          <DialogBody>
+          <DialogBody className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="edit-name">Event name</Label>
               <Input
@@ -121,8 +144,39 @@ export function EventActions({
                 autoFocus
               />
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="edit-start">
+                  Start date{" "}
+                  <span className="text-muted-foreground font-normal">
+                    (optional)
+                  </span>
+                </Label>
+                <Input
+                  id="edit-start"
+                  type="date"
+                  value={editStart}
+                  onChange={(e) => setEditStart(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-end">
+                  End date{" "}
+                  <span className="text-muted-foreground font-normal">
+                    (optional)
+                  </span>
+                </Label>
+                <Input
+                  id="edit-end"
+                  type="date"
+                  value={editEnd}
+                  onChange={(e) => setEditEnd(e.target.value)}
+                  min={editStart || undefined}
+                />
+              </div>
+            </div>
             {editError && (
-              <p className="text-sm text-destructive mt-3">{editError}</p>
+              <p className="text-sm text-destructive">{editError}</p>
             )}
           </DialogBody>
           <DialogFooter>
@@ -136,9 +190,7 @@ export function EventActions({
             </Button>
             <Button
               type="submit"
-              disabled={
-                saving || !editName.trim() || editName.trim() === name
-              }
+              disabled={saving || !editName.trim() || !isDirty}
             >
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
               {saving ? "Saving…" : "Save changes"}

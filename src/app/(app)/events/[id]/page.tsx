@@ -11,6 +11,20 @@ import { AttendeeRowActions } from "./_components/attendee-row-actions";
 
 export const dynamic = "force-dynamic";
 
+// Format an optional start/end date pair from the events table into a short
+// human label, e.g. "12 Aug 2026", "12 – 14 Aug 2026" or null when neither is set.
+function formatDateRange(start: string | null, end: string | null): string | null {
+  if (!start && !end) return null;
+  const fmt = (d: string) =>
+    new Date(d).toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  if (start && end && start !== end) return `${fmt(start)} – ${fmt(end)}`;
+  return fmt(start ?? end!);
+}
+
 export default async function EventPage({
   params,
 }: {
@@ -21,7 +35,7 @@ export default async function EventPage({
 
   const { data: event } = await supabase
     .from("events")
-    .select("id, name, created_at")
+    .select("id, name, created_at, start_date, end_date")
     .eq("id", id)
     .single();
 
@@ -55,6 +69,12 @@ export default async function EventPage({
               {event.name}
             </h1>
             <p className="text-sm text-muted-foreground">
+              {formatDateRange(event.start_date, event.end_date) && (
+                <>
+                  {formatDateRange(event.start_date, event.end_date)}
+                  {" · "}
+                </>
+              )}
               {count ?? 0} {count === 1 ? "attendee" : "attendees"}
               {(count ?? 0) > 0 && (
                 <span className="text-muted-foreground">
@@ -71,7 +91,12 @@ export default async function EventPage({
             >
               <ScanLine className="h-4 w-4" /> Open scanner
             </Link>
-            <EventActions id={event.id} name={event.name} />
+            <EventActions
+              id={event.id}
+              name={event.name}
+              startDate={event.start_date ?? null}
+              endDate={event.end_date ?? null}
+            />
           </div>
         </div>
       </div>
