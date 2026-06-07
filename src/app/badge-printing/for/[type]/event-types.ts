@@ -158,7 +158,7 @@ export const EVENT_TYPES: Record<string, EventType> = {
       },
       {
         q: "Can I use Badge Scan for recurring events?",
-        a: "Yes. Duplicate the previous event in your dashboard, re-import the new attendee list, and the design carries over.",
+        a: "Yes. Create a new event for each edition and re-import that edition's attendee CSV. Re-using last year's badge design takes a minute — copy the colours and re-upload the logo.",
       },
     ],
   },
