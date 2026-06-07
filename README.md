@@ -1,5 +1,7 @@
 # Badge Scan
 
+**Live demo:** [badge-scan.vercel.app](https://badge-scan.vercel.app)
+
 A small SaaS for event check-in. Sign in, create events, upload a CSV of attendees with a column-mapping step, and validate barcodes at the door with an external scanner.
 
 ## Tech
