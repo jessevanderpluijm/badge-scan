@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ScanLine } from "lucide-react";
+import { type Locale, dict, localePath } from "@/lib/i18n";
 
 const PARTNER_LINKS = [
   { slug: "weticket", name: "WeTicket" },
@@ -8,13 +9,14 @@ const PARTNER_LINKS = [
   { slug: "momice", name: "Momice" },
 ];
 
-const EVENT_TYPE_LINKS = [
-  { slug: "trade-shows", name: "trade shows" },
-  { slug: "conferences", name: "conferences" },
-  { slug: "events", name: "events" },
+const EVENT_TYPE_LINKS: { slug: string; name: Record<Locale, string> }[] = [
+  { slug: "trade-shows", name: { en: "trade shows", nl: "beurzen" } },
+  { slug: "conferences", name: { en: "conferences", nl: "conferenties" } },
+  { slug: "events", name: { en: "events", nl: "evenementen" } },
 ];
 
-export function MarketingFooter() {
+export function MarketingFooter({ locale = "en" }: { locale?: Locale }) {
+  const t = dict[locale].footer;
   return (
     <footer className="border-t">
       <div className="container py-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -25,24 +27,21 @@ export function MarketingFooter() {
             </div>
             <span className="text-sm font-semibold">Badge Scan</span>
           </div>
-          <p className="text-xs text-muted-foreground max-w-xs">
-            Print conference and event badges on demand. Bring any ticket
-            platform.
-          </p>
+          <p className="text-xs text-muted-foreground max-w-xs">{t.tagline}</p>
         </div>
 
         <div className="space-y-3">
           <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Integrations
+            {t.integrations}
           </h4>
           <ul className="space-y-2 text-sm">
             {PARTNER_LINKS.map((p) => (
               <li key={p.slug}>
                 <Link
-                  href={`/badge-printing/${p.slug}`}
+                  href={localePath(locale, `/badge-printing/${p.slug}`)}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Badge printing for {p.name}
+                  {t.badgePrintingFor(p.name)}
                 </Link>
               </li>
             ))}
@@ -51,16 +50,16 @@ export function MarketingFooter() {
 
         <div className="space-y-3">
           <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Use cases
+            {t.useCases}
           </h4>
           <ul className="space-y-2 text-sm">
-            {EVENT_TYPE_LINKS.map((t) => (
-              <li key={t.slug}>
+            {EVENT_TYPE_LINKS.map((e) => (
+              <li key={e.slug}>
                 <Link
-                  href={`/badge-printing/for/${t.slug}`}
+                  href={localePath(locale, `/badge-printing/for/${e.slug}`)}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Badge printing for {t.name}
+                  {t.badgePrintingFor(e.name[locale])}
                 </Link>
               </li>
             ))}
@@ -69,7 +68,7 @@ export function MarketingFooter() {
 
         <div className="space-y-3">
           <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Product
+            {t.product}
           </h4>
           <ul className="space-y-2 text-sm">
             <li>
@@ -77,15 +76,15 @@ export function MarketingFooter() {
                 href="/login"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                Sign in
+                {t.signIn}
               </Link>
             </li>
             <li>
               <Link
-                href="/demo"
+                href={localePath(locale, "/demo")}
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                Book a demo
+                {t.bookDemo}
               </Link>
             </li>
           </ul>
@@ -93,8 +92,8 @@ export function MarketingFooter() {
       </div>
       <div className="border-t">
         <div className="container py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} Badge Scan</p>
-          <p>Made for conference and event organizers.</p>
+          <p>© {new Date().getFullYear()} {t.copyright}</p>
+          <p>{t.madeFor}</p>
         </div>
       </div>
     </footer>

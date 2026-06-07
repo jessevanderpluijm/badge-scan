@@ -16,6 +16,7 @@ import { Reviews } from "@/components/marketing/reviews";
 import { AuthCtaButton } from "@/components/marketing/auth-cta";
 import { JsonLd } from "@/components/seo/json-ld";
 import { SITE_URL } from "@/lib/seo";
+import { localeAlternates } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: {
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
   },
   description:
     "The easiest way to print name badges for conferences, trade shows and networking events. Upload your attendee list, design beautiful badges in minutes, and print on demand at the door.",
-  alternates: { canonical: "/" },
+  alternates: localeAlternates("en", "/"),
   openGraph: {
     title: "Badge Scan — Print event & conference badges on demand",
     description:
@@ -70,13 +71,13 @@ export default function MarketingPage() {
           ],
         }}
       />
-      <MarketingNav />
+      <MarketingNav locale="en" />
       <Hero />
       <TicketingPartners />
       <Features />
-      <Reviews />
-      <FinalCta />
-      <MarketingFooter />
+      <Reviews locale="en" />
+      <FinalCta locale="en" />
+      <MarketingFooter locale="en" />
     </div>
   );
 }
@@ -100,7 +101,7 @@ function Hero() {
             Epson ColorWorks C4000.
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <AuthCtaButton loggedOutLabel="Book a demo" />
+            <AuthCtaButton locale="en" loggedOutLabel="Book a demo" />
             <a
               href="#how-it-works"
               className={buttonVariants({ variant: "outline", size: "lg" })}
