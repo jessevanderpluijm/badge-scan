@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { type Locale, dict, localePath } from "@/lib/i18n";
 
 // Reads auth state on the client so the surrounding page can stay statically
 // rendered. Defaults to the logged-out CTA (correct for most marketing
@@ -25,13 +26,14 @@ function useLoggedIn() {
   return loggedIn;
 }
 
-export function NavAuthButtons() {
+export function NavAuthButtons({ locale = "en" }: { locale?: Locale }) {
   const loggedIn = useLoggedIn();
+  const t = dict[locale].nav;
 
   if (loggedIn) {
     return (
       <Link href="/events" className={buttonVariants()}>
-        Open dashboard <ArrowRight className="h-4 w-4" />
+        {t.openDashboard} <ArrowRight className="h-4 w-4" />
       </Link>
     );
   }
@@ -39,36 +41,40 @@ export function NavAuthButtons() {
   return (
     <>
       <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
-        Sign in
+        {t.signIn}
       </Link>
-      <Link href="/demo" className={buttonVariants()}>
-        Book a demo
+      <Link href={localePath(locale, "/demo")} className={buttonVariants()}>
+        {t.bookDemo}
       </Link>
     </>
   );
 }
 
 export function AuthCtaButton({
+  locale = "en",
   loggedOutLabel,
-  loggedInLabel = "Open dashboard",
+  loggedInLabel,
   variant,
 }: {
-  loggedOutLabel: string;
+  locale?: Locale;
+  loggedOutLabel?: string;
   loggedInLabel?: string;
   variant?: "secondary";
 }) {
   const loggedIn = useLoggedIn();
+  const t = dict[locale].nav;
+  const outLabel = loggedOutLabel ?? t.bookDemo;
+  const inLabel = loggedInLabel ?? t.openDashboard;
 
   return (
     <Link
-      href={loggedIn ? "/events" : "/demo"}
+      href={loggedIn ? "/events" : localePath(locale, "/demo")}
       className={cn(
         buttonVariants({ size: "lg", variant }),
         variant === "secondary" && "font-semibold",
       )}
     >
-      {loggedIn ? loggedInLabel : loggedOutLabel}{" "}
-      <ArrowRight className="h-4 w-4" />
+      {loggedIn ? inLabel : outLabel} <ArrowRight className="h-4 w-4" />
     </Link>
   );
 }

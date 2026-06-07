@@ -45,15 +45,8 @@ export async function updateSession(request: NextRequest) {
     pathname === "/opengraph-image" ||
     pathname === "/twitter-image" ||
     pathname === "/icon.svg";
-  // Server-to-server webhooks have their own auth (shared secret); the
-  // session middleware would otherwise redirect Supabase's webhook to /login.
-  const isWebhook = pathname.startsWith("/api/");
   const isPublic =
-    isAuthPage ||
-    isMarketing ||
-    isCrawlerFile ||
-    isWebhook ||
-    pathname.startsWith("/auth");
+    isAuthPage || isMarketing || isCrawlerFile || pathname.startsWith("/auth");
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

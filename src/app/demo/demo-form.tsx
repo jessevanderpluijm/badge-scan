@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { submitDemoRequest } from "./actions";
 
 type FormState = {
   name: string;
@@ -25,7 +25,6 @@ const EMPTY: FormState = {
 };
 
 export function DemoForm() {
-  const supabase = createClient();
   const [form, setForm] = useState<FormState>(EMPTY);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,22 +41,17 @@ export function DemoForm() {
     setError(null);
     setLoading(true);
 
-    const { error } = await supabase.from("demo_requests").insert({
+    const result = await submitDemoRequest({
       name: form.name,
       email: form.email,
-      company: form.company || null,
-      expected_attendees: form.attendees ? Number(form.attendees) : null,
-      message: form.message || null,
+      company: form.company,
+      expectedAttendees: form.attendees,
+      message: form.message,
     });
 
     setLoading(false);
-    if (error) {
-      // Surface the real Supabase error to the user (and the console) so
-      // misconfigurations like a missing table or RLS policy are obvious.
-      console.error("demo_requests insert failed:", error);
-      const detail =
-        error.message || error.hint || error.code || "Unknown error";
-      setError(`Couldn't submit your request: ${detail}`);
+    if (!result.ok) {
+      setError(result.error);
       return;
     }
     setDone(true);
