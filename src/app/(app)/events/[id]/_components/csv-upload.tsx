@@ -81,8 +81,8 @@ export function CsvUpload({
   });
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{
-    inserted: number;
-    skipped: number;
+    imported: number;
+    updated: number;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -175,27 +175,49 @@ export function CsvUpload({
       return;
     }
 
-    let inserted = 0;
+    // Look up which barcodes already exist so we can report imported vs updated.
+    // Querying first is one extra round-trip but keeps the message honest.
+    const allBarcodes = records.map((r) => r.barcode);
+    const existingBarcodes = new Set<string>();
+    const existingChunkSize = 1000;
+    for (let i = 0; i < allBarcodes.length; i += existingChunkSize) {
+      const chunk = allBarcodes.slice(i, i + existingChunkSize);
+      const { data: existing, error: existingError } = await supabase
+        .from("attendees")
+        .select("barcode")
+        .eq("event_id", eventId)
+        .in("barcode", chunk);
+      if (existingError) {
+        setError(existingError.message);
+        setImporting(false);
+        return;
+      }
+      for (const row of existing ?? []) existingBarcodes.add(row.barcode);
+    }
+
     const chunkSize = 500;
     for (let i = 0; i < records.length; i += chunkSize) {
       const chunk = records.slice(i, i + chunkSize);
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("attendees")
+        // ignoreDuplicates: false makes this update existing rows. We
+        // deliberately don't include used_at in the records, so check-in
+        // state survives a re-upload of a refreshed attendee export.
         .upsert(chunk, {
           onConflict: "event_id,barcode",
-          ignoreDuplicates: true,
-        })
-        .select("id");
+          ignoreDuplicates: false,
+        });
       if (error) {
         setError(error.message);
         setImporting(false);
         return;
       }
-      inserted += data?.length ?? 0;
     }
 
+    const updated = records.filter((r) => existingBarcodes.has(r.barcode)).length;
+    const imported = records.length - updated;
     setImporting(false);
-    setResult({ inserted, skipped: records.length - inserted });
+    setResult({ imported, updated });
     router.refresh();
   }
 
@@ -308,10 +330,22 @@ export function CsvUpload({
           <div className="flex items-center gap-2 text-sm bg-success/10 text-success rounded-md px-3 py-2">
             <CheckCircle2 className="h-4 w-4" />
             <span>
-              Imported {result.inserted}{" "}
-              {result.inserted === 1 ? "attendee" : "attendees"}
-              {result.skipped > 0 &&
-                ` · ${result.skipped} skipped (already in event)`}
+              {result.imported > 0 && (
+                <>
+                  Imported {result.imported}{" "}
+                  {result.imported === 1 ? "attendee" : "attendees"}
+                </>
+              )}
+              {result.imported > 0 && result.updated > 0 && " · "}
+              {result.updated > 0 && (
+                <>
+                  Updated {result.updated}{" "}
+                  {result.updated === 1
+                    ? "existing attendee"
+                    : "existing attendees"}{" "}
+                  (check-ins kept)
+                </>
+              )}
             </span>
           </div>
         )}
