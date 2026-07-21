@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -180,6 +180,7 @@ export default function NewEventPage() {
               {error && <p className="text-sm text-destructive">{error}</p>}
               <div className="flex justify-end">
                 <Button type="submit" disabled={loading || !name.trim()}>
+                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                   {loading ? "Creating…" : "Continue"}
                 </Button>
               </div>

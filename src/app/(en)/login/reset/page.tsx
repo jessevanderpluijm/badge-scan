@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,6 +110,7 @@ export default function ResetPasswordPage() {
               className="w-full"
               disabled={!ready || loading}
             >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? "Saving…" : "Set new password"}
             </Button>
 
