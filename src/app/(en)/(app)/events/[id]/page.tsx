@@ -9,10 +9,20 @@ import { UploadCsvDialog } from "./_components/upload-csv-dialog";
 import { EventActions } from "./_components/event-actions";
 import { AttendeeCheckinToggle } from "./_components/attendee-checkin-toggle";
 import { AttendeeRowActions } from "./_components/attendee-row-actions";
+import { AddAttendeeDialog } from "./_components/add-attendee-dialog";
+import { AttendeeSearch } from "./_components/attendee-search";
 
 const PAGE_SIZE = 50;
 
 export const dynamic = "force-dynamic";
+
+function pageHref(eventId: string, page: number, q: string): string {
+  const params = new URLSearchParams();
+  if (page > 1) params.set("page", String(page));
+  if (q) params.set("q", q);
+  const qs = params.toString();
+  return `/events/${eventId}${qs ? `?${qs}` : ""}`;
+}
 
 // Format an optional start/end date pair from the events table into a short
 // human label, e.g. "12 Aug 2026", "12 – 14 Aug 2026" or null when neither is set.
@@ -33,10 +43,10 @@ export default async function EventPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 }) {
   const { id } = await params;
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, q: qParam } = await searchParams;
   const supabase = await createClient();
 
   const { data: event } = await supabase
@@ -53,13 +63,34 @@ export default async function EventPage({
   const from = (requestedPage - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  const { data: attendees, count } = await supabase
+  const searchQuery = (qParam ?? "").trim();
+
+  let attendeesQuery = supabase
     .from("attendees")
     .select(
       "id, first_name, last_name, email, company, job_title, barcode, used_at",
       { count: "exact" },
     )
-    .eq("event_id", id)
+    .eq("event_id", id);
+
+  if (searchQuery) {
+    // Escape PostgREST reserved characters in the search term so a comma or
+    // parenthesis can't break out of the .or() filter list.
+    const safe = searchQuery.replace(/[,()]/g, " ");
+    const like = `%${safe}%`;
+    attendeesQuery = attendeesQuery.or(
+      [
+        `first_name.ilike.${like}`,
+        `last_name.ilike.${like}`,
+        `email.ilike.${like}`,
+        `company.ilike.${like}`,
+        `job_title.ilike.${like}`,
+        `barcode.ilike.${like}`,
+      ].join(","),
+    );
+  }
+
+  const { data: attendees, count } = await attendeesQuery
     .order("created_at", { ascending: false })
     .range(from, to);
 
@@ -105,6 +136,7 @@ export default async function EventPage({
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <UploadCsvDialog eventId={event.id} />
+            <AddAttendeeDialog eventId={event.id} />
             <Link
               href={`/events/${event.id}/scan`}
               className={buttonVariants()}
@@ -139,18 +171,41 @@ export default async function EventPage({
       </div>
 
       <Card>
-        <div className="p-6 border-b flex items-center justify-between gap-3 flex-wrap">
-          <h2 className="font-semibold">Attendees</h2>
-          {total > 0 && (
-            <p className="text-xs text-muted-foreground">
-              Showing {firstShown}–{lastShown} of {total}
-            </p>
-          )}
+        <div className="p-4 sm:p-6 border-b flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="font-semibold">Attendees</h2>
+            {total > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Showing {firstShown}–{lastShown} of {total}
+                {searchQuery && (
+                  <>
+                    {" · matching "}
+                    <span className="font-medium text-foreground">
+                      &ldquo;{searchQuery}&rdquo;
+                    </span>
+                  </>
+                )}
+              </p>
+            )}
+          </div>
+          <AttendeeSearch initialQuery={searchQuery} />
         </div>
         {!attendees || attendees.length === 0 ? (
           <div className="p-12 text-center text-sm text-muted-foreground">
-            No attendees yet. Click <strong>Upload CSV</strong> above to add
-            some.
+            {searchQuery ? (
+              <>
+                No attendees match{" "}
+                <span className="font-medium text-foreground">
+                  &ldquo;{searchQuery}&rdquo;
+                </span>
+                .
+              </>
+            ) : (
+              <>
+                No attendees yet. Click <strong>Upload CSV</strong> or{" "}
+                <strong>Add manually</strong> above to add some.
+              </>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -239,7 +294,7 @@ export default async function EventPage({
                 </span>
                 <div className="flex items-center gap-1">
                   <Link
-                    href={`/events/${event.id}?page=${page - 1}`}
+                    href={pageHref(event.id, page - 1, searchQuery)}
                     aria-disabled={page <= 1}
                     tabIndex={page <= 1 ? -1 : undefined}
                     className={cn(
@@ -250,7 +305,7 @@ export default async function EventPage({
                     <ChevronLeft className="h-4 w-4" /> Prev
                   </Link>
                   <Link
-                    href={`/events/${event.id}?page=${page + 1}`}
+                    href={pageHref(event.id, page + 1, searchQuery)}
                     aria-disabled={page >= totalPages}
                     tabIndex={page >= totalPages ? -1 : undefined}
                     className={cn(
