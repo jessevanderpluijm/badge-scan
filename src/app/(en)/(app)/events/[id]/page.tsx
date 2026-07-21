@@ -49,14 +49,6 @@ export default async function EventPage({
   const { page: pageParam, q: qParam } = await searchParams;
   const supabase = await createClient();
 
-  const { data: event } = await supabase
-    .from("events")
-    .select("id, name, created_at, start_date, end_date")
-    .eq("id", id)
-    .single();
-
-  if (!event) notFound();
-
   // Parse + clamp page from the URL. We don't know the total count yet, so
   // we clamp again after the count query.
   const requestedPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
@@ -90,22 +82,32 @@ export default async function EventPage({
     );
   }
 
-  const { data: attendees, count } = await attendeesQuery
-    .order("created_at", { ascending: false })
-    .range(from, to);
+  // The three queries are independent (all keyed on the event id, and RLS
+  // yields zero attendee rows for foreign events anyway) — run them in
+  // parallel instead of paying three sequential DB round trips.
+  const [
+    { data: event },
+    { data: attendees, count },
+    { count: usedCount },
+  ] = await Promise.all([
+    supabase
+      .from("events")
+      .select("id, name, created_at, start_date, end_date")
+      .eq("id", id)
+      .single(),
+    attendeesQuery.order("created_at", { ascending: false }).range(from, to),
+    supabase
+      .from("attendees")
+      .select("id", { count: "exact", head: true })
+      .eq("event_id", id)
+      .not("used_at", "is", null),
+  ]);
+
+  if (!event) notFound();
 
   const total = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const page = Math.min(requestedPage, totalPages);
-
-  // Stats cards (Checked in / Remaining) should reflect the whole event,
-  // not just the page that's currently in view. A separate head-only count
-  // query is cheap and avoids loading every row.
-  const { count: usedCount } = await supabase
-    .from("attendees")
-    .select("id", { count: "exact", head: true })
-    .eq("event_id", id)
-    .not("used_at", "is", null);
   const checkedIn = usedCount ?? 0;
   const firstShown = total === 0 ? 0 : from + 1;
   const lastShown = Math.min(to + 1, total);
