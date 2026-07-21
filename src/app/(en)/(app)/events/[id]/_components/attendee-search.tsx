@@ -37,7 +37,7 @@ export function AttendeeSearch({ initialQuery }: { initialQuery: string }) {
         type="search"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search name, email, company, barcode…"
+        placeholder="Search"
         className="pl-8 pr-8 h-9"
       />
       {value && (
