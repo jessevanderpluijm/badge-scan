@@ -124,50 +124,48 @@ export function BadgePreview({
   const dims = BADGE_DIMENSIONS_MM[design.type];
   const pageW = dims.pageWidth * PX_PER_MM;
   const pageH = dims.pageHeight * PX_PER_MM;
+  const multiPage = dims.pages.length > 1;
 
   return (
-    <div
-      className="relative overflow-hidden shadow-lg rounded-sm"
-      style={{
-        width: `${pageW}px`,
-        height: `${pageH}px`,
-        backgroundColor: design.background_color,
-      }}
-    >
-      {dims.panels.map((panel, i) => (
-        <div
-          key={i}
-          className="absolute"
-          style={{
-            left: `${panel.xMm * PX_PER_MM}px`,
-            // PDF panel offsets are bottom-up; CSS positions top-down.
-            top: `${(dims.pageHeight - panel.yMm - dims.panelHeight) * PX_PER_MM}px`,
-            transform: panel.rotated ? "rotate(180deg)" : undefined,
-          }}
-        >
-          <Panel
-            design={design}
-            attendee={attendee}
-            widthMm={dims.panelWidth}
-            heightMm={dims.panelHeight}
-          />
+    <div className="flex flex-wrap items-start justify-center gap-4">
+      {dims.pages.map((pagePanels, pageIdx) => (
+        <div key={pageIdx} className="space-y-1.5">
+          {multiPage && (
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
+              {pageIdx === 0 ? "Front" : "Back"}
+            </p>
+          )}
+          <div
+            className="relative overflow-hidden shadow-lg rounded-sm"
+            style={{
+              width: `${pageW}px`,
+              height: `${pageH}px`,
+              backgroundColor: design.background_color,
+            }}
+          >
+            {pagePanels.map((panel, i) => (
+              <div
+                key={i}
+                className="absolute"
+                style={{
+                  left: `${panel.xMm * PX_PER_MM}px`,
+                  // PDF panel offsets are bottom-up; CSS positions top-down.
+                  top: `${(dims.pageHeight - panel.yMm - dims.panelHeight) * PX_PER_MM}px`,
+                  transform: panel.rotated ? "rotate(180deg)" : undefined,
+                }}
+              >
+                <Panel
+                  design={design}
+                  attendee={attendee}
+                  widthMm={dims.panelWidth}
+                  heightMm={dims.panelHeight}
+                />
+              </div>
+            ))}
+
+          </div>
         </div>
       ))}
-
-      {dims.fold === "vertical" && (
-        <div
-          className="absolute inset-y-0 left-1/2 border-l border-dashed pointer-events-none"
-          style={{ borderColor: "rgba(0,0,0,0.25)" }}
-          aria-hidden
-        />
-      )}
-      {dims.fold === "horizontal" && (
-        <div
-          className="absolute inset-x-0 top-1/2 border-t border-dashed pointer-events-none"
-          style={{ borderColor: "rgba(0,0,0,0.25)" }}
-          aria-hidden
-        />
-      )}
     </div>
   );
 }

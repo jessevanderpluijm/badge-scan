@@ -7,7 +7,6 @@ import {
   Trash2,
   Loader2,
   Download,
-  Check,
   AlertCircle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -23,7 +22,6 @@ import {
   type AttendeeForBadge,
   type BadgeDesign,
   type BadgeField,
-  type BadgeType,
 } from "@/lib/badge";
 import { cn } from "@/lib/utils";
 import { BadgePreview } from "./badge-preview";
@@ -209,48 +207,8 @@ export function BadgeDesigner({
     <div className="grid gap-6 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
       <div className="space-y-4">
         <Card className="p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-semibold">1. Badge type</h2>
-              <p className="text-xs text-muted-foreground">
-                Determines the print dimensions.
-              </p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {(Object.keys(BADGE_DIMENSIONS_MM) as BadgeType[]).map((t) => {
-              const dims = BADGE_DIMENSIONS_MM[t];
-              const selected = design.type === t;
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => update("type", t)}
-                  className={cn(
-                    "border rounded-lg p-3 text-left transition-colors",
-                    selected
-                      ? "border-foreground bg-muted/40"
-                      : "border-input hover:bg-muted/30",
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{dims.name}</span>
-                    {selected && (
-                      <Check className="h-4 w-4 text-foreground" />
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {dims.pageWidth} × {dims.pageHeight} mm
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-        </Card>
-
-        <Card className="p-5 space-y-4">
           <div>
-            <h2 className="font-semibold">2. Branding</h2>
+            <h2 className="font-semibold">1. Branding</h2>
             <p className="text-xs text-muted-foreground">
               Logo, colors, and optional background.
             </p>
@@ -414,7 +372,7 @@ export function BadgeDesigner({
 
         <Card className="p-5 space-y-4">
           <div>
-            <h2 className="font-semibold">3. Fields</h2>
+            <h2 className="font-semibold">2. Fields</h2>
             <p className="text-xs text-muted-foreground">
               Which attendee data to show on the badge.
             </p>
