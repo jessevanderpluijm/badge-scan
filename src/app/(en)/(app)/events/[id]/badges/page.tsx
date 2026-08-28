@@ -52,6 +52,9 @@ export default async function BadgesPage({
   const design: BadgeDesign = {
     ...DEFAULT_DESIGN,
     ...stored,
+    // Older designs may still carry retired types ("butterfly", "rectangle")
+    // or fields; coerce everything onto the one supported badge product.
+    type: DEFAULT_DESIGN.type,
     fields: (stored.fields ?? DEFAULT_DESIGN.fields).filter((f): f is BadgeField =>
       ALL_FIELDS.includes(f as BadgeField),
     ),

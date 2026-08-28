@@ -20,7 +20,11 @@ async function fetchFontBytes(url: string): Promise<Uint8Array> {
   return new Uint8Array(buf);
 }
 
-export type BadgeType = "butterfly" | "butterfly260t" | "rectangle";
+// The platform currently supports exactly one badge product: the ExpoBadge
+// 260T that our reference setup (Epson ColorWorks C4000e) prints on. Keep
+// the union so re-adding formats later is a type-level change, but don't
+// offer choices we can't support in production.
+export type BadgeType = "butterfly260t";
 export type BadgeField =
   | "first_name"
   | "last_name"
@@ -37,13 +41,17 @@ export type BadgeDesign = {
   fields: BadgeField[];
 };
 
-// A panel is one copy of the design on the printed sheet. Offsets are from
+// A panel is one copy of the design on a printed page. Offsets are from
 // the bottom-left of the page (PDF coordinate space). `rotated` panels are
-// printed upside-down: on a horizontal-fold butterfly the bottom half becomes
-// the badge's back, and only a 180°-rotated print reads upright once the
-// badge is folded and flipped on its lanyard.
+// printed upside-down: a badge half that becomes the back face after
+// folding only reads upright on the lanyard when its print is rotated 180°.
 export type BadgePanel = { xMm: number; yMm: number; rotated: boolean };
 
+// A badge can span multiple printed pages. The ExpoBadge 260T is one badge
+// per TWO labels: the printer sees two ~134 mm die-cut labels, the organizer
+// folds them at the middle perforation and the self-adhesive backs stick
+// together into one rigid double-sided badge. Page 1 = front (upright),
+// page 2 = back (rotated 180° so it reads upright on the lanyard).
 export const BADGE_DIMENSIONS_MM: Record<
   BadgeType,
   {
@@ -52,48 +60,22 @@ export const BADGE_DIMENSIONS_MM: Record<
     pageHeight: number;
     panelWidth: number;
     panelHeight: number;
-    panels: BadgePanel[];
-    fold: "vertical" | "horizontal" | null;
+    pages: BadgePanel[][];
     label: string;
   }
 > = {
-  butterfly: {
-    name: "Butterfly 260TS",
-    pageWidth: 96,
-    pageHeight: 82,
-    panelWidth: 48,
-    panelHeight: 82,
-    panels: [
-      { xMm: 0, yMm: 0, rotated: false },
-      { xMm: 48, yMm: 0, rotated: false },
-    ],
-    fold: "vertical",
-    label: "Butterfly 96 × 82 mm (ExpoBadge 260TS · 2 × 48 mm panels)",
-  },
   butterfly260t: {
     name: "Butterfly 260T",
     pageWidth: 96.5,
     pageHeight: 134,
     panelWidth: 96.5,
-    panelHeight: 67,
-    // Top half (yMm 67) is the front; bottom half is the back and prints
-    // 180°-rotated so it reads upright after the horizontal fold.
-    panels: [
-      { xMm: 0, yMm: 67, rotated: false },
-      { xMm: 0, yMm: 0, rotated: true },
+    panelHeight: 134,
+    pages: [
+      [{ xMm: 0, yMm: 0, rotated: false }],
+      [{ xMm: 0, yMm: 0, rotated: true }],
     ],
-    fold: "horizontal",
-    label: "Butterfly 96,5 × 134 mm (ExpoBadge 260T · 2 × 67 mm panels)",
-  },
-  rectangle: {
-    name: "Rectangle",
-    pageWidth: 90,
-    pageHeight: 55,
-    panelWidth: 90,
-    panelHeight: 55,
-    panels: [{ xMm: 0, yMm: 0, rotated: false }],
-    fold: null,
-    label: "Rectangle 90 × 55 mm",
+    label:
+      "Butterfly 96,5 × 134 mm (ExpoBadge 260T · front + back on 2 labels)",
   },
 };
 
@@ -114,7 +96,7 @@ export const ALL_FIELDS: BadgeField[] = [
 ];
 
 export const DEFAULT_DESIGN: BadgeDesign = {
-  type: "butterfly",
+  type: "butterfly260t",
   background_color: "#FFFFFF",
   text_color: "#0F172A",
   logo: null,
@@ -359,49 +341,51 @@ export async function generateBadgePdf(
   const logo = design.logo ? await embedDataUrl(pdf, design.logo) : null;
 
   for (const attendee of attendees) {
-    const page = pdf.addPage([pageW, pageH]);
+    for (const pagePanels of dims.pages) {
+      const page = pdf.addPage([pageW, pageH]);
 
-    page.drawRectangle({
-      x: 0,
-      y: 0,
-      width: pageW,
-      height: pageH,
-      color: rgb(bg.r, bg.g, bg.b),
-    });
-
-    for (const panel of dims.panels) {
-      const panelX = mmToPt(panel.xMm);
-      const panelY = mmToPt(panel.yMm);
-
-      if (panel.rotated) {
-        // Rotate this panel 180° about its own centre by concatenating a
-        // (-1, 0, 0, -1, 2cx, 2cy) matrix onto the CTM, so drawPanel can
-        // keep drawing in normal upright coordinates.
-        const cx = panelX + panelW / 2;
-        const cy = panelY + panelH / 2;
-        page.pushOperators(
-          pushGraphicsState(),
-          concatTransformationMatrix(-1, 0, 0, -1, 2 * cx, 2 * cy),
-        );
-      }
-
-      drawPanel({
-        page,
-        panelX,
-        panelY,
-        panelW,
-        panelH,
-        attendee,
-        design,
-        bgImage,
-        logo,
-        fg,
-        regularFont,
-        boldFont,
+      page.drawRectangle({
+        x: 0,
+        y: 0,
+        width: pageW,
+        height: pageH,
+        color: rgb(bg.r, bg.g, bg.b),
       });
 
-      if (panel.rotated) {
-        page.pushOperators(popGraphicsState());
+      for (const panel of pagePanels) {
+        const panelX = mmToPt(panel.xMm);
+        const panelY = mmToPt(panel.yMm);
+
+        if (panel.rotated) {
+          // Rotate this panel 180° about its own centre by concatenating a
+          // (-1, 0, 0, -1, 2cx, 2cy) matrix onto the CTM, so drawPanel can
+          // keep drawing in normal upright coordinates.
+          const cx = panelX + panelW / 2;
+          const cy = panelY + panelH / 2;
+          page.pushOperators(
+            pushGraphicsState(),
+            concatTransformationMatrix(-1, 0, 0, -1, 2 * cx, 2 * cy),
+          );
+        }
+
+        drawPanel({
+          page,
+          panelX,
+          panelY,
+          panelW,
+          panelH,
+          attendee,
+          design,
+          bgImage,
+          logo,
+          fg,
+          regularFont,
+          boldFont,
+        });
+
+        if (panel.rotated) {
+          page.pushOperators(popGraphicsState());
+        }
       }
     }
   }
