@@ -14,14 +14,18 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { normalizeBadgeDesign, type BadgeDesign } from "@/lib/badge";
+import { checkPrintAgent, printBadge } from "@/lib/print-agent";
 
 export function AttendeeCheckinToggle({
   id,
+  eventId,
   name,
   barcode,
   usedAt,
 }: {
   id: string;
+  eventId: string;
   name: string | null;
   barcode: string;
   usedAt: string | null;
@@ -35,6 +39,33 @@ export function AttendeeCheckinToggle({
   const isCheckedIn = !!usedAt;
   const displayName = name || barcode;
 
+  // Best effort: when the local print agent runs on this machine, a manual
+  // check-in also prints the badge. Without an agent nothing happens — the
+  // check-in itself never depends on the printer.
+  async function printAfterCheckin() {
+    if (!(await checkPrintAgent())) return;
+    const [{ data: attendee }, { data: event }] = await Promise.all([
+      supabase
+        .from("attendees")
+        .select("first_name, last_name, email, company, job_title, barcode")
+        .eq("id", id)
+        .single(),
+      supabase
+        .from("events")
+        .select("badge_design")
+        .eq("id", eventId)
+        .single(),
+    ]);
+    if (!attendee) return;
+    const design = normalizeBadgeDesign(
+      (event?.badge_design ?? null) as Partial<BadgeDesign> | null,
+    );
+    const result = await printBadge(design, attendee);
+    if (!result.ok) {
+      console.warn("Badge print na check-in mislukt:", result.error);
+    }
+  }
+
   async function confirm() {
     setError(null);
     setBusy(true);
@@ -46,6 +77,9 @@ export function AttendeeCheckinToggle({
     if (error) return setError(error.message);
     setOpen(false);
     router.refresh();
+    if (!isCheckedIn) {
+      void printAfterCheckin();
+    }
   }
 
   return (

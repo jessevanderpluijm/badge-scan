@@ -104,6 +104,22 @@ export const DEFAULT_DESIGN: BadgeDesign = {
   fields: ["first_name", "last_name", "company", "job_title"],
 };
 
+// Stored designs can predate the current badge model (retired types, removed
+// fields). Every consumer of events.badge_design should run it through this.
+export function normalizeBadgeDesign(
+  stored: Partial<BadgeDesign> | null | undefined,
+): BadgeDesign {
+  const s = stored ?? {};
+  return {
+    ...DEFAULT_DESIGN,
+    ...s,
+    type: DEFAULT_DESIGN.type,
+    fields: (s.fields ?? DEFAULT_DESIGN.fields).filter(
+      (f): f is BadgeField => ALL_FIELDS.includes(f as BadgeField),
+    ),
+  };
+}
+
 export type AttendeeForBadge = {
   first_name: string | null;
   last_name: string | null;

@@ -246,6 +246,7 @@ export default async function EventPage({
                       <td className="py-2 px-4">
                         <AttendeeCheckinToggle
                           id={a.id}
+                          eventId={event.id}
                           name={fullName}
                           barcode={a.barcode}
                           usedAt={a.used_at}

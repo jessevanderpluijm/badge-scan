@@ -2,12 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import {
-  ALL_FIELDS,
-  DEFAULT_DESIGN,
-  type BadgeDesign,
-  type BadgeField,
-} from "@/lib/badge";
+import { normalizeBadgeDesign, type BadgeDesign } from "@/lib/badge";
 import { BadgeDesigner } from "./_components/badge-designer";
 
 export const dynamic = "force-dynamic";
@@ -48,17 +43,9 @@ export default async function BadgesPage({
     .limit(1)
     .maybeSingle();
 
-  const stored = (event.badge_design as Partial<BadgeDesign>) ?? {};
-  const design: BadgeDesign = {
-    ...DEFAULT_DESIGN,
-    ...stored,
-    // Older designs may still carry retired types ("butterfly", "rectangle")
-    // or fields; coerce everything onto the one supported badge product.
-    type: DEFAULT_DESIGN.type,
-    fields: (stored.fields ?? DEFAULT_DESIGN.fields).filter((f): f is BadgeField =>
-      ALL_FIELDS.includes(f as BadgeField),
-    ),
-  };
+  const design = normalizeBadgeDesign(
+    event.badge_design as Partial<BadgeDesign> | null,
+  );
 
   return (
     <div className="space-y-6">
