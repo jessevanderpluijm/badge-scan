@@ -14,7 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type BadgeDesign, type AttendeeForBadge } from "@/lib/badge";
-import { checkPrintAgent, printBadge } from "@/lib/print-agent";
+import { printBadge } from "@/lib/print-agent";
+import {
+  PrinterControls,
+  useAutoPrint,
+  usePrinterOnline,
+} from "@/components/printer-controls";
 
 type Status = "idle" | "valid" | "used" | "invalid";
 
@@ -66,38 +71,11 @@ export function Scanner({
   });
   const [busy, setBusy] = useState(false);
 
-  // Printer agent status + auto-print preference. Preference persists per
-  // browser; printing silently skips when the agent isn't reachable.
-  const [agentOnline, setAgentOnline] = useState<boolean | null>(null);
-  const [autoPrint, setAutoPrint] = useState(true);
+  // Shared printer status + auto-print preference (same control lives on
+  // the attendee list page; localStorage keeps them in sync).
+  const agentOnline = usePrinterOnline();
+  const [autoPrint] = useAutoPrint();
   const [printState, setPrintState] = useState<PrintState>({ state: "idle" });
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("badgescan-autoprint");
-      if (saved !== null) setAutoPrint(saved === "1");
-    } catch {}
-    let active = true;
-    const ping = async () => {
-      const ok = await checkPrintAgent();
-      if (active) setAgentOnline(ok);
-    };
-    ping();
-    const timer = setInterval(ping, 15000);
-    return () => {
-      active = false;
-      clearInterval(timer);
-    };
-  }, []);
-
-  function toggleAutoPrint() {
-    setAutoPrint((v) => {
-      try {
-        localStorage.setItem("badgescan-autoprint", v ? "0" : "1");
-      } catch {}
-      return !v;
-    });
-  }
 
   async function printFor(attendee: AttendeeForBadge) {
     setPrintState({ state: "printing" });
@@ -106,7 +84,6 @@ export function Scanner({
       setPrintState({ state: "done", jobId: result.jobId });
     } else {
       setPrintState({ state: "error", message: result.error });
-      setAgentOnline(await checkPrintAgent());
     }
   }
 
@@ -244,7 +221,7 @@ export function Scanner({
 
     // Fire the badge print after the check-in result is already on screen —
     // the queue keeps moving even if the printer is slow or offline.
-    if (autoPrint && agentOnline) {
+    if (autoPrint) {
       void printFor(existing);
     }
   }
@@ -374,7 +351,7 @@ export function Scanner({
                     {printState.message}
                   </span>
                 )}
-                {agentOnline && printState.state !== "printing" && (
+                {printState.state !== "printing" && (
                   <Button
                     type="button"
                     variant="secondary"
@@ -408,6 +385,7 @@ export function Scanner({
       </div>
 
       <div className="border-t bg-background px-4 sm:px-8 py-4">
+        <PrinterControls className="max-w-2xl mx-auto mb-3" />
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -438,36 +416,6 @@ export function Scanner({
               <XCircle className="h-3.5 w-3.5 text-destructive" />
               <span>{stats.invalid} invalid</span>
             </span>
-
-            <span className="mx-1 h-3 w-px bg-border" aria-hidden />
-
-            {agentOnline === null ? (
-              <span className="inline-flex items-center gap-1.5">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Printer
-                zoeken…
-              </span>
-            ) : agentOnline ? (
-              <button
-                type="button"
-                onClick={toggleAutoPrint}
-                className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
-                title="Klik om automatisch printen aan/uit te zetten"
-              >
-                <Printer className="h-3.5 w-3.5 text-success" />
-                <span>
-                  Printer verbonden ·{" "}
-                  {autoPrint ? "print automatisch" : "automatisch printen uit"}
-                </span>
-              </button>
-            ) : (
-              <span
-                className="inline-flex items-center gap-1.5"
-                title="Start de printerkoppeling op deze laptop (Badge Printer-icoon of npm run print-agent). Inchecken werkt gewoon door."
-              >
-                <Printer className="h-3.5 w-3.5" />
-                <span>Geen printer — alleen inchecken</span>
-              </span>
-            )}
           </div>
         </form>
 

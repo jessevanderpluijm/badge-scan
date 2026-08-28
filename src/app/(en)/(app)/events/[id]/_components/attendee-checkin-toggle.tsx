@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { normalizeBadgeDesign, type BadgeDesign } from "@/lib/badge";
 import { checkPrintAgent, printBadge } from "@/lib/print-agent";
+import { readAutoPrint } from "@/components/printer-controls";
 
 export function AttendeeCheckinToggle({
   id,
@@ -43,6 +44,7 @@ export function AttendeeCheckinToggle({
   // check-in also prints the badge. Without an agent nothing happens — the
   // check-in itself never depends on the printer.
   async function printAfterCheckin() {
+    if (!readAutoPrint()) return;
     if (!(await checkPrintAgent())) return;
     const [{ data: attendee }, { data: event }] = await Promise.all([
       supabase
