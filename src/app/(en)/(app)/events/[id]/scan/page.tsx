@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { normalizeBadgeDesign, type BadgeDesign } from "@/lib/badge";
 import { Scanner } from "./_components/scanner";
 
 export const dynamic = "force-dynamic";
@@ -15,10 +16,14 @@ export default async function ScanPage({
   const supabase = await createClient();
   const { data: event } = await supabase
     .from("events")
-    .select("id, name")
+    .select("id, name, badge_design")
     .eq("id", id)
     .single();
   if (!event) notFound();
+
+  const design = normalizeBadgeDesign(
+    event.badge_design as Partial<BadgeDesign> | null,
+  );
 
   return (
     <div className="-my-8 -mx-4 sm:-mx-8 min-h-[calc(100vh-3.5rem)] flex flex-col">
@@ -30,7 +35,7 @@ export default async function ScanPage({
           <ArrowLeft className="h-4 w-4" /> {event.name}
         </Link>
       </div>
-      <Scanner eventId={event.id} eventName={event.name} />
+      <Scanner eventId={event.id} eventName={event.name} design={design} />
     </div>
   );
 }

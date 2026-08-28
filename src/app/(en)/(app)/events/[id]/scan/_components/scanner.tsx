@@ -1,12 +1,28 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, XCircle, AlertTriangle, ScanLine } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  ScanLine,
+  Printer,
+  Loader2,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { type BadgeDesign, type AttendeeForBadge } from "@/lib/badge";
+import { checkPrintAgent, printBadge } from "@/lib/print-agent";
 
 type Status = "idle" | "valid" | "used" | "invalid";
+
+type PrintState =
+  | { state: "idle" }
+  | { state: "printing" }
+  | { state: "done"; jobId: string }
+  | { state: "error"; message: string };
 
 type Attendee = {
   id: string;
@@ -32,9 +48,11 @@ type Stats = { checkedIn: number; invalid: number; duplicate: number };
 export function Scanner({
   eventId,
   eventName,
+  design,
 }: {
   eventId: string;
   eventName: string;
+  design: BadgeDesign;
 }) {
   const supabase = createClient();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,6 +65,50 @@ export function Scanner({
     duplicate: 0,
   });
   const [busy, setBusy] = useState(false);
+
+  // Printer agent status + auto-print preference. Preference persists per
+  // browser; printing silently skips when the agent isn't reachable.
+  const [agentOnline, setAgentOnline] = useState<boolean | null>(null);
+  const [autoPrint, setAutoPrint] = useState(true);
+  const [printState, setPrintState] = useState<PrintState>({ state: "idle" });
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("badgescan-autoprint");
+      if (saved !== null) setAutoPrint(saved === "1");
+    } catch {}
+    let active = true;
+    const ping = async () => {
+      const ok = await checkPrintAgent();
+      if (active) setAgentOnline(ok);
+    };
+    ping();
+    const timer = setInterval(ping, 15000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, []);
+
+  function toggleAutoPrint() {
+    setAutoPrint((v) => {
+      try {
+        localStorage.setItem("badgescan-autoprint", v ? "0" : "1");
+      } catch {}
+      return !v;
+    });
+  }
+
+  async function printFor(attendee: AttendeeForBadge) {
+    setPrintState({ state: "printing" });
+    const result = await printBadge(design, attendee);
+    if (result.ok) {
+      setPrintState({ state: "done", jobId: result.jobId });
+    } else {
+      setPrintState({ state: "error", message: result.error });
+      setAgentOnline(await checkPrintAgent());
+    }
+  }
 
   // Auto-focus the input so the hardware scanner lands here, and re-claim
   // focus when it slips to the body — but stay out of the way of dialogs,
@@ -179,11 +241,18 @@ export function Scanner({
     });
     setStats((s) => ({ ...s, checkedIn: s.checkedIn + 1 }));
     setBusy(false);
+
+    // Fire the badge print after the check-in result is already on screen —
+    // the queue keeps moving even if the printer is slow or offline.
+    if (autoPrint && agentOnline) {
+      void printFor(existing);
+    }
   }
 
   function pushResult(r: ScanResult) {
     setCurrent(r);
     setHistory((h) => [r, ...h].slice(0, 20));
+    setPrintState({ state: "idle" });
   }
 
   const palette = {
@@ -285,6 +354,45 @@ export function Scanner({
             </p>
           )}
 
+          {(current?.status === "valid" || current?.status === "used") &&
+            current.attendee && (
+              <div className="mt-5 flex flex-col items-center gap-2 text-sm">
+                {printState.state === "printing" && (
+                  <span className="inline-flex items-center gap-2 opacity-90">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Badge wordt
+                    geprint…
+                  </span>
+                )}
+                {printState.state === "done" && (
+                  <span className="inline-flex items-center gap-2 opacity-90">
+                    <Printer className="h-4 w-4" /> Badge naar de printer ✓
+                  </span>
+                )}
+                {printState.state === "error" && (
+                  <span className="inline-flex items-center gap-2 opacity-90">
+                    <AlertTriangle className="h-4 w-4" /> Badge niet geprint:{" "}
+                    {printState.message}
+                  </span>
+                )}
+                {agentOnline && printState.state !== "printing" && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="bg-white/20 hover:bg-white/30 text-inherit"
+                    onClick={() =>
+                      current.attendee && printFor(current.attendee)
+                    }
+                  >
+                    <Printer className="h-4 w-4" />
+                    {printState.state === "done" || current.status === "used"
+                      ? "Print badge opnieuw"
+                      : "Print badge"}
+                  </Button>
+                )}
+              </div>
+            )}
+
           {current && (
             <p className="mt-6 text-xs font-mono opacity-70 break-all">
               {current.barcode}
@@ -317,7 +425,7 @@ export function Scanner({
             spellCheck={false}
             disabled={busy}
           />
-          <div className="mt-3 flex items-center justify-center gap-4 text-xs text-muted-foreground">
+          <div className="mt-3 flex items-center justify-center gap-4 text-xs text-muted-foreground flex-wrap">
             <span className="inline-flex items-center gap-1.5">
               <CheckCircle2 className="h-3.5 w-3.5 text-success" />
               <span>{stats.checkedIn} valid</span>
@@ -330,6 +438,36 @@ export function Scanner({
               <XCircle className="h-3.5 w-3.5 text-destructive" />
               <span>{stats.invalid} invalid</span>
             </span>
+
+            <span className="mx-1 h-3 w-px bg-border" aria-hidden />
+
+            {agentOnline === null ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Printer
+                zoeken…
+              </span>
+            ) : agentOnline ? (
+              <button
+                type="button"
+                onClick={toggleAutoPrint}
+                className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
+                title="Klik om automatisch printen aan/uit te zetten"
+              >
+                <Printer className="h-3.5 w-3.5 text-success" />
+                <span>
+                  Printer verbonden ·{" "}
+                  {autoPrint ? "print automatisch" : "automatisch printen uit"}
+                </span>
+              </button>
+            ) : (
+              <span
+                className="inline-flex items-center gap-1.5"
+                title="Start de printerkoppeling op deze laptop (Badge Printer-icoon of npm run print-agent). Inchecken werkt gewoon door."
+              >
+                <Printer className="h-3.5 w-3.5" />
+                <span>Geen printer — alleen inchecken</span>
+              </span>
+            )}
           </div>
         </form>
 
