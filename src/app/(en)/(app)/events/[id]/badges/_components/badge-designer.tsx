@@ -67,6 +67,7 @@ export function BadgeDesigner({
   const supabase = createClient();
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bgInputRef = useRef<HTMLInputElement>(null);
+  const backInputRef = useRef<HTMLInputElement>(null);
 
   const [design, setDesign] = useState<BadgeDesign>(initialDesign);
   const [saving, setSaving] = useState(false);
@@ -101,7 +102,7 @@ export function BadgeDesigner({
 
   async function onUploadImage(
     file: File,
-    target: "logo" | "background_image",
+    target: "logo" | "background_image" | "back_image",
   ) {
     setImageError(null);
     if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
@@ -401,6 +402,91 @@ export function BadgeDesigner({
               );
             })}
           </div>
+        </Card>
+
+        <Card className="p-5 space-y-4">
+          <div>
+            <h2 className="font-semibold">3. Back side</h2>
+            <p className="text-xs text-muted-foreground">
+              The badge is double-sided after folding.
+            </p>
+          </div>
+
+          <label
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-md border cursor-pointer transition-colors",
+              design.back_same
+                ? "border-foreground/30 bg-muted/40"
+                : "border-input hover:bg-muted/20",
+            )}
+          >
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-input"
+              checked={design.back_same}
+              onChange={() => update("back_same", !design.back_same)}
+            />
+            <span className="text-sm">Back is the same as the front</span>
+          </label>
+
+          {!design.back_same && (
+            <div className="space-y-2">
+              <Label>Back image</Label>
+              <div className="flex items-center gap-2">
+                {design.back_image ? (
+                  <>
+                    <img
+                      src={design.back_image}
+                      alt=""
+                      className="h-14 w-10 object-cover border rounded"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => backInputRef.current?.click()}
+                    >
+                      Replace
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => update("back_image", null)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => backInputRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload back image
+                  </Button>
+                )}
+                <input
+                  ref={backInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) onUploadImage(f, "back_image");
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                A static image printed on every badge back — e.g. the day's
+                programme, a floor plan, or the wifi code. Portrait works
+                best (96 × 133 mm).
+              </p>
+            </div>
+          )}
         </Card>
 
         <div className="space-y-2">

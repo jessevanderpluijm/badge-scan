@@ -51,7 +51,7 @@ er opent een venster dat je gewoon open laat staan tijdens het event.
 
 - Agent: `scripts/print-agent.mjs` — Node, geen dependencies, luistert
   uitsluitend op `127.0.0.1:9123` (niet bereikbaar van buitenaf).
-- Print via CUPS: `lp -d EPSON_CW_C4000e -o media=Custom.96x133.4mm`.
+- Print via CUPS: `lp -d EPSON_CW_C4000e -o media=Custom.96x271.3mm` (één pagina = één badge van 2 labels).
 - Andere printer/queue? Zet env vars `PRINTER` en `MEDIA`.
 - Verwijderen: `bash scripts/install-print-agent.sh --uninstall`
 - Printerconfiguratie (media, knippen, formaat): zie het projectgeheugen of

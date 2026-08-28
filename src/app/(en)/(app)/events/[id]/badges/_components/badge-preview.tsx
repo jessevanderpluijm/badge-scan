@@ -1,5 +1,6 @@
 "use client";
 
+import { ImageIcon } from "lucide-react";
 import {
   BADGE_DIMENSIONS_MM,
   type AttendeeForBadge,
@@ -17,19 +18,19 @@ function fieldValue(attendee: AttendeeForBadge, f: BadgeField) {
   return attendee.email ?? "";
 }
 
-function Panel({
+// One badge face as the wearer sees it (print rotation is a physical
+// concern of the strip layout, not of this on-screen preview).
+function FrontFace({
   design,
   attendee,
-  widthMm,
-  heightMm,
+  w,
+  h,
 }: {
   design: BadgeDesign;
   attendee: AttendeeForBadge;
-  widthMm: number;
-  heightMm: number;
+  w: number;
+  h: number;
 }) {
-  const w = widthMm * PX_PER_MM;
-  const h = heightMm * PX_PER_MM;
   const padding = 4 * PX_PER_MM;
 
   const primaryFields = design.fields.filter(
@@ -38,7 +39,6 @@ function Panel({
   const secondaryFields = design.fields.filter(
     (f) => f !== "first_name" && f !== "last_name",
   );
-
   const primaryText = primaryFields
     .map((f) => fieldValue(attendee, f))
     .filter(Boolean)
@@ -46,10 +46,11 @@ function Panel({
 
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative overflow-hidden shadow-lg rounded-sm"
       style={{
         width: `${w}px`,
         height: `${h}px`,
+        backgroundColor: design.background_color,
         color: design.text_color,
       }}
     >
@@ -63,12 +64,7 @@ function Panel({
 
       <div
         className="relative h-full flex flex-col items-center text-center"
-        style={{
-          paddingTop: `${padding}px`,
-          paddingBottom: `${padding}px`,
-          paddingLeft: `${padding}px`,
-          paddingRight: `${padding}px`,
-        }}
+        style={{ padding: `${padding}px` }}
       >
         {design.logo && (
           <img
@@ -83,7 +79,7 @@ function Panel({
           />
         )}
 
-        <div className="flex-1 flex flex-col items-center justify-center min-h-0 w-full">
+        <div className="flex flex-col items-center w-full">
           {primaryText && (
             <div
               className="font-bold leading-tight break-words w-full"
@@ -114,6 +110,42 @@ function Panel({
   );
 }
 
+function BackFace({
+  design,
+  w,
+  h,
+}: {
+  design: BadgeDesign;
+  w: number;
+  h: number;
+}) {
+  return (
+    <div
+      className="relative overflow-hidden shadow-lg rounded-sm"
+      style={{
+        width: `${w}px`,
+        height: `${h}px`,
+        backgroundColor: design.background_color,
+      }}
+    >
+      {design.back_image ? (
+        <img
+          src={design.back_image}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground">
+          <ImageIcon className="h-8 w-8 opacity-40" />
+          <p className="text-xs px-6 text-center">
+            No back image yet — upload one, or the back stays blank.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function BadgePreview({
   design,
   attendee,
@@ -122,50 +154,35 @@ export function BadgePreview({
   attendee: AttendeeForBadge;
 }) {
   const dims = BADGE_DIMENSIONS_MM[design.type];
-  const pageW = dims.pageWidth * PX_PER_MM;
-  const pageH = dims.pageHeight * PX_PER_MM;
-  const multiPage = dims.pages.length > 1;
+  const w = dims.panelWidth * PX_PER_MM;
+  const h = dims.panelHeight * PX_PER_MM;
+
+  if (design.back_same) {
+    // Front and back are identical — one preview says it all.
+    return (
+      <div className="space-y-1.5">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
+          Front &amp; back
+        </p>
+        <FrontFace design={design} attendee={attendee} w={w} h={h} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-wrap items-start justify-center gap-4">
-      {dims.pages.map((pagePanels, pageIdx) => (
-        <div key={pageIdx} className="space-y-1.5">
-          {multiPage && (
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
-              {pageIdx === 0 ? "Front" : "Back"}
-            </p>
-          )}
-          <div
-            className="relative overflow-hidden shadow-lg rounded-sm"
-            style={{
-              width: `${pageW}px`,
-              height: `${pageH}px`,
-              backgroundColor: design.background_color,
-            }}
-          >
-            {pagePanels.map((panel, i) => (
-              <div
-                key={i}
-                className="absolute"
-                style={{
-                  left: `${panel.xMm * PX_PER_MM}px`,
-                  // PDF panel offsets are bottom-up; CSS positions top-down.
-                  top: `${(dims.pageHeight - panel.yMm - dims.panelHeight) * PX_PER_MM}px`,
-                  transform: panel.rotated ? "rotate(180deg)" : undefined,
-                }}
-              >
-                <Panel
-                  design={design}
-                  attendee={attendee}
-                  widthMm={dims.panelWidth}
-                  heightMm={dims.panelHeight}
-                />
-              </div>
-            ))}
-
-          </div>
-        </div>
-      ))}
+      <div className="space-y-1.5">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
+          Front
+        </p>
+        <FrontFace design={design} attendee={attendee} w={w} h={h} />
+      </div>
+      <div className="space-y-1.5">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
+          Back
+        </p>
+        <BackFace design={design} w={w} h={h} />
+      </div>
     </div>
   );
 }
