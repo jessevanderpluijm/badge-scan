@@ -234,9 +234,7 @@ export function BadgeDesigner({
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium capitalize">
-                      {t}
-                    </span>
+                    <span className="text-sm font-medium">{dims.name}</span>
                     {selected && (
                       <Check className="h-4 w-4 text-foreground" />
                     )}

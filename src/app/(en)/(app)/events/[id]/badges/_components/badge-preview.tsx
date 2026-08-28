@@ -127,26 +127,43 @@ export function BadgePreview({
 
   return (
     <div
-      className="relative overflow-hidden shadow-lg rounded-sm flex"
+      className="relative overflow-hidden shadow-lg rounded-sm"
       style={{
         width: `${pageW}px`,
         height: `${pageH}px`,
         backgroundColor: design.background_color,
       }}
     >
-      {dims.panelOffsetsX.map((offset, i) => (
-        <Panel
+      {dims.panels.map((panel, i) => (
+        <div
           key={i}
-          design={design}
-          attendee={attendee}
-          widthMm={dims.panelWidth}
-          heightMm={dims.panelHeight}
-        />
+          className="absolute"
+          style={{
+            left: `${panel.xMm * PX_PER_MM}px`,
+            // PDF panel offsets are bottom-up; CSS positions top-down.
+            top: `${(dims.pageHeight - panel.yMm - dims.panelHeight) * PX_PER_MM}px`,
+            transform: panel.rotated ? "rotate(180deg)" : undefined,
+          }}
+        >
+          <Panel
+            design={design}
+            attendee={attendee}
+            widthMm={dims.panelWidth}
+            heightMm={dims.panelHeight}
+          />
+        </div>
       ))}
 
-      {design.type === "butterfly" && (
+      {dims.fold === "vertical" && (
         <div
           className="absolute inset-y-0 left-1/2 border-l border-dashed pointer-events-none"
+          style={{ borderColor: "rgba(0,0,0,0.25)" }}
+          aria-hidden
+        />
+      )}
+      {dims.fold === "horizontal" && (
+        <div
+          className="absolute inset-x-0 top-1/2 border-t border-dashed pointer-events-none"
           style={{ borderColor: "rgba(0,0,0,0.25)" }}
           aria-hidden
         />

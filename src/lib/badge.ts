@@ -1,4 +1,11 @@
-import { PDFDocument, rgb, type PDFFont } from "pdf-lib";
+import {
+  PDFDocument,
+  rgb,
+  pushGraphicsState,
+  popGraphicsState,
+  concatTransformationMatrix,
+  type PDFFont,
+} from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 
 // Inter ships in public/fonts and gets fetched + embedded into each badge
@@ -13,7 +20,7 @@ async function fetchFontBytes(url: string): Promise<Uint8Array> {
   return new Uint8Array(buf);
 }
 
-export type BadgeType = "butterfly" | "rectangle";
+export type BadgeType = "butterfly" | "butterfly260t" | "rectangle";
 export type BadgeField =
   | "first_name"
   | "last_name"
@@ -30,31 +37,62 @@ export type BadgeDesign = {
   fields: BadgeField[];
 };
 
+// A panel is one copy of the design on the printed sheet. Offsets are from
+// the bottom-left of the page (PDF coordinate space). `rotated` panels are
+// printed upside-down: on a horizontal-fold butterfly the bottom half becomes
+// the badge's back, and only a 180°-rotated print reads upright once the
+// badge is folded and flipped on its lanyard.
+export type BadgePanel = { xMm: number; yMm: number; rotated: boolean };
+
 export const BADGE_DIMENSIONS_MM: Record<
   BadgeType,
   {
+    name: string;
     pageWidth: number;
     pageHeight: number;
     panelWidth: number;
     panelHeight: number;
-    panelOffsetsX: number[];
+    panels: BadgePanel[];
+    fold: "vertical" | "horizontal" | null;
     label: string;
   }
 > = {
   butterfly: {
+    name: "Butterfly 260TS",
     pageWidth: 96,
     pageHeight: 82,
     panelWidth: 48,
     panelHeight: 82,
-    panelOffsetsX: [0, 48],
-    label: "Butterfly 96 × 82 mm (2 × 48 mm panels)",
+    panels: [
+      { xMm: 0, yMm: 0, rotated: false },
+      { xMm: 48, yMm: 0, rotated: false },
+    ],
+    fold: "vertical",
+    label: "Butterfly 96 × 82 mm (ExpoBadge 260TS · 2 × 48 mm panels)",
+  },
+  butterfly260t: {
+    name: "Butterfly 260T",
+    pageWidth: 96.5,
+    pageHeight: 134,
+    panelWidth: 96.5,
+    panelHeight: 67,
+    // Top half (yMm 67) is the front; bottom half is the back and prints
+    // 180°-rotated so it reads upright after the horizontal fold.
+    panels: [
+      { xMm: 0, yMm: 67, rotated: false },
+      { xMm: 0, yMm: 0, rotated: true },
+    ],
+    fold: "horizontal",
+    label: "Butterfly 96,5 × 134 mm (ExpoBadge 260T · 2 × 67 mm panels)",
   },
   rectangle: {
+    name: "Rectangle",
     pageWidth: 90,
     pageHeight: 55,
     panelWidth: 90,
     panelHeight: 55,
-    panelOffsetsX: [0],
+    panels: [{ xMm: 0, yMm: 0, rotated: false }],
+    fold: null,
     label: "Rectangle 90 × 55 mm",
   },
 };
@@ -170,6 +208,7 @@ type EmbeddedImage = NonNullable<Awaited<ReturnType<typeof embedDataUrl>>>;
 function drawPanel(opts: {
   page: ReturnType<PDFDocument["addPage"]>;
   panelX: number;
+  panelY: number;
   panelW: number;
   panelH: number;
   attendee: AttendeeForBadge;
@@ -183,6 +222,7 @@ function drawPanel(opts: {
   const {
     page,
     panelX,
+    panelY,
     panelW,
     panelH,
     attendee,
@@ -204,17 +244,17 @@ function drawPanel(opts: {
       h = panelH;
       w = panelH * ratio;
       x = panelX + (panelW - w) / 2;
-      y = 0;
+      y = panelY;
     } else {
       w = panelW;
       h = panelW / ratio;
       x = panelX;
-      y = (panelH - h) / 2;
+      y = panelY + (panelH - h) / 2;
     }
     page.drawImage(bgImage.image, { x, y, width: w, height: h });
   }
 
-  let cursorY = panelH - padding;
+  let cursorY = panelY + panelH - padding;
 
   if (logo) {
     const maxLogoH = mmToPt(14);
@@ -277,7 +317,7 @@ function drawPanel(opts: {
     if (!text) continue;
     const fontSize = mmToPt(3.5);
     drawY -= fontSize;
-    if (drawY < padding) break;
+    if (drawY < panelY + padding) break;
     drawCenteredText({
       page,
       text,
@@ -329,10 +369,26 @@ export async function generateBadgePdf(
       color: rgb(bg.r, bg.g, bg.b),
     });
 
-    for (const offsetMm of dims.panelOffsetsX) {
+    for (const panel of dims.panels) {
+      const panelX = mmToPt(panel.xMm);
+      const panelY = mmToPt(panel.yMm);
+
+      if (panel.rotated) {
+        // Rotate this panel 180° about its own centre by concatenating a
+        // (-1, 0, 0, -1, 2cx, 2cy) matrix onto the CTM, so drawPanel can
+        // keep drawing in normal upright coordinates.
+        const cx = panelX + panelW / 2;
+        const cy = panelY + panelH / 2;
+        page.pushOperators(
+          pushGraphicsState(),
+          concatTransformationMatrix(-1, 0, 0, -1, 2 * cx, 2 * cy),
+        );
+      }
+
       drawPanel({
         page,
-        panelX: mmToPt(offsetMm),
+        panelX,
+        panelY,
         panelW,
         panelH,
         attendee,
@@ -343,6 +399,10 @@ export async function generateBadgePdf(
         regularFont,
         boldFont,
       });
+
+      if (panel.rotated) {
+        page.pushOperators(popGraphicsState());
+      }
     }
   }
 
