@@ -39,13 +39,22 @@ export type BadgeDesign = {
   logo: string | null;
   background_image: string | null;
   fields: BadgeField[];
+  // The badge back: identical to the front (default), or a static
+  // full-face image — handy for programme info, floor plans, wifi codes.
+  back_same: boolean;
+  back_image: string | null;
 };
 
 // A panel is one copy of the design on a printed page. Offsets are from
 // the bottom-left of the page (PDF coordinate space). `rotated` panels are
 // printed upside-down: a badge half that becomes the back face after
 // folding only reads upright on the lanyard when its print is rotated 180°.
-export type BadgePanel = { xMm: number; yMm: number; rotated: boolean };
+export type BadgePanel = {
+  xMm: number;
+  yMm: number;
+  rotated: boolean;
+  face: "front" | "back";
+};
 
 // A badge can span multiple printed pages. The ExpoBadge 260T is one badge
 // per TWO labels: the printer sees two ~134 mm die-cut labels, the organizer
@@ -66,13 +75,28 @@ export const BADGE_DIMENSIONS_MM: Record<
 > = {
   butterfly260t: {
     name: "Butterfly 260T",
-    pageWidth: 96.5,
-    pageHeight: 134,
-    panelWidth: 96.5,
-    panelHeight: 134,
+    // ONE page spans the whole 2-label badge (label 133.4 + gap 3.0 +
+    // label 133.4 + half the trailing gap so the cut lands mid-gap). The
+    // C4000e inserts a blank label between separate pages of a job, so
+    // front and back must live on a single continuous page.
+    pageWidth: 96,
+    pageHeight: 271.3,
+    panelWidth: 96,
+    panelHeight: 133.4,
+    // Per DCP's layout (confirmed against a hand-annotated badge): the
+    // front face has its name at the SLOT end, the back face at the FOLD
+    // end, both in the SAME reading direction — you read the back by
+    // flipping the hanging badge UP, not by spinning it around. On the
+    // flat strip that makes both labels carry an identical print: name at
+    // each label's leading edge. The C4000 lays a page down with its top
+    // at the trailing edge, hence two identical 180°-rotated pages.
+    // Page bottom = leading edge. Label 1 occupies y 0–133.4, the gap
+    // 133.4–136.4, label 2 starts at 136.4. Same print on both labels.
     pages: [
-      [{ xMm: 0, yMm: 0, rotated: false }],
-      [{ xMm: 0, yMm: 0, rotated: true }],
+      [
+        { xMm: 0, yMm: 0, rotated: true, face: "front" },
+        { xMm: 0, yMm: 136.4, rotated: true, face: "back" },
+      ],
     ],
     label:
       "Butterfly 96,5 × 134 mm (ExpoBadge 260T · front + back on 2 labels)",
@@ -102,6 +126,8 @@ export const DEFAULT_DESIGN: BadgeDesign = {
   logo: null,
   background_image: null,
   fields: ["first_name", "last_name", "company", "job_title"],
+  back_same: true,
+  back_image: null,
 };
 
 // Stored designs can predate the current badge model (retired types, removed
@@ -117,6 +143,8 @@ export function normalizeBadgeDesign(
     fields: (s.fields ?? DEFAULT_DESIGN.fields).filter(
       (f): f is BadgeField => ALL_FIELDS.includes(f as BadgeField),
     ),
+    back_same: s.back_same ?? true,
+    back_image: s.back_image ?? null,
   };
 }
 
@@ -355,6 +383,34 @@ export async function generateBadgePdf(
     ? await embedDataUrl(pdf, design.background_image)
     : null;
   const logo = design.logo ? await embedDataUrl(pdf, design.logo) : null;
+  const backImage =
+    !design.back_same && design.back_image
+      ? await embedDataUrl(pdf, design.back_image)
+      : null;
+
+  // Draw an image covering the full panel (like CSS object-fit: cover).
+  const drawCover = (
+    page: ReturnType<PDFDocument["addPage"]>,
+    img: EmbeddedImage,
+    x: number,
+    y: number,
+  ) => {
+    const ratio = img.image.width / img.image.height;
+    const panelRatio = panelW / panelH;
+    let w: number, h: number, dx: number, dy: number;
+    if (ratio > panelRatio) {
+      h = panelH;
+      w = panelH * ratio;
+      dx = x + (panelW - w) / 2;
+      dy = y;
+    } else {
+      w = panelW;
+      h = panelW / ratio;
+      dx = x;
+      dy = y + (panelH - h) / 2;
+    }
+    page.drawImage(img.image, { x: dx, y: dy, width: w, height: h });
+  };
 
   for (const attendee of attendees) {
     for (const pagePanels of dims.pages) {
@@ -384,20 +440,26 @@ export async function generateBadgePdf(
           );
         }
 
-        drawPanel({
-          page,
-          panelX,
-          panelY,
-          panelW,
-          panelH,
-          attendee,
-          design,
-          bgImage,
-          logo,
-          fg,
-          regularFont,
-          boldFont,
-        });
+        if (panel.face === "back" && !design.back_same) {
+          // Static back: just the uploaded image (or the plain background
+          // colour when none is set) — no attendee data.
+          if (backImage) drawCover(page, backImage, panelX, panelY);
+        } else {
+          drawPanel({
+            page,
+            panelX,
+            panelY,
+            panelW,
+            panelH,
+            attendee,
+            design,
+            bgImage,
+            logo,
+            fg,
+            regularFont,
+            boldFont,
+          });
+        }
 
         if (panel.rotated) {
           page.pushOperators(popGraphicsState());

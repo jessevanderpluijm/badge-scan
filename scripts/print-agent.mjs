@@ -12,7 +12,8 @@
 //
 // Configuration via env vars (defaults match Jesse's reference setup):
 //   PRINTER  CUPS queue name        (default: EPSON_CW_C4000e)
-//   MEDIA    CUPS media size        (default: Custom.96x133.4mm)
+//   MEDIA    CUPS media size        (default: Custom.96x271.3mm — one full
+//            2-label badge; the portal generates one page per badge)
 //   PORT     port to listen on      (default: 9123)
 //
 // Endpoints:
@@ -30,7 +31,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const PRINTER = process.env.PRINTER ?? "EPSON_CW_C4000e";
-const MEDIA = process.env.MEDIA ?? "Custom.96x133.4mm";
+const MEDIA = process.env.MEDIA ?? "Custom.96x271.3mm";
 const PORT = Number(process.env.PORT ?? 9123);
 
 const CORS = {
