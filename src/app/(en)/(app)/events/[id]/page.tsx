@@ -9,6 +9,7 @@ import { UploadCsvDialog } from "./_components/upload-csv-dialog";
 import { EventActions } from "./_components/event-actions";
 import { AttendeeCheckinToggle } from "./_components/attendee-checkin-toggle";
 import { AttendeeRowActions } from "./_components/attendee-row-actions";
+import { PrinterControls } from "@/components/printer-controls";
 import { AddAttendeeDialog } from "./_components/add-attendee-dialog";
 import { AttendeeSearch } from "./_components/attendee-search";
 
@@ -154,6 +155,8 @@ export default async function EventPage({
           </div>
         </div>
       </div>
+
+      <PrinterControls />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="p-5">
