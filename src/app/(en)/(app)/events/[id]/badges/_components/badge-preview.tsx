@@ -22,14 +22,20 @@ function holesMaskStyle(w: number, h: number): React.CSSProperties {
   const mm = PX_PER_MM;
   const slot = (x: number) =>
     `<rect x='${x * mm}' y='${7.5 * mm}' width='${14 * mm}' height='${3 * mm}' rx='${1.5 * mm}' fill='black'/>`;
+  // CSS masks use the ALPHA channel, so the holes must be genuinely
+  // transparent in the mask image — hence an inner SVG <mask> (white
+  // keeps, black cuts) applied to a white rect.
   const svg =
     `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>` +
+    `<mask id='m'>` +
     `<rect width='100%' height='100%' fill='white'/>` +
     slot(13) +
     slot(69) +
     // euro hook: narrow opening at the top edge widening into a slot
     `<rect x='${44 * mm}' y='0' width='${8 * mm}' height='${5.5 * mm}' fill='black'/>` +
     `<rect x='${40.5 * mm}' y='${4 * mm}' width='${15 * mm}' height='${3.5 * mm}' rx='${1.75 * mm}' fill='black'/>` +
+    `</mask>` +
+    `<rect width='100%' height='100%' fill='white' mask='url(#m)'/>` +
     `</svg>`;
   const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   return { WebkitMaskImage: url, maskImage: url };

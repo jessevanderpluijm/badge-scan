@@ -89,7 +89,6 @@ export function BadgeDesigner({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
-  const [sampling, setSampling] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
 
   const previewAttendee = sampleAttendee ?? SAMPLE_ATTENDEE;
@@ -217,18 +216,6 @@ export function BadgeDesigner({
       setGenError(e instanceof Error ? e.message : String(e));
     } finally {
       setGenerating(false);
-    }
-  }
-
-  async function onDownloadSample() {
-    setSampling(true);
-    setGenError(null);
-    try {
-      await downloadPdf([previewAttendee], `badge-sample-${safeEventName}.pdf`);
-    } catch (e) {
-      setGenError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setSampling(false);
     }
   }
 
@@ -648,24 +635,10 @@ export function BadgeDesigner({
               >
                 Skip for now
               </Button>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  onClick={onDownloadSample}
-                  disabled={sampling}
-                >
-                  {sampling ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="h-4 w-4" />
-                  )}
-                  {sampling ? "Generating…" : "Preview"}
-                </Button>
-                <Button onClick={onSaveAndFinish} disabled={saving}>
-                  {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {saving ? "Saving…" : "Save & finish"}
-                </Button>
-              </div>
+              <Button onClick={onSaveAndFinish} disabled={saving}>
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                {saving ? "Saving…" : "Save & finish"}
+              </Button>
             </div>
           ) : (
             <>
@@ -677,18 +650,6 @@ export function BadgeDesigner({
                     : savedAt && !isDirty
                       ? "Saved"
                       : "Save design"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={onDownloadSample}
-                  disabled={sampling}
-                >
-                  {sampling ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="h-4 w-4" />
-                  )}
-                  {sampling ? "Generating…" : "Download sample"}
                 </Button>
                 <Button
                   variant="outline"
@@ -707,8 +668,7 @@ export function BadgeDesigner({
               </div>
               {attendeeCount === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  Sample download works without attendees. Upload a CSV to
-                  enable the full batch.
+                  Upload a CSV to enable the full batch download.
                 </p>
               )}
             </>
