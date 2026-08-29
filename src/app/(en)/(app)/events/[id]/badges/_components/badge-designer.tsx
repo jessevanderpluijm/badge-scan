@@ -295,58 +295,6 @@ export function BadgeDesigner({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Background image (optional)</Label>
-            <div className="flex items-center gap-2">
-              {design.background_image ? (
-                <>
-                  <img
-                    src={design.background_image}
-                    alt=""
-                    className="h-10 w-16 object-cover border rounded"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => bgInputRef.current?.click()}
-                  >
-                    Replace
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => update("background_image", null)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => bgInputRef.current?.click()}
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload background
-                </Button>
-              )}
-              <input
-                ref={bgInputRef}
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) onUploadImage(f, "background_image");
-                  e.target.value = "";
-                }}
-              />
-            </div>
-          </div>
-
           {imageError && (
             <p className="text-sm text-destructive flex items-center gap-1.5">
               <AlertCircle className="h-4 w-4" /> {imageError}
@@ -369,9 +317,35 @@ export function BadgeDesigner({
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="bg-color">Background color</Label>
+          <div className="space-y-2">
+            <Label htmlFor="bg-color">Background</Label>
+            {design.background_image ? (
+              // An image replaces the colour entirely (the PDF paints the
+              // image over the colour), so show only one control at a time.
+              <div className="flex items-center gap-2">
+                <img
+                  src={design.background_image}
+                  alt=""
+                  className="h-10 w-16 object-cover border rounded"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => bgInputRef.current?.click()}
+                >
+                  Replace
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => update("background_image", null)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
               <div className="flex items-center gap-2">
                 <input
                   id="bg-color"
@@ -387,10 +361,33 @@ export function BadgeDesigner({
                   onChange={(e) =>
                     update("background_color", e.target.value.toUpperCase())
                   }
-                  className="font-mono uppercase"
+                  className="font-mono uppercase w-28"
                 />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => bgInputRef.current?.click()}
+                >
+                  <Upload className="h-4 w-4" />
+                  Use image
+                </Button>
               </div>
-            </div>
+            )}
+            <input
+              ref={bgInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) onUploadImage(f, "background_image");
+                e.target.value = "";
+              }}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="text-color">Text color</Label>
               <div className="flex items-center gap-2">
