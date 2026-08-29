@@ -20,15 +20,28 @@ export type PrintResult =
   | { ok: true; jobId: string }
   | { ok: false; error: string };
 
-export async function checkPrintAgent(): Promise<boolean> {
+// "ready"       → agent draait én de fysieke printer is bereikbaar
+// "printer-off" → agent draait, maar de printer staat uit / kabel los / vastgelopen
+// "no-agent"    → geen printerkoppeling op deze laptop
+export type PrinterStatus = "ready" | "printer-off" | "no-agent";
+
+export async function getPrinterStatus(): Promise<PrinterStatus> {
   try {
     const res = await fetch(`${AGENT_URL}/health`, {
       signal: AbortSignal.timeout(1500),
     });
-    return res.ok;
+    if (!res.ok) return "no-agent";
+    const body = (await res.json().catch(() => ({}))) as {
+      printerOnline?: boolean;
+    };
+    return body.printerOnline === false ? "printer-off" : "ready";
   } catch {
-    return false;
+    return "no-agent";
   }
+}
+
+export async function checkPrintAgent(): Promise<boolean> {
+  return (await getPrinterStatus()) === "ready";
 }
 
 export async function printBadge(

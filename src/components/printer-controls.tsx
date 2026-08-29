@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, Loader2, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { checkPrintAgent } from "@/lib/print-agent";
+import { getPrinterStatus, type PrinterStatus } from "@/lib/print-agent";
 
 // One shared auto-print preference for the whole browser: the scanner page,
 // the attendee list and the manual check-in dialog all read the same value.
@@ -42,13 +42,13 @@ export function useAutoPrint(): [boolean, () => void] {
   return [on, toggle];
 }
 
-export function usePrinterOnline(pollMs = 10000): boolean | null {
-  const [online, setOnline] = useState<boolean | null>(null);
+export function usePrinterStatus(pollMs = 10000): PrinterStatus | null {
+  const [status, setStatus] = useState<PrinterStatus | null>(null);
   useEffect(() => {
     let active = true;
     const ping = async () => {
-      const ok = await checkPrintAgent();
-      if (active) setOnline(ok);
+      const s = await getPrinterStatus();
+      if (active) setStatus(s);
     };
     ping();
     const timer = setInterval(ping, pollMs);
@@ -57,51 +57,57 @@ export function usePrinterOnline(pollMs = 10000): boolean | null {
       clearInterval(timer);
     };
   }, [pollMs]);
-  return online;
+  return status;
 }
 
 // Prominent printer status + auto-print switch. Green and calm when the
 // printer is reachable; loud when it isn't — the printer is essential at
 // the door, so a broken link should be impossible to miss.
 export function PrinterControls({ className }: { className?: string }) {
-  const online = usePrinterOnline();
+  const status = usePrinterStatus();
   const [autoPrint, toggleAutoPrint] = useAutoPrint();
 
   return (
     <div
       className={cn(
         "flex items-center justify-between gap-4 rounded-lg border px-4 py-2.5",
-        online === false
-          ? "border-destructive/60 bg-destructive/5"
-          : "bg-card",
+        status === "no-agent" && "border-destructive/60 bg-destructive/5",
+        status === "printer-off" && "border-warning/70 bg-warning/10",
+        (status === "ready" || status === null) && "bg-card",
         className,
       )}
     >
       <div className="flex items-center gap-3 min-w-0">
-        {online === null ? (
+        {status === null ? (
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground flex-shrink-0" />
-        ) : online ? (
+        ) : status === "ready" ? (
           <span className="relative flex-shrink-0">
             <Printer className="h-5 w-5 text-success" />
             <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-success" />
           </span>
+        ) : status === "printer-off" ? (
+          <Printer className="h-5 w-5 text-warning flex-shrink-0" />
         ) : (
           <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
         )}
         <div className="min-w-0 leading-tight">
           <p className="text-sm font-medium truncate">
-            {online === null
+            {status === null
               ? "Printer zoeken…"
-              : online
+              : status === "ready"
                 ? "Printer verbonden"
-                : "Printer niet verbonden"}
+                : status === "printer-off"
+                  ? "Printer uit of niet bereikbaar"
+                  : "Printerkoppeling niet actief"}
           </p>
           <p className="text-xs text-muted-foreground truncate">
-            {online === false
+            {status === "no-agent"
               ? "Check-in werkt door · start de printerkoppeling op deze laptop"
-              : autoPrint
-                ? "Badges printen automatisch bij check-in"
-                : "Automatisch printen staat uit"}
+              : status === "printer-off"
+                ? "Zet de printer aan — de koppeling draait"
+                : autoPrint
+                  ? "Badges printen automatisch bij check-in"
+                  : "Automatisch printen staat uit"}
           </p>
         </div>
       </div>
