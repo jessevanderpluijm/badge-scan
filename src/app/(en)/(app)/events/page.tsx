@@ -34,9 +34,6 @@ export default async function EventsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Events</h1>
-          <p className="text-sm text-muted-foreground">
-            Create an event, upload your attendee list, and scan at the door.
-          </p>
         </div>
         <Link href="/events/new" className={buttonVariants()}>
           <Plus className="h-4 w-4" /> New event

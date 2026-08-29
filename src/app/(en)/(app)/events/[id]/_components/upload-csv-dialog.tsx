@@ -25,8 +25,7 @@ export function UploadCsvDialog({ eventId }: { eventId: string }) {
         <DialogHeader>
           <DialogTitle>Upload attendees</DialogTitle>
           <DialogDescription>
-            Add attendees to this event from a CSV file. You'll map columns
-            after selecting the file.
+            Add attendees to this event from a CSV file.
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="pb-6">

@@ -8,6 +8,10 @@ import {
   Loader2,
   Download,
   AlertCircle,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  RotateCcw,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,11 +21,18 @@ import { Card } from "@/components/ui/card";
 import {
   ALL_FIELDS,
   BADGE_DIMENSIONS_MM,
+  BADGE_FONTS,
+  BLOCK_LABELS,
+  DEFAULT_LAYOUT,
   FIELD_LABELS,
   generateBadgePdf,
   type AttendeeForBadge,
+  type BadgeBlock,
   type BadgeDesign,
   type BadgeField,
+  type BadgeFontId,
+  type BadgeTextStyle,
+  type TextAlign,
 } from "@/lib/badge";
 import { cn } from "@/lib/utils";
 import { BadgePreview } from "./badge-preview";
@@ -70,6 +81,9 @@ export function BadgeDesigner({
   const backInputRef = useRef<HTMLInputElement>(null);
 
   const [design, setDesign] = useState<BadgeDesign>(initialDesign);
+  const [selectedBlock, setSelectedBlock] = useState<BadgeBlock | null>(
+    "name",
+  );
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -89,6 +103,20 @@ export function BadgeDesigner({
     setDesign((d) => ({ ...d, [key]: value }));
     setSavedAt(null);
   }
+
+  function updateBlock(block: BadgeBlock, patch: Partial<BadgeTextStyle>) {
+    setDesign((d) => ({
+      ...d,
+      layout: { ...d.layout, [block]: { ...d.layout[block], ...patch } },
+    }));
+    setSavedAt(null);
+  }
+
+  const blockVisible = (b: BadgeBlock) =>
+    b === "name"
+      ? design.fields.includes("first_name") ||
+        design.fields.includes("last_name")
+      : design.fields.includes(b);
 
   function toggleField(f: BadgeField) {
     setDesign((d) => ({
@@ -325,6 +353,22 @@ export function BadgeDesigner({
             </p>
           )}
 
+          <div className="space-y-2">
+            <Label htmlFor="badge-font">Font</Label>
+            <select
+              id="badge-font"
+              value={design.font}
+              onChange={(e) => update("font", e.target.value as BadgeFontId)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              {(Object.keys(BADGE_FONTS) as BadgeFontId[]).map((id) => (
+                <option key={id} value={id}>
+                  {BADGE_FONTS[id].label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="bg-color">Background color</Label>
@@ -406,7 +450,105 @@ export function BadgeDesigner({
 
         <Card className="p-5 space-y-4">
           <div>
-            <h2 className="font-semibold">3. Back side</h2>
+            <h2 className="font-semibold">3. Layout</h2>
+            <p className="text-xs text-muted-foreground">
+              Drag text on the preview to move it. Click a block to change
+              its size and alignment here.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5">
+            {(Object.keys(BLOCK_LABELS) as BadgeBlock[])
+              .filter(blockVisible)
+              .map((b) => (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => setSelectedBlock(b)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-md border text-xs transition-colors",
+                    selectedBlock === b
+                      ? "border-foreground/40 bg-muted font-medium"
+                      : "border-input hover:bg-muted/40",
+                  )}
+                >
+                  {BLOCK_LABELS[b]}
+                </button>
+              ))}
+          </div>
+
+          {selectedBlock && blockVisible(selectedBlock) && (
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="block-size">Text size</Label>
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    {design.layout[selectedBlock].sizeMm} mm
+                  </span>
+                </div>
+                <input
+                  id="block-size"
+                  type="range"
+                  min={2}
+                  max={16}
+                  step={0.5}
+                  value={design.layout[selectedBlock].sizeMm}
+                  onChange={(e) =>
+                    updateBlock(selectedBlock, {
+                      sizeMm: Number(e.target.value),
+                    })
+                  }
+                  className="w-full accent-foreground"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Alignment</Label>
+                <div className="flex gap-1">
+                  {(
+                    [
+                      ["left", AlignLeft],
+                      ["center", AlignCenter],
+                      ["right", AlignRight],
+                    ] as [TextAlign, typeof AlignLeft][]
+                  ).map(([a, Icon]) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => updateBlock(selectedBlock, { align: a })}
+                      className={cn(
+                        "flex h-9 w-9 items-center justify-center rounded-md border transition-colors",
+                        design.layout[selectedBlock].align === a
+                          ? "border-foreground/40 bg-muted"
+                          : "border-input hover:bg-muted/40",
+                      )}
+                      aria-label={`Align ${a}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setDesign((d) => ({ ...d, layout: DEFAULT_LAYOUT }));
+              setSavedAt(null);
+            }}
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset layout
+          </Button>
+        </Card>
+
+        <Card className="p-5 space-y-4">
+          <div>
+            <h2 className="font-semibold">4. Back side</h2>
             <p className="text-xs text-muted-foreground">
               The badge is double-sided after folding.
             </p>
@@ -592,7 +734,15 @@ export function BadgeDesigner({
               </div>
             </div>
             <div className="flex justify-center items-center min-h-[340px] rounded-md p-6 bg-[linear-gradient(45deg,#f1f5f9_25%,transparent_25%),linear-gradient(-45deg,#f1f5f9_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#f1f5f9_75%),linear-gradient(-45deg,transparent_75%,#f1f5f9_75%)] bg-[length:16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0px]">
-              <BadgePreview design={design} attendee={previewAttendee} />
+              <BadgePreview
+                design={design}
+                attendee={previewAttendee}
+                edit={{
+                  selectedBlock,
+                  onSelectBlock: setSelectedBlock,
+                  onMoveBlock: (b, yMm) => updateBlock(b, { yMm }),
+                }}
+              />
             </div>
             <p className="text-xs text-muted-foreground mt-4 text-center">
               Output: PDF, exact mm dimensions, one badge per page —

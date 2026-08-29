@@ -112,8 +112,7 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
           <DialogHeader>
             <DialogTitle>Add attendee</DialogTitle>
             <DialogDescription>
-              For walk-ins and last-minute additions. All fields except the
-              barcode are optional.
+              All fields except the barcode are optional.
             </DialogDescription>
           </DialogHeader>
           <DialogBody className="space-y-4">
