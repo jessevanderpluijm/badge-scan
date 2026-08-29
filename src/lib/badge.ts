@@ -263,19 +263,27 @@ function drawPanel(opts: {
   const padding = mmToPt(4);
 
   if (bgImage) {
+    // Cover the panel PLUS 3mm bleed on every side, so the background runs
+    // through the perforation zone between the two labels (and up to the
+    // physical edges) instead of leaving a white band at the fold.
+    const bleed = mmToPt(3);
+    const bx = panelX - bleed;
+    const by = panelY - bleed;
+    const bw = panelW + bleed * 2;
+    const bh = panelH + bleed * 2;
     const ratio = bgImage.image.width / bgImage.image.height;
-    const panelRatio = panelW / panelH;
+    const areaRatio = bw / bh;
     let w: number, h: number, x: number, y: number;
-    if (ratio > panelRatio) {
-      h = panelH;
-      w = panelH * ratio;
-      x = panelX + (panelW - w) / 2;
-      y = panelY;
+    if (ratio > areaRatio) {
+      h = bh;
+      w = bh * ratio;
+      x = bx + (bw - w) / 2;
+      y = by;
     } else {
-      w = panelW;
-      h = panelW / ratio;
-      x = panelX;
-      y = panelY + (panelH - h) / 2;
+      w = bw;
+      h = bw / ratio;
+      x = bx;
+      y = by + (bh - h) / 2;
     }
     page.drawImage(bgImage.image, { x, y, width: w, height: h });
   }
@@ -388,26 +396,33 @@ export async function generateBadgePdf(
       ? await embedDataUrl(pdf, design.back_image)
       : null;
 
-  // Draw an image covering the full panel (like CSS object-fit: cover).
+  // Draw an image covering the full panel plus 3mm bleed on every side
+  // (like CSS object-fit: cover), so backgrounds run through the
+  // perforation zone and up to the label edges without white bands.
   const drawCover = (
     page: ReturnType<PDFDocument["addPage"]>,
     img: EmbeddedImage,
     x: number,
     y: number,
   ) => {
+    const bleed = mmToPt(3);
+    const bx = x - bleed;
+    const by = y - bleed;
+    const bw = panelW + bleed * 2;
+    const bh = panelH + bleed * 2;
     const ratio = img.image.width / img.image.height;
-    const panelRatio = panelW / panelH;
+    const areaRatio = bw / bh;
     let w: number, h: number, dx: number, dy: number;
-    if (ratio > panelRatio) {
-      h = panelH;
-      w = panelH * ratio;
-      dx = x + (panelW - w) / 2;
-      dy = y;
+    if (ratio > areaRatio) {
+      h = bh;
+      w = bh * ratio;
+      dx = bx + (bw - w) / 2;
+      dy = by;
     } else {
-      w = panelW;
-      h = panelW / ratio;
-      dx = x;
-      dy = y + (panelH - h) / 2;
+      w = bw;
+      h = bw / ratio;
+      dx = bx;
+      dy = by + (bh - h) / 2;
     }
     page.drawImage(img.image, { x: dx, y: dy, width: w, height: h });
   };

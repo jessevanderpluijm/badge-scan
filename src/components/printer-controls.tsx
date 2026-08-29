@@ -101,13 +101,25 @@ export function PrinterControls({ className }: { className?: string }) {
                   : "Printerkoppeling niet actief"}
           </p>
           <p className="text-xs text-muted-foreground truncate">
-            {status === "no-agent"
-              ? "Check-in werkt door · start de printerkoppeling op deze laptop"
-              : status === "printer-off"
-                ? "Zet de printer aan — de koppeling draait"
-                : autoPrint
-                  ? "Badges printen automatisch bij check-in"
-                  : "Automatisch printen staat uit"}
+            {status === "no-agent" ? (
+              <>
+                Check-in werkt door ·{" "}
+                <a href="/printer-setup" className="underline hover:no-underline">
+                  handleiding
+                </a>
+              </>
+            ) : status === "printer-off" ? (
+              <>
+                Zet de printer aan — de koppeling draait ·{" "}
+                <a href="/printer-setup" className="underline hover:no-underline">
+                  handleiding
+                </a>
+              </>
+            ) : autoPrint ? (
+              "Badges printen automatisch bij check-in"
+            ) : (
+              "Automatisch printen staat uit"
+            )}
           </p>
         </div>
       </div>
