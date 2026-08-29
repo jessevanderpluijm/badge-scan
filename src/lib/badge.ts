@@ -32,6 +32,74 @@ export type BadgeField =
   | "job_title"
   | "email";
 
+// Curated font set. Every family ships as a local file in public/fonts so
+// the PDF embed and the on-screen preview render the exact same glyphs —
+// a Google Fonts picker would break that guarantee offline at the door.
+export type BadgeFontId = "inter" | "lora" | "space-grotesk" | "playfair";
+
+export const BADGE_FONTS: Record<
+  BadgeFontId,
+  { label: string; regular: string; bold: string; css: string }
+> = {
+  inter: {
+    label: "Inter",
+    regular: "/fonts/Inter-Regular.woff",
+    bold: "/fonts/Inter-Bold.woff",
+    css: "'Badge Inter', sans-serif",
+  },
+  "space-grotesk": {
+    label: "Space Grotesk",
+    regular: "/fonts/SpaceGrotesk-Regular.ttf",
+    bold: "/fonts/SpaceGrotesk-Bold.ttf",
+    css: "'Badge Space Grotesk', sans-serif",
+  },
+  lora: {
+    label: "Lora",
+    regular: "/fonts/Lora-Regular.ttf",
+    bold: "/fonts/Lora-Bold.ttf",
+    css: "'Badge Lora', serif",
+  },
+  playfair: {
+    label: "Playfair Display",
+    regular: "/fonts/PlayfairDisplay-Regular.ttf",
+    bold: "/fonts/PlayfairDisplay-Bold.ttf",
+    css: "'Badge Playfair', serif",
+  },
+};
+
+export type TextAlign = "left" | "center" | "right";
+
+// A movable text block on the badge front. yMm is the distance from the
+// top of the badge face to the top of the text; sizeMm is the font size.
+export type BadgeTextStyle = {
+  yMm: number;
+  sizeMm: number;
+  align: TextAlign;
+};
+
+// The name (first + last on one line) is one block; every secondary field
+// is its own block. Whether a block prints at all is still governed by
+// design.fields — the layout only says where and how big.
+export type BadgeBlock = "name" | "company" | "job_title" | "email";
+
+export type BadgeLayout = Record<BadgeBlock, BadgeTextStyle>;
+
+// Mirrors the old fixed flow (logo at top, name under it, details below)
+// so designs saved before the layout editor keep printing the same.
+export const DEFAULT_LAYOUT: BadgeLayout = {
+  name: { yMm: 21, sizeMm: 8, align: "center" },
+  company: { yMm: 32, sizeMm: 3.5, align: "center" },
+  job_title: { yMm: 37, sizeMm: 3.5, align: "center" },
+  email: { yMm: 42, sizeMm: 3.5, align: "center" },
+};
+
+export const BLOCK_LABELS: Record<BadgeBlock, string> = {
+  name: "Name",
+  company: "Company",
+  job_title: "Function",
+  email: "Email",
+};
+
 export type BadgeDesign = {
   type: BadgeType;
   background_color: string;
@@ -39,6 +107,8 @@ export type BadgeDesign = {
   logo: string | null;
   background_image: string | null;
   fields: BadgeField[];
+  font: BadgeFontId;
+  layout: BadgeLayout;
   // The badge back: identical to the front (default), or a static
   // full-face image — handy for programme info, floor plans, wifi codes.
   back_same: boolean;
@@ -126,9 +196,32 @@ export const DEFAULT_DESIGN: BadgeDesign = {
   logo: null,
   background_image: null,
   fields: ["first_name", "last_name", "company", "job_title"],
+  font: "inter",
+  layout: DEFAULT_LAYOUT,
   back_same: true,
   back_image: null,
 };
+
+const BLOCK_KEYS: BadgeBlock[] = ["name", "company", "job_title", "email"];
+
+function normalizeTextStyle(
+  stored: Partial<BadgeTextStyle> | undefined,
+  fallback: BadgeTextStyle,
+): BadgeTextStyle {
+  const clamp = (v: unknown, lo: number, hi: number, dflt: number) =>
+    typeof v === "number" && Number.isFinite(v)
+      ? Math.min(hi, Math.max(lo, v))
+      : dflt;
+  return {
+    yMm: clamp(stored?.yMm, 0, 125, fallback.yMm),
+    sizeMm: clamp(stored?.sizeMm, 2, 20, fallback.sizeMm),
+    align: (["left", "center", "right"] as const).includes(
+      stored?.align as TextAlign,
+    )
+      ? (stored?.align as TextAlign)
+      : fallback.align,
+  };
+}
 
 // Stored designs can predate the current badge model (retired types, removed
 // fields). Every consumer of events.badge_design should run it through this.
@@ -136,6 +229,12 @@ export function normalizeBadgeDesign(
   stored: Partial<BadgeDesign> | null | undefined,
 ): BadgeDesign {
   const s = stored ?? {};
+  const layout = Object.fromEntries(
+    BLOCK_KEYS.map((k) => [
+      k,
+      normalizeTextStyle(s.layout?.[k], DEFAULT_LAYOUT[k]),
+    ]),
+  ) as BadgeLayout;
   return {
     ...DEFAULT_DESIGN,
     ...s,
@@ -143,6 +242,8 @@ export function normalizeBadgeDesign(
     fields: (s.fields ?? DEFAULT_DESIGN.fields).filter(
       (f): f is BadgeField => ALL_FIELDS.includes(f as BadgeField),
     ),
+    font: s.font && s.font in BADGE_FONTS ? s.font : "inter",
+    layout,
     back_same: s.back_same ?? true,
     back_image: s.back_image ?? null,
   };
@@ -206,22 +307,43 @@ async function embedDataUrl(
   return { kind: "jpg", image: await pdf.embedJpg(bytes) };
 }
 
-function drawCenteredText(opts: {
+// Draw one layout block at its absolute position. The y in the style is
+// measured from the panel TOP (how the designer thinks); PDF space runs
+// bottom-up, so it flips here. Text wider than the panel shrinks to fit —
+// a long name must never run off the label.
+function drawTextBlock(opts: {
   page: ReturnType<PDFDocument["addPage"]>;
   text: string;
-  x: number;
-  y: number;
-  maxWidth: number;
-  fontSize: number;
+  panelX: number;
+  panelY: number;
+  panelW: number;
+  panelH: number;
+  style: BadgeTextStyle;
   font: PDFFont;
   color: { r: number; g: number; b: number };
 }) {
-  const { page, text, x, y, maxWidth, fontSize, font, color } = opts;
+  const { page, text, panelX, panelY, panelW, panelH, style, font, color } =
+    opts;
   if (!text) return;
+  const padding = mmToPt(4);
+  const maxWidth = panelW - padding * 2;
+  let fontSize = mmToPt(style.sizeMm);
+  while (
+    font.widthOfTextAtSize(text, fontSize) > maxWidth &&
+    fontSize > mmToPt(2)
+  ) {
+    fontSize -= 1;
+  }
   const width = font.widthOfTextAtSize(text, fontSize);
-  const drawX = x + (maxWidth - width) / 2;
+  const x =
+    style.align === "left"
+      ? panelX + padding
+      : style.align === "right"
+        ? panelX + panelW - padding - width
+        : panelX + (panelW - width) / 2;
+  const y = panelY + panelH - mmToPt(style.yMm) - fontSize;
   page.drawText(text, {
-    x: drawX,
+    x,
     y,
     size: fontSize,
     font,
@@ -288,8 +410,6 @@ function drawPanel(opts: {
     page.drawImage(bgImage.image, { x, y, width: w, height: h });
   }
 
-  let cursorY = panelY + panelH - padding;
-
   if (logo) {
     const maxLogoH = mmToPt(14);
     const maxLogoW = panelW - padding * 2;
@@ -301,68 +421,41 @@ function drawPanel(opts: {
       logoH = logoW / ratio;
     }
     const logoX = panelX + (panelW - logoW) / 2;
-    const logoY = cursorY - logoH;
+    const logoY = panelY + panelH - padding - logoH;
     page.drawImage(logo.image, {
       x: logoX,
       y: logoY,
       width: logoW,
       height: logoH,
     });
-    cursorY = logoY - mmToPt(3);
   }
 
-  const isPrimary = (f: BadgeField) =>
-    f === "first_name" || f === "last_name";
-  const primaryFields = design.fields.filter(isPrimary);
-  const secondaryFields = design.fields.filter((f) => !isPrimary(f));
-
-  const primaryText = primaryFields
+  const primaryFields = design.fields.filter(
+    (f) => f === "first_name" || f === "last_name",
+  );
+  const nameText = primaryFields
     .map((f) => attendeeFieldValue(attendee, f))
     .filter(Boolean)
     .join(" ");
 
-  let drawY = cursorY;
-  const maxWidth = panelW - padding * 2;
+  const common = { page, panelX, panelY, panelW, panelH, color: fg };
 
-  if (primaryText) {
-    let fontSize = mmToPt(8);
-    while (
-      boldFont.widthOfTextAtSize(primaryText, fontSize) > maxWidth &&
-      fontSize > mmToPt(3)
-    ) {
-      fontSize -= 1;
-    }
-    drawY -= fontSize;
-    drawCenteredText({
-      page,
-      text: primaryText,
-      x: panelX + padding,
-      y: drawY,
-      maxWidth,
-      fontSize,
+  if (nameText) {
+    drawTextBlock({
+      ...common,
+      text: nameText,
+      style: design.layout.name,
       font: boldFont,
-      color: fg,
     });
-    drawY -= mmToPt(2);
   }
-
-  for (const f of secondaryFields) {
-    const text = attendeeFieldValue(attendee, f);
-    if (!text) continue;
-    const fontSize = mmToPt(3.5);
-    drawY -= fontSize;
-    if (drawY < panelY + padding) break;
-    drawCenteredText({
-      page,
-      text,
-      x: panelX + padding,
-      y: drawY,
-      maxWidth,
-      fontSize,
+  for (const f of ["company", "job_title", "email"] as const) {
+    if (!design.fields.includes(f)) continue;
+    drawTextBlock({
+      ...common,
+      text: attendeeFieldValue(attendee, f),
+      style: design.layout[f],
       font: regularFont,
-      color: fg,
     });
-    drawY -= mmToPt(1);
   }
 }
 
@@ -372,9 +465,10 @@ export async function generateBadgePdf(
 ): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.registerFontkit(fontkit);
+  const fontFiles = BADGE_FONTS[design.font] ?? BADGE_FONTS.inter;
   const [regularBytes, boldBytes] = await Promise.all([
-    fetchFontBytes("/fonts/Inter-Regular.woff"),
-    fetchFontBytes("/fonts/Inter-Bold.woff"),
+    fetchFontBytes(fontFiles.regular),
+    fetchFontBytes(fontFiles.bold),
   ]);
   const regularFont = await pdf.embedFont(regularBytes, { subset: true });
   const boldFont = await pdf.embedFont(boldBytes, { subset: true });

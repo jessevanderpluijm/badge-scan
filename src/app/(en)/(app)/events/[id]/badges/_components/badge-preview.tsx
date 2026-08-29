@@ -1,9 +1,13 @@
 "use client";
 
+import { useRef } from "react";
 import { ImageIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   BADGE_DIMENSIONS_MM,
+  BADGE_FONTS,
   type AttendeeForBadge,
+  type BadgeBlock,
   type BadgeDesign,
   type BadgeField,
 } from "@/lib/badge";
@@ -18,6 +22,15 @@ function fieldValue(attendee: AttendeeForBadge, f: BadgeField) {
   return attendee.email ?? "";
 }
 
+// Layout-editing hooks the designer can pass in: click to select a block,
+// drag to move it vertically. Absent (e.g. wizard preview) the face is
+// a plain static render.
+export type BadgeEditProps = {
+  selectedBlock: BadgeBlock | null;
+  onSelectBlock: (b: BadgeBlock) => void;
+  onMoveBlock: (b: BadgeBlock, yMm: number) => void;
+};
+
 // One badge face as the wearer sees it (print rotation is a physical
 // concern of the strip layout, not of this on-screen preview).
 function FrontFace({
@@ -25,24 +38,32 @@ function FrontFace({
   attendee,
   w,
   h,
+  edit,
 }: {
   design: BadgeDesign;
   attendee: AttendeeForBadge;
   w: number;
   h: number;
+  edit?: BadgeEditProps;
 }) {
   const padding = 4 * PX_PER_MM;
+  const drag = useRef<{ block: BadgeBlock; startY: number; startMm: number } | null>(
+    null,
+  );
 
-  const primaryFields = design.fields.filter(
-    (f) => f === "first_name" || f === "last_name",
-  );
-  const secondaryFields = design.fields.filter(
-    (f) => f !== "first_name" && f !== "last_name",
-  );
-  const primaryText = primaryFields
+  const primaryText = design.fields
+    .filter((f) => f === "first_name" || f === "last_name")
     .map((f) => fieldValue(attendee, f))
     .filter(Boolean)
     .join(" ");
+
+  const blocks: { key: BadgeBlock; text: string; bold: boolean }[] = [];
+  if (primaryText) blocks.push({ key: "name", text: primaryText, bold: true });
+  for (const f of ["company", "job_title", "email"] as const) {
+    if (!design.fields.includes(f)) continue;
+    const v = fieldValue(attendee, f);
+    if (v) blocks.push({ key: f, text: v, bold: false });
+  }
 
   return (
     <div
@@ -52,6 +73,7 @@ function FrontFace({
         height: `${h}px`,
         backgroundColor: design.background_color,
         color: design.text_color,
+        fontFamily: BADGE_FONTS[design.font].css,
       }}
     >
       {design.background_image && (
@@ -62,50 +84,78 @@ function FrontFace({
         />
       )}
 
-      <div
-        className="relative h-full flex flex-col items-center text-center"
-        style={{ padding: `${padding}px` }}
-      >
-        {design.logo && (
+      {design.logo && (
+        <div
+          className="absolute left-0 right-0 flex justify-center"
+          style={{ top: `${padding}px` }}
+        >
           <img
             src={design.logo}
             alt=""
             className="object-contain"
             style={{
               maxHeight: `${14 * PX_PER_MM}px`,
-              maxWidth: "100%",
-              marginBottom: `${3 * PX_PER_MM}px`,
+              maxWidth: `${w - padding * 2}px`,
             }}
           />
-        )}
-
-        <div className="flex flex-col items-center w-full">
-          {primaryText && (
-            <div
-              className="font-bold leading-tight break-words w-full"
-              style={{ fontSize: `${7 * PX_PER_MM}px` }}
-            >
-              {primaryText}
-            </div>
-          )}
-          {secondaryFields.map((f) => {
-            const v = fieldValue(attendee, f);
-            if (!v) return null;
-            return (
-              <div
-                key={f}
-                className="opacity-80 break-words w-full"
-                style={{
-                  fontSize: `${3.5 * PX_PER_MM}px`,
-                  marginTop: `${1.5 * PX_PER_MM}px`,
-                }}
-              >
-                {v}
-              </div>
-            );
-          })}
         </div>
-      </div>
+      )}
+
+      {blocks.map(({ key, text, bold }) => {
+        const style = design.layout[key];
+        const selected = edit?.selectedBlock === key;
+        return (
+          <div
+            key={key}
+            className={cn(
+              "absolute whitespace-nowrap leading-tight select-none",
+              bold ? "font-bold" : "opacity-80",
+              edit &&
+                "cursor-grab active:cursor-grabbing rounded-sm transition-shadow",
+              selected && "ring-2 ring-blue-500/80 ring-offset-1",
+            )}
+            style={{
+              top: `${style.yMm * PX_PER_MM}px`,
+              left: `${padding}px`,
+              width: `${w - padding * 2}px`,
+              fontSize: `${style.sizeMm * PX_PER_MM}px`,
+              textAlign: style.align,
+              touchAction: edit ? "none" : undefined,
+            }}
+            onPointerDown={
+              edit
+                ? (e) => {
+                    e.preventDefault();
+                    edit.onSelectBlock(key);
+                    drag.current = {
+                      block: key,
+                      startY: e.clientY,
+                      startMm: style.yMm,
+                    };
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                  }
+                : undefined
+            }
+            onPointerMove={
+              edit
+                ? (e) => {
+                    const d = drag.current;
+                    if (!d || d.block !== key) return;
+                    const deltaMm = (e.clientY - d.startY) / PX_PER_MM;
+                    const next = Math.min(
+                      125,
+                      Math.max(0, d.startMm + deltaMm),
+                    );
+                    edit.onMoveBlock(key, Math.round(next * 2) / 2);
+                  }
+                : undefined
+            }
+            onPointerUp={edit ? () => (drag.current = null) : undefined}
+          >
+            {text}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -149,9 +199,11 @@ function BackFace({
 export function BadgePreview({
   design,
   attendee,
+  edit,
 }: {
   design: BadgeDesign;
   attendee: AttendeeForBadge;
+  edit?: BadgeEditProps;
 }) {
   const dims = BADGE_DIMENSIONS_MM[design.type];
   const w = dims.panelWidth * PX_PER_MM;
@@ -164,7 +216,13 @@ export function BadgePreview({
         <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
           Front &amp; back
         </p>
-        <FrontFace design={design} attendee={attendee} w={w} h={h} />
+        <FrontFace
+          design={design}
+          attendee={attendee}
+          w={w}
+          h={h}
+          edit={edit}
+        />
       </div>
     );
   }
@@ -175,7 +233,13 @@ export function BadgePreview({
         <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
           Front
         </p>
-        <FrontFace design={design} attendee={attendee} w={w} h={h} />
+        <FrontFace
+          design={design}
+          attendee={attendee}
+          w={w}
+          h={h}
+          edit={edit}
+        />
       </div>
       <div className="space-y-1.5">
         <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
