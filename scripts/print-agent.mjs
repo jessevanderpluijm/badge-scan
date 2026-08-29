@@ -40,13 +40,63 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-function lp(args) {
+function run(cmd, args) {
   return new Promise((resolve, reject) => {
-    execFile("lp", args, (err, stdout, stderr) => {
+    execFile(cmd, args, (err, stdout, stderr) => {
       if (err) reject(new Error(stderr || err.message));
       else resolve(stdout.trim());
     });
   });
+}
+const lp = (args) => run("lp", args);
+
+// ── Physical printer health ──────────────────────────────────────────
+// Two independent signals, because the C4000e keeps its USB port alive
+// in soft-off on some firmwares:
+//  1. USB enumeration: hard-off / unplugged devices vanish from ioreg.
+//  2. Queue movement: jobs that sit unclaimed mean the printer isn't
+//     consuming (soft-off, cover open, error state).
+const USB_MATCH = process.env.USB_MATCH ?? "CW-C4000";
+let stuckSince = null; // timestamp of first sighting of a non-moving queue head
+let lastJobHead = null;
+
+async function usbPresent() {
+  try {
+    const out = await run("ioreg", ["-p", "IOUSB", "-w0"]);
+    return out.includes(USB_MATCH);
+  } catch {
+    return true; // ioreg failure shouldn't take the printer "down"
+  }
+}
+
+async function queueStuck() {
+  try {
+    const out = await run("lpstat", ["-o", PRINTER]).catch(() => "");
+    const head = out.split("\n")[0]?.split(/\s+/)[0] || null;
+    if (!head) {
+      lastJobHead = null;
+      stuckSince = null;
+      return false;
+    }
+    if (head !== lastJobHead) {
+      lastJobHead = head;
+      stuckSince = Date.now();
+      return false;
+    }
+    return Date.now() - (stuckSince ?? Date.now()) > 20000;
+  } catch {
+    return false;
+  }
+}
+
+async function printerReady() {
+  if (!(await usbPresent())) {
+    return { ready: false, reason: "Printer niet gevonden op USB — staat hij aan en zit de kabel erin?" };
+  }
+  if (await queueStuck()) {
+    return { ready: false, reason: "De printer neemt geen opdrachten aan — staat hij aan? (wachtrij loopt vast)" };
+  }
+  return { ready: true, reason: null };
 }
 
 const server = createServer(async (req, res) => {
@@ -56,8 +106,16 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url === "/health") {
+    const status = await printerReady();
     res.writeHead(200, { ...CORS, "Content-Type": "application/json" });
-    return res.end(JSON.stringify({ ok: true, printer: PRINTER }));
+    return res.end(
+      JSON.stringify({
+        ok: true,
+        printer: PRINTER,
+        printerOnline: status.ready,
+        reason: status.reason,
+      }),
+    );
   }
 
   if (req.method === "POST" && req.url === "/print") {
@@ -68,6 +126,12 @@ const server = createServer(async (req, res) => {
     if (pdf.length < 100 || !pdf.subarray(0, 5).toString().startsWith("%PDF")) {
       res.writeHead(400, { ...CORS, "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Body is not a PDF" }));
+    }
+
+    const status = await printerReady();
+    if (!status.ready) {
+      res.writeHead(503, { ...CORS, "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: status.reason }));
     }
 
     const file = join(tmpdir(), `badge-${Date.now()}.pdf`);

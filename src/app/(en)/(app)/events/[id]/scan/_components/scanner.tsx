@@ -15,11 +15,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type BadgeDesign, type AttendeeForBadge } from "@/lib/badge";
 import { printBadge } from "@/lib/print-agent";
-import {
-  PrinterControls,
-  useAutoPrint,
-  usePrinterOnline,
-} from "@/components/printer-controls";
+import { PrinterControls, useAutoPrint } from "@/components/printer-controls";
 
 type Status = "idle" | "valid" | "used" | "invalid";
 
@@ -71,9 +67,8 @@ export function Scanner({
   });
   const [busy, setBusy] = useState(false);
 
-  // Shared printer status + auto-print preference (same control lives on
-  // the attendee list page; localStorage keeps them in sync).
-  const agentOnline = usePrinterOnline();
+  // Shared auto-print preference (same control lives on the attendee list
+  // page; localStorage keeps them in sync).
   const [autoPrint] = useAutoPrint();
   const [printState, setPrintState] = useState<PrintState>({ state: "idle" });
 
