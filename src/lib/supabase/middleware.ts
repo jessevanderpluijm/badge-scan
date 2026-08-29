@@ -9,6 +9,7 @@ export async function updateSession(request: NextRequest) {
   const isMarketing =
     pathname === "/" ||
     pathname === "/demo" ||
+    pathname === "/printer-setup" ||
     pathname.startsWith("/badge-printing") ||
     pathname === "/nl" ||
     pathname.startsWith("/nl/");
