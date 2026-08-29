@@ -14,6 +14,27 @@ import {
 
 const PX_PER_MM = 3.5;
 
+// The 260T badge is die-cut with three hanger punches at the top of each
+// face: two 14×3mm lanyard slots and a euro-style hook cutout in the
+// middle. The preview punches them out with a CSS mask so the designer
+// sees exactly where text must not go.
+function holesMaskStyle(w: number, h: number): React.CSSProperties {
+  const mm = PX_PER_MM;
+  const slot = (x: number) =>
+    `<rect x='${x * mm}' y='${7.5 * mm}' width='${14 * mm}' height='${3 * mm}' rx='${1.5 * mm}' fill='black'/>`;
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>` +
+    `<rect width='100%' height='100%' fill='white'/>` +
+    slot(13) +
+    slot(69) +
+    // euro hook: narrow opening at the top edge widening into a slot
+    `<rect x='${44 * mm}' y='0' width='${8 * mm}' height='${5.5 * mm}' fill='black'/>` +
+    `<rect x='${40.5 * mm}' y='${4 * mm}' width='${15 * mm}' height='${3.5 * mm}' rx='${1.75 * mm}' fill='black'/>` +
+    `</svg>`;
+  const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+  return { WebkitMaskImage: url, maskImage: url };
+}
+
 function fieldValue(attendee: AttendeeForBadge, f: BadgeField) {
   if (f === "first_name") return attendee.first_name ?? "";
   if (f === "last_name") return attendee.last_name ?? "";
@@ -66,14 +87,18 @@ function FrontFace({
   }
 
   return (
+    // The shadow lives on a wrapper: the punch-hole mask on the face
+    // itself would otherwise clip the shadow away.
+    <div className="shadow-lg rounded-sm">
     <div
-      className="relative overflow-hidden shadow-lg rounded-sm"
+      className="relative overflow-hidden rounded-sm"
       style={{
         width: `${w}px`,
         height: `${h}px`,
         backgroundColor: design.background_color,
         color: design.text_color,
         fontFamily: BADGE_FONTS[design.font].css,
+        ...holesMaskStyle(w, h),
       }}
     >
       {design.background_image && (
@@ -157,6 +182,7 @@ function FrontFace({
         );
       })}
     </div>
+    </div>
   );
 }
 
@@ -170,12 +196,14 @@ function BackFace({
   h: number;
 }) {
   return (
+    <div className="shadow-lg rounded-sm">
     <div
-      className="relative overflow-hidden shadow-lg rounded-sm"
+      className="relative overflow-hidden rounded-sm"
       style={{
         width: `${w}px`,
         height: `${h}px`,
         backgroundColor: design.background_color,
+        ...holesMaskStyle(w, h),
       }}
     >
       {design.back_image ? (
@@ -192,6 +220,7 @@ function BackFace({
           </p>
         </div>
       )}
+    </div>
     </div>
   );
 }
