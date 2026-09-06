@@ -145,27 +145,39 @@ export const BADGE_DIMENSIONS_MM: Record<
 > = {
   butterfly260t: {
     name: "Butterfly 260T",
-    // ONE page spans the whole 2-label badge (label 133.4 + gap 3.0 +
-    // label 133.4 + half the trailing gap so the cut lands mid-gap). The
-    // C4000e inserts a blank label between separate pages of a job, so
-    // front and back must live on a single continuous page.
-    pageWidth: 96,
-    pageHeight: 271.3,
+    // ONE page spans the whole 2-label badge. The labels sit BUTT-JOINED
+    // on the roll (only a perforation between them, no gap — measured on
+    // the physical media with a printed ruler): pitch 134 mm per label,
+    // badge = 268 mm. The C4000e inserts a blank label between separate
+    // pages of a job, so front and back must live on a single page.
+    //
+    // Full-bleed geometry (calibrated against Jesse's printer):
+    // - Width 104: the 96 mm label centered with 4 mm phantom bleed per
+    //   side, so ink runs over the die-cut edges onto the liner.
+    // - Height 269 = 268 + 1 mm: the head can't ink the last ~1 mm of a
+    //   job (dead tail at the eject clamp). The extra millimetre pushes
+    //   that dead zone past the cut; the printer's Cut Position setting
+    //   of -1.0 mm pulls the cut back onto the perforation at 268.
+    // - Panel positions ride on the printer's Print Position Adjustment
+    //   (Top +2.5 / Left -0.5) — the page itself starts at the label edge.
+    pageWidth: 104,
+    pageHeight: 269,
     panelWidth: 96,
-    panelHeight: 133.4,
+    panelHeight: 134,
     // Per DCP's layout (confirmed against a hand-annotated badge): the
     // front face has its name at the SLOT end, the back face at the FOLD
     // end, both in the SAME reading direction — you read the back by
     // flipping the hanging badge UP, not by spinning it around. On the
     // flat strip that makes both labels carry an identical print: name at
     // each label's leading edge. The C4000 lays a page down with its top
-    // at the trailing edge, hence two identical 180°-rotated pages.
-    // Page bottom = leading edge. Label 1 occupies y 0–133.4, the gap
-    // 133.4–136.4, label 2 starts at 136.4. Same print on both labels.
+    // at the trailing edge, hence two identical 180°-rotated panels.
+    // Page bottom = leading edge. Label 1 occupies y 0–134, label 2
+    // starts right at 134 — contiguous, so no vertical bleed is needed
+    // at the seam (overlap there would double-print as a dark stripe).
     pages: [
       [
-        { xMm: 0, yMm: 0, rotated: true, face: "front" },
-        { xMm: 0, yMm: 136.4, rotated: true, face: "back" },
+        { xMm: 4, yMm: 0, rotated: true, face: "front" },
+        { xMm: 4, yMm: 134, rotated: true, face: "back" },
       ],
     ],
     label:
@@ -385,14 +397,15 @@ function drawPanel(opts: {
   const padding = mmToPt(4);
 
   if (bgImage) {
-    // Cover the panel PLUS 3mm bleed on every side, so the background runs
-    // through the perforation zone between the two labels (and up to the
-    // physical edges) instead of leaving a white band at the fold.
-    const bleed = mmToPt(3);
+    // Cover the panel plus 4mm bleed left and right (into the phantom
+    // page width), so the background runs over the die-cut side edges.
+    // No vertical bleed: the two panels are butt-joined at the fold, and
+    // overlapping ink there prints twice and shows as a dark stripe.
+    const bleed = mmToPt(4);
     const bx = panelX - bleed;
-    const by = panelY - bleed;
+    const by = panelY;
     const bw = panelW + bleed * 2;
-    const bh = panelH + bleed * 2;
+    const bh = panelH;
     const ratio = bgImage.image.width / bgImage.image.height;
     const areaRatio = bw / bh;
     let w: number, h: number, x: number, y: number;
@@ -490,20 +503,20 @@ export async function generateBadgePdf(
       ? await embedDataUrl(pdf, design.back_image)
       : null;
 
-  // Draw an image covering the full panel plus 3mm bleed on every side
-  // (like CSS object-fit: cover), so backgrounds run through the
-  // perforation zone and up to the label edges without white bands.
+  // Draw an image covering the full panel plus 4mm horizontal bleed
+  // (like CSS object-fit: cover), so backgrounds run over the die-cut
+  // side edges. Vertically the panels are butt-joined — no bleed there.
   const drawCover = (
     page: ReturnType<PDFDocument["addPage"]>,
     img: EmbeddedImage,
     x: number,
     y: number,
   ) => {
-    const bleed = mmToPt(3);
+    const bleed = mmToPt(4);
     const bx = x - bleed;
-    const by = y - bleed;
+    const by = y;
     const bw = panelW + bleed * 2;
-    const bh = panelH + bleed * 2;
+    const bh = panelH;
     const ratio = img.image.width / img.image.height;
     const areaRatio = bw / bh;
     let w: number, h: number, dx: number, dy: number;

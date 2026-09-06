@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Badge Scan print agent
+// PrintBadges print agent
 // ----------------------
-// Tiny local bridge between the Badge Scan portal (in the browser) and the
+// Tiny local bridge between the PrintBadges portal (in the browser) and the
 // Epson ColorWorks C4000e connected to this machine. The portal generates the
 // badge PDF client-side and POSTs it here; we hand it to CUPS via `lp`.
 //
@@ -12,8 +12,8 @@
 //
 // Configuration via env vars (defaults match Jesse's reference setup):
 //   PRINTER  CUPS queue name        (default: EPSON_CW_C4000e)
-//   MEDIA    CUPS media size        (default: Custom.96x271.3mm — one full
-//            2-label badge; the portal generates one page per badge)
+//   MEDIA    CUPS media size        (default: Custom.104x269mm — one full
+//            2-label badge incl. side bleed; one page per badge)
 //   PORT     port to listen on      (default: 9123)
 //
 // Endpoints:
@@ -31,7 +31,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const PRINTER = process.env.PRINTER ?? "EPSON_CW_C4000e";
-const MEDIA = process.env.MEDIA ?? "Custom.96x271.3mm";
+const MEDIA = process.env.MEDIA ?? "Custom.104x269mm";
 const PORT = Number(process.env.PORT ?? 9123);
 
 const CORS = {
@@ -162,7 +162,7 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, "127.0.0.1", () => {
-  console.log(`Badge Scan print agent`);
+  console.log(`PrintBadges print agent`);
   console.log(`  printer : ${PRINTER}`);
   console.log(`  media   : ${MEDIA}`);
   console.log(`  luistert: http://127.0.0.1:${PORT}`);

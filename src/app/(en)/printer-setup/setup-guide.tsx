@@ -75,8 +75,19 @@ const STEPS: StepDef[] = [
           Papiertype: <strong>mat papier</strong>
         </li>
         <li>
-          Menu → Algemene instellingen → Printerinstellingen →
-          Media-instellingen → onderaan: <strong>Melding mediaformaat: Uit</strong>
+          Menu → General Settings → Media Settings →{" "}
+          <strong>Media Size Notice: Off</strong>
+        </li>
+        <li>
+          Menu → General Settings → Printer Settings → Print Options →{" "}
+          <strong>Cut Position: −1.0 mm</strong> — zo valt de snede exact op
+          de perforatie tussen twee badges
+        </li>
+        <li>
+          Menu → General Settings → Media Settings → Print Position
+          Adjustment: <strong>Top +2.5 mm · Left −0.5 mm</strong> als
+          startpunt. Wijkt de print op de testbadge nog af, verschuif deze
+          waardes dan per 0,5 mm bij.
         </li>
       </ul>
     ),
@@ -114,7 +125,7 @@ const STEPS: StepDef[] = [
     body: (
       <>
         <p>
-          De koppeling verbindt de Badge Scan-portal met de printer. Vraag de
+          De koppeling verbindt de PrintBadges-portal met de printer. Vraag de
           beheerder om de eenmalige installatie
           (<code className="text-xs">bash scripts/install-print-agent.sh</code>),
           of dubbelklik het bestand <strong>Badge Printer.command</strong> en
@@ -190,7 +201,7 @@ export function SetupGuide() {
       first_name: "Test",
       last_name: "Geslaagd",
       email: null,
-      company: "Badge Scan",
+      company: "PrintBadges",
       job_title: "Printer werkt! 🎉",
       barcode: "SETUP-TEST",
     });

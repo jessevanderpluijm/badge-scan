@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs the Badge Scan print agent as a login service (launchd) so it
+# Installs the PrintBadges print agent as a login service (launchd) so it
 # starts automatically whenever this Mac is on. Run once per check-in laptop:
 #
 #   bash scripts/install-print-agent.sh            # install + start
@@ -29,6 +29,12 @@ if [[ -z "$NODE_BIN" ]]; then
 fi
 
 mkdir -p "$HOME/Library/LaunchAgents" "$HOME/Library/Logs"
+
+# Media saving MUST be off on the CUPS queue: with it on, the C4000e skips
+# the last ~9mm of every job and the badge tail stays white.
+if lpstat -p EPSON_CW_C4000e >/dev/null 2>&1; then
+  lpadmin -p EPSON_CW_C4000e -o EPIJ_MdSv=0 || true
+fi
 
 cat > "$PLIST" <<PLIST_EOF
 <?xml version="1.0" encoding="UTF-8"?>
