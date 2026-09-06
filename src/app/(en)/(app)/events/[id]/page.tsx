@@ -233,9 +233,6 @@ export default async function EventPage({
                   <th className="py-2.5 px-4 font-medium text-muted-foreground font-mono">
                     Barcode
                   </th>
-                  <th className="py-2.5 px-4 font-medium text-muted-foreground">
-                    Status
-                  </th>
                   <th className="py-2.5 px-4 w-8"></th>
                 </tr>
               </thead>
@@ -271,15 +268,6 @@ export default async function EventPage({
                       </td>
                       <td className="py-2.5 px-4 font-mono text-xs">
                         {a.barcode}
-                      </td>
-                      <td className="py-2.5 px-4">
-                        {a.used_at ? (
-                          <span className="text-success">Checked in</span>
-                        ) : (
-                          <span className="text-muted-foreground">
-                            Pending
-                          </span>
-                        )}
                       </td>
                       <td className="py-2 px-2">
                         <AttendeeRowActions
