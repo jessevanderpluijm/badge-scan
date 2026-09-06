@@ -437,7 +437,8 @@ export function BadgeDesigner({
             <h2 className="font-semibold">3. Layout</h2>
             <p className="text-xs text-muted-foreground">
               Drag text on the preview to move it. Click a block to change
-              its size and alignment here.
+              its alignment. Text sizes are fixed — long names shrink
+              automatically to fit the badge.
             </p>
           </div>
 
@@ -463,29 +464,6 @@ export function BadgeDesigner({
 
           {selectedBlock && blockVisible(selectedBlock) && (
             <div className="space-y-3">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="block-size">Text size</Label>
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    {design.layout[selectedBlock].sizeMm} mm
-                  </span>
-                </div>
-                <input
-                  id="block-size"
-                  type="range"
-                  min={2}
-                  max={16}
-                  step={0.5}
-                  value={design.layout[selectedBlock].sizeMm}
-                  onChange={(e) =>
-                    updateBlock(selectedBlock, {
-                      sizeMm: Number(e.target.value),
-                    })
-                  }
-                  className="w-full accent-foreground"
-                />
-              </div>
-
               <div className="space-y-2">
                 <Label>Alignment</Label>
                 <div className="flex gap-1">
