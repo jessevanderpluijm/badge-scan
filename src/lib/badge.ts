@@ -34,37 +34,85 @@ export type BadgeField =
 
 // Curated font set. Every family ships as a local file in public/fonts so
 // the PDF embed and the on-screen preview render the exact same glyphs —
-// a Google Fonts picker would break that guarantee offline at the door.
-export type BadgeFontId = "inter" | "lora" | "space-grotesk" | "playfair";
+// and printing keeps working offline at the door, which a live Google
+// Fonts picker could not guarantee.
+export type BadgeFontId =
+  | "inter"
+  | "roboto"
+  | "open-sans"
+  | "montserrat"
+  | "poppins"
+  | "raleway"
+  | "nunito"
+  | "dm-sans"
+  | "space-grotesk"
+  | "oswald"
+  | "archivo"
+  | "lora"
+  | "merriweather"
+  | "pt-serif"
+  | "libre-baskerville"
+  | "cormorant-garamond"
+  | "playfair"
+  | "roboto-slab"
+  | "caveat"
+  | "dancing-script";
 
-export const BADGE_FONTS: Record<
-  BadgeFontId,
-  { label: string; regular: string; bold: string; css: string }
-> = {
+type BadgeFontFiles = {
+  label: string;
+  regular: string;
+  bold: string;
+  css: string;
+};
+
+const font = (
+  label: string,
+  base: string,
+  generic: "sans-serif" | "serif" | "cursive",
+): BadgeFontFiles => ({
+  label,
+  regular: `/fonts/${base}-Regular.ttf`,
+  bold: `/fonts/${base}-Bold.ttf`,
+  css: `'Badge ${label}', ${generic}`,
+});
+
+// Ordered roughly sans → serif → slab → script, so the dropdown groups
+// similar styles together.
+export const BADGE_FONTS: Record<BadgeFontId, BadgeFontFiles> = {
   inter: {
     label: "Inter",
     regular: "/fonts/Inter-Regular.woff",
     bold: "/fonts/Inter-Bold.woff",
     css: "'Badge Inter', sans-serif",
   },
-  "space-grotesk": {
-    label: "Space Grotesk",
-    regular: "/fonts/SpaceGrotesk-Regular.ttf",
-    bold: "/fonts/SpaceGrotesk-Bold.ttf",
-    css: "'Badge Space Grotesk', sans-serif",
-  },
-  lora: {
-    label: "Lora",
-    regular: "/fonts/Lora-Regular.ttf",
-    bold: "/fonts/Lora-Bold.ttf",
-    css: "'Badge Lora', serif",
-  },
+  roboto: font("Roboto", "Roboto", "sans-serif"),
+  "open-sans": font("Open Sans", "OpenSans", "sans-serif"),
+  montserrat: font("Montserrat", "Montserrat", "sans-serif"),
+  poppins: font("Poppins", "Poppins", "sans-serif"),
+  raleway: font("Raleway", "Raleway", "sans-serif"),
+  nunito: font("Nunito", "Nunito", "sans-serif"),
+  "dm-sans": font("DM Sans", "DMSans", "sans-serif"),
+  "space-grotesk": font("Space Grotesk", "SpaceGrotesk", "sans-serif"),
+  oswald: font("Oswald", "Oswald", "sans-serif"),
+  archivo: font("Archivo", "Archivo", "sans-serif"),
+  lora: font("Lora", "Lora", "serif"),
+  merriweather: font("Merriweather", "Merriweather", "serif"),
+  "pt-serif": font("PT Serif", "PTSerif", "serif"),
+  "libre-baskerville": font("Libre Baskerville", "LibreBaskerville", "serif"),
+  "cormorant-garamond": font(
+    "Cormorant Garamond",
+    "CormorantGaramond",
+    "serif",
+  ),
   playfair: {
     label: "Playfair Display",
     regular: "/fonts/PlayfairDisplay-Regular.ttf",
     bold: "/fonts/PlayfairDisplay-Bold.ttf",
-    css: "'Badge Playfair', serif",
+    css: "'Badge Playfair Display', serif",
   },
+  "roboto-slab": font("Roboto Slab", "RobotoSlab", "serif"),
+  caveat: font("Caveat", "Caveat", "cursive"),
+  "dancing-script": font("Dancing Script", "DancingScript", "cursive"),
 };
 
 export type TextAlign = "left" | "center" | "right";
