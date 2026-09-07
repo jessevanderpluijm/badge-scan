@@ -84,13 +84,13 @@ export type BadgeBlock = "name" | "company" | "job_title" | "email";
 
 export type BadgeLayout = Record<BadgeBlock, BadgeTextStyle>;
 
-// Mirrors the old fixed flow (logo at top, name under it, details below)
-// so designs saved before the layout editor keep printing the same.
+// Default flow: logo from 14mm (below the hanger punches, up to 14mm
+// tall), name under it, details below.
 export const DEFAULT_LAYOUT: BadgeLayout = {
-  name: { yMm: 21, sizeMm: 8, align: "center" },
-  company: { yMm: 32, sizeMm: 3.5, align: "center" },
-  job_title: { yMm: 37, sizeMm: 3.5, align: "center" },
-  email: { yMm: 42, sizeMm: 3.5, align: "center" },
+  name: { yMm: 31, sizeMm: 8, align: "center" },
+  company: { yMm: 42, sizeMm: 3.5, align: "center" },
+  job_title: { yMm: 47, sizeMm: 3.5, align: "center" },
+  email: { yMm: 52, sizeMm: 3.5, align: "center" },
 };
 
 export const BLOCK_LABELS: Record<BadgeBlock, string> = {
@@ -226,7 +226,10 @@ function normalizeTextStyle(
       : dflt;
   return {
     yMm: clamp(stored?.yMm, 0, 125, fallback.yMm),
-    sizeMm: clamp(stored?.sizeMm, 2, 20, fallback.sizeMm),
+    // Text sizes are fixed by design (the size slider is retired): a
+    // user-cranked size could outgrow the badge, so stored values are
+    // ignored and every block renders at its default size.
+    sizeMm: fallback.sizeMm,
     align: (["left", "center", "right"] as const).includes(
       stored?.align as TextAlign,
     )
@@ -434,7 +437,9 @@ function drawPanel(opts: {
       logoH = logoW / ratio;
     }
     const logoX = panelX + (panelW - logoW) / 2;
-    const logoY = panelY + panelH - padding - logoH;
+    // The logo sits 14mm below the face top: clear of the hanger punches
+    // (slots + hook occupy the top ~11mm) instead of running into them.
+    const logoY = panelY + panelH - mmToPt(14) - logoH;
     page.drawImage(logo.image, {
       x: logoX,
       y: logoY,
