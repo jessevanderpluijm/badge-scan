@@ -148,19 +148,15 @@ export const BLOCK_LABELS: Record<BadgeBlock, string> = {
   email: "Email",
 };
 
-// Small/medium/large per block. The name is the badge's headline and
-// scales differently from the detail lines; medium equals each block's
-// default size.
+// One uniform small/medium/large scale for every text block (per Jesse:
+// "Large" must mean the same for the company as for the name). The
+// defaults map onto it: name = large, detail lines = small.
 export type SizePreset = "small" | "medium" | "large";
 
-export const SIZE_PRESETS: Record<
-  BadgeBlock,
-  Record<SizePreset, number>
-> = {
-  name: { small: 6, medium: 8, large: 10 },
-  company: { small: 3, medium: 3.5, large: 4.5 },
-  job_title: { small: 3, medium: 3.5, large: 4.5 },
-  email: { small: 3, medium: 3.5, large: 4.5 },
+export const SIZE_PRESETS: Record<SizePreset, number> = {
+  small: 3.5,
+  medium: 5.5,
+  large: 8,
 };
 
 export type BadgeDesign = {
