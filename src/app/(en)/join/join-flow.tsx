@@ -14,7 +14,7 @@ type State =
   | { kind: "joined" }
   | {
       kind: "error";
-      code: "expired" | "invalid" | "mismatch" | "already" | "other";
+      code: "expired" | "invalid" | "mismatch" | "already" | "otp" | "other";
       detail?: string;
     };
 
@@ -43,36 +43,45 @@ export function JoinFlow() {
     if (ran.current || !token) return;
     ran.current = true;
 
-    let unsubscribed = false;
-
-    const waitForSession = () =>
-      new Promise<boolean>((resolve) => {
-        supabase.auth.getSession().then(({ data }) => {
-          if (data.session) return resolve(true);
-          const {
-            data: { subscription },
-          } = supabase.auth.onAuthStateChange((event) => {
-            if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
-              supabase.auth.getSession().then(({ data: d }) => {
-                if (d.session) {
-                  subscription.unsubscribe();
-                  resolve(true);
-                }
-              });
-            }
-          });
-          setTimeout(() => {
-            if (!unsubscribed) {
-              subscription.unsubscribe();
-              resolve(false);
-            }
-          }, 4000);
-        });
-      });
-
     (async () => {
-      const hasSession = await waitForSession();
-      if (!hasSession) {
+      // Consume the magic-link tokens from the URL fragment OURSELVES:
+      // @supabase/ssr hard-forces flowType "pkce" (overriding any option we
+      // pass), and a PKCE client silently ignores #access_token fragments —
+      // which left invitees stranded on this page without a session.
+      const hash = new URLSearchParams(
+        window.location.hash.replace(/^#/, ""),
+      );
+      const accessToken = hash.get("access_token");
+      const refreshToken = hash.get("refresh_token");
+      const errorCode = hash.get("error_code");
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        window.history.replaceState(
+          null,
+          "",
+          window.location.pathname + window.location.search,
+        );
+        if (error) {
+          setState({ kind: "error", code: "other", detail: error.message });
+          return;
+        }
+      } else if (errorCode) {
+        // Supabase redirected with an error instead of tokens — most often
+        // otp_expired: the one-time link was already consumed (mail scanners
+        // pre-click links) or is older than an hour.
+        setState({
+          kind: "error",
+          code: errorCode === "otp_expired" ? "otp" : "other",
+          detail: hash.get("error_description") ?? errorCode,
+        });
+        return;
+      }
+
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
         setState({ kind: "no-session" });
         return;
       }
@@ -106,10 +115,6 @@ export function JoinFlow() {
         ? "/events"
         : "/welcome";
     })();
-
-    return () => {
-      unsubscribed = true;
-    };
   }, [supabase, token]);
 
   async function onResend() {
@@ -159,8 +164,10 @@ export function JoinFlow() {
   const message =
     state.kind === "no-session"
       ? "Open deze pagina via de link in je uitnodigingsmail — die logt je automatisch in. Is de link verlopen of al gebruikt? Vraag hieronder een nieuwe aan."
-      : state.code === "expired"
-        ? "Deze uitnodiging is verlopen (links zijn 7 dagen geldig)."
+      : state.code === "otp"
+        ? "De inloglink is verlopen of al een keer geopend — soms doet een virusscanner dat ongemerkt vóór jou. Vraag hieronder een nieuwe link aan en open die meteen."
+        : state.code === "expired"
+          ? "Deze uitnodiging is verlopen (links zijn 7 dagen geldig)."
         : state.code === "invalid"
           ? "Deze uitnodiging is al gebruikt of ingetrokken."
           : state.code === "mismatch"
