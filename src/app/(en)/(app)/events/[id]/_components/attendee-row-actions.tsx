@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MoreVertical, Loader2, Trash2 } from "lucide-react";
+import { MoreVertical, Loader2, Printer, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeBadgeDesign, type BadgeDesign } from "@/lib/badge";
+import { printBadge } from "@/lib/print-agent";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,17 +22,28 @@ import {
 
 export function AttendeeRowActions({
   id,
+  eventId,
   name,
   barcode,
+  attendee,
 }: {
   id: string;
+  eventId: string;
   name: string | null;
   barcode: string;
+  attendee: {
+    first_name: string | null;
+    last_name: string | null;
+    email: string | null;
+    company: string | null;
+    job_title: string | null;
+  };
 }) {
   const router = useRouter();
   const supabase = createClient();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const displayName = name || barcode;
 
@@ -44,6 +57,25 @@ export function AttendeeRowActions({
     router.refresh();
   }
 
+  // Manual reprint for a crumpled or lost badge — independent of check-in
+  // status and of the auto-print toggle.
+  async function onPrint() {
+    setPrinting(true);
+    const { data: event } = await supabase
+      .from("events")
+      .select("badge_design")
+      .eq("id", eventId)
+      .single();
+    const design = normalizeBadgeDesign(
+      (event?.badge_design ?? null) as Partial<BadgeDesign> | null,
+    );
+    const result = await printBadge(design, { ...attendee, barcode });
+    setPrinting(false);
+    if (!result.ok) {
+      window.alert(`Badge printen mislukte: ${result.error}`);
+    }
+  }
+
   return (
     <>
       <DropdownMenu
@@ -54,10 +86,17 @@ export function AttendeeRowActions({
             className="h-7 w-7"
             aria-label={`Actions for ${displayName}`}
           >
-            <MoreVertical className="h-3.5 w-3.5" />
+            {printing ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <MoreVertical className="h-3.5 w-3.5" />
+            )}
           </Button>
         }
       >
+        <DropdownMenuItem onClick={() => void onPrint()}>
+          <Printer className="h-3.5 w-3.5" /> Print badge
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             setError(null);

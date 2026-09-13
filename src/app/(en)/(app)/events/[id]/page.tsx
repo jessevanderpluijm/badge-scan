@@ -272,8 +272,16 @@ export default async function EventPage({
                       <td className="py-2 px-2">
                         <AttendeeRowActions
                           id={a.id}
+                          eventId={event.id}
                           name={fullName}
                           barcode={a.barcode}
+                          attendee={{
+                            first_name: a.first_name,
+                            last_name: a.last_name,
+                            email: a.email,
+                            company: a.company,
+                            job_title: a.job_title,
+                          }}
                         />
                       </td>
                     </tr>
