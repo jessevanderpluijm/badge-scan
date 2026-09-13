@@ -1,4 +1,4 @@
-# Badge Scan
+# PrintBadges
 
 Self-serve check-in and badge printing for networking events: conferences, trade shows,
 and networking drinks. Organizers create an event, import attendees via CSV, and validate

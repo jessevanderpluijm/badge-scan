@@ -1,6 +1,6 @@
 "use client";
 
-// Client for the local Badge Scan print agent (scripts/print-agent.mjs).
+// Client for the local PrintBadges print agent (scripts/print-agent.mjs).
 // The agent runs on the check-in laptop itself and bridges the browser to
 // the USB-connected Epson C4000e. Browsers allow HTTPS pages to call
 // http://127.0.0.1, so this works from the hosted portal without setup.

@@ -66,7 +66,7 @@ function renderEmail(row: {
 <html>
   <body style="font-family: -apple-system, system-ui, sans-serif; color: #0f172a; max-width: 560px; margin: 0 auto; padding: 24px;">
     <h2 style="margin: 0 0 8px; font-size: 18px;">New demo request</h2>
-    <p style="margin: 0 0 16px; color: #64748b; font-size: 13px;">Submitted via badge-scan.vercel.app/demo</p>
+    <p style="margin: 0 0 16px; color: #64748b; font-size: 13px;">Submitted via print-badges.com/demo</p>
     <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
       ${rows
         .map(
@@ -151,7 +151,7 @@ export async function submitDemoRequest(
     return { ok: true };
   }
   const from =
-    process.env.DEMO_NOTIFICATION_FROM ?? "Badge Scan <onboarding@resend.dev>";
+    process.env.DEMO_NOTIFICATION_FROM ?? "PrintBadges <onboarding@resend.dev>";
 
   try {
     const resend = new Resend(apiKey);

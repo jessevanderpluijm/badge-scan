@@ -20,13 +20,13 @@ import { localeAlternates } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Badge Scan — Print event & conference badges on demand",
+    absolute: "PrintBadges — Print event & conference badges on demand",
   },
   description:
     "The easiest way to print name badges for conferences, trade shows and networking events. Upload your attendee list, design beautiful badges in minutes, and print on demand at the door.",
   alternates: localeAlternates("en", "/"),
   openGraph: {
-    title: "Badge Scan — Print event & conference badges on demand",
+    title: "PrintBadges — Print event & conference badges on demand",
     description:
       "Upload your attendee list, design badges in minutes, and print on demand at the door — straight from your browser.",
     url: "/",
@@ -51,12 +51,12 @@ export default function MarketingPage() {
             {
               "@type": "Organization",
               "@id": `${SITE_URL}/#organization`,
-              name: "Badge Scan",
+              name: "PrintBadges",
               url: SITE_URL,
             },
             {
               "@type": "SoftwareApplication",
-              name: "Badge Scan",
+              name: "PrintBadges",
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               url: SITE_URL,

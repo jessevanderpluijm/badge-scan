@@ -5,13 +5,13 @@ import "../globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Badge Scan — Badges printen voor evenementen & conferenties",
-    template: "%s | Badge Scan",
+    default: "PrintBadges — Badges printen voor evenementen & conferenties",
+    template: "%s | PrintBadges",
   },
   description:
     "Self-serve incheck en on-demand badges printen voor conferenties, beurzen en netwerkevenementen. Upload een CSV, ontwerp één keer, scan en print aan de deur.",
   openGraph: {
-    siteName: "Badge Scan",
+    siteName: "PrintBadges",
     type: "website",
     locale: "nl_NL",
   },
