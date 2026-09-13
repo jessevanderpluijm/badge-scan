@@ -82,12 +82,14 @@ function FrontFace({
     .filter(Boolean)
     .join(" ");
 
-  const blocks: { key: BadgeBlock; text: string; bold: boolean }[] = [];
-  if (primaryText) blocks.push({ key: "name", text: primaryText, bold: true });
+  // Every block renders identically — same face, weight and opacity; only
+  // size, position and alignment differ (the user's layout choices).
+  const blocks: { key: BadgeBlock; text: string }[] = [];
+  if (primaryText) blocks.push({ key: "name", text: primaryText });
   for (const f of ["company", "job_title", "email"] as const) {
     if (!design.fields.includes(f)) continue;
     const v = fieldValue(attendee, f);
-    if (v) blocks.push({ key: f, text: v, bold: false });
+    if (v) blocks.push({ key: f, text: v });
   }
 
   return (
@@ -130,7 +132,7 @@ function FrontFace({
         </div>
       )}
 
-      {blocks.map(({ key, text, bold }) => {
+      {blocks.map(({ key, text }) => {
         const style = design.layout[key];
         const selected = edit?.selectedBlock === key;
         return (
@@ -138,7 +140,6 @@ function FrontFace({
             key={key}
             className={cn(
               "absolute whitespace-nowrap leading-tight select-none",
-              bold ? "font-bold" : "opacity-80",
               edit &&
                 "cursor-grab active:cursor-grabbing rounded-sm transition-shadow",
               selected && "ring-2 ring-blue-500/80 ring-offset-1",

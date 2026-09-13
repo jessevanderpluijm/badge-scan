@@ -437,8 +437,7 @@ function drawPanel(opts: {
   bgImage: EmbeddedImage | null;
   logo: EmbeddedImage | null;
   fg: { r: number; g: number; b: number };
-  regularFont: PDFFont;
-  boldFont: PDFFont;
+  font: PDFFont;
 }) {
   const {
     page,
@@ -451,8 +450,7 @@ function drawPanel(opts: {
     bgImage,
     logo,
     fg,
-    regularFont,
-    boldFont,
+    font,
   } = opts;
 
   const padding = mmToPt(4);
@@ -521,7 +519,7 @@ function drawPanel(opts: {
       ...common,
       text: nameText,
       style: design.layout.name,
-      font: boldFont,
+      font,
     });
   }
   for (const f of ["company", "job_title", "email"] as const) {
@@ -530,7 +528,7 @@ function drawPanel(opts: {
       ...common,
       text: attendeeFieldValue(attendee, f),
       style: design.layout[f],
-      font: regularFont,
+      font,
     });
   }
 }
@@ -542,12 +540,10 @@ export async function generateBadgePdf(
   const pdf = await PDFDocument.create();
   pdf.registerFontkit(fontkit);
   const fontFiles = BADGE_FONTS[design.font] ?? BADGE_FONTS.inter;
-  const [regularBytes, boldBytes] = await Promise.all([
-    fetchFontBytes(fontFiles.regular),
-    fetchFontBytes(fontFiles.bold),
-  ]);
-  const regularFont = await pdf.embedFont(regularBytes, { subset: true });
-  const boldFont = await pdf.embedFont(boldBytes, { subset: true });
+  // Every block renders in the same face and weight (per Jesse: no special
+  // bold for the name) — only the regular cut gets embedded.
+  const fontBytes = await fetchFontBytes(fontFiles.regular);
+  const badgeFont = await pdf.embedFont(fontBytes, { subset: true });
 
   const dims = BADGE_DIMENSIONS_MM[design.type];
   const pageW = mmToPt(dims.pageWidth);
@@ -641,8 +637,7 @@ export async function generateBadgePdf(
             bgImage,
             logo,
             fg,
-            regularFont,
-            boldFont,
+            font: badgeFont,
           });
         }
 
