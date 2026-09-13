@@ -5,7 +5,6 @@ import {
   InviteForm,
   InviteRowActions,
   MemberRowActions,
-  OrgNameForm,
 } from "./team-controls";
 
 export const metadata: Metadata = {
@@ -61,18 +60,6 @@ export default async function TeamPage() {
           badges printen.
         </p>
       </div>
-
-      {isOwner && org && (
-        <Card className="p-5 space-y-3">
-          <div>
-            <h2 className="font-semibold">Organisatienaam</h2>
-            <p className="text-xs text-muted-foreground">
-              Zo heet je organisatie in de portal en in uitnodigingen.
-            </p>
-          </div>
-          <OrgNameForm orgId={org.id} initialName={org.name} />
-        </Card>
-      )}
 
       {isOwner && (
         <Card className="p-5 space-y-3">
