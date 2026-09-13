@@ -288,13 +288,11 @@ export function SetupGuide() {
       {safari && !agentUp && (
         <Card className="p-5 border-warning/70 bg-warning/10 space-y-2">
           <p className="font-semibold leading-tight">
-            Open deze pagina in Google Chrome
+            Voor het printen van badges is Google Chrome nodig
           </p>
           <p className="text-sm text-muted-foreground">
-            Je gebruikt Safari. Safari staat niet toe dat deze pagina met de
-            printerkoppeling op de laptop praat, waardoor stap 4 en 5 hier
-            nooit groen worden en badges niet geprint kunnen worden.
-            Inchecken werkt wel. Gebruik voor het printen van badges{" "}
+            Je gebruikt nu Safari, en Safari kan geen verbinding maken met de
+            printerkoppeling. Inchecken werkt gewoon, printen niet. Installeer{" "}
             <a
               href="https://www.google.com/chrome/"
               target="_blank"
