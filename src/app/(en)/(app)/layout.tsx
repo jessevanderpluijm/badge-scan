@@ -13,6 +13,10 @@ export default async function AppLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Ensure every signed-in user has an organization (creates a personal
+  // one on first visit) — the whole app scopes data to it via RLS.
+  if (user) await supabase.rpc("create_own_organization");
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="border-b bg-background">
@@ -21,9 +25,15 @@ export default async function AppLayout({
             <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
               <ScanLine className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold tracking-tight">Badge Scan</span>
+            <span className="font-semibold tracking-tight">PrintBadges</span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
+            <Link
+              href="/team"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Team
+            </Link>
             <span className="text-muted-foreground hidden sm:inline">
               {user?.email}
             </span>
