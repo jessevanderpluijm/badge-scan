@@ -46,32 +46,6 @@ const STEPS: StepDef[] = [
       "Opdracht: druk 1× op de ⤓-knop (Feed). Komt er precies één badge-label uit en stopt de printer dan netjes? Dan is de rol goed geladen.",
   },
   {
-    id: "panel",
-    title: "Printerinstellingen op het paneel",
-    body: (
-      <ul className="list-disc pl-5 space-y-1">
-        <li>
-          Media Form: <strong>Die-cut Label</strong> · Media Detect:{" "}
-          <strong>Gap</strong> · Media Type: <strong>Synthetic</strong>
-        </li>
-        <li>
-          Media Settings → <strong>Media Size Notice: Off</strong>
-        </li>
-        <li>
-          Media Settings → Print Position Adjustment:{" "}
-          <strong>Top 3.1 mm · Left 0.7 mm</strong>. Wijkt de print op de
-          testbadge nog af, verschuif deze waardes dan per 0,5 mm bij.
-        </li>
-        <li>
-          De volledige instellingenlijst staat onderaan deze pagina als
-          naslagwerk.
-        </li>
-      </ul>
-    ),
-    task:
-      "Check: toont het startscherm van de printer “Synthetic · Gap” met een breedte rond de 96 mm?",
-  },
-  {
     id: "driver",
     title: "Printer aansluiten op de laptop",
     body: (
@@ -326,7 +300,7 @@ export function SetupGuide() {
         </Button>
         {!printerUp && (
           <p className="text-xs text-muted-foreground">
-            Beschikbaar zodra stap 4 en 5 groen zijn.
+            Beschikbaar zodra stap 3 en 4 groen zijn.
           </p>
         )}
       </Card>
