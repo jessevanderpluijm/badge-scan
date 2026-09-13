@@ -106,7 +106,25 @@ else
   mv "$AGENT.tmp" "$AGENT"
 fi
 
-mkdir -p "$HOME/Library/LaunchAgents" "$HOME/Library/Logs"
+LA_DIR="$HOME/Library/LaunchAgents"
+mkdir -p "$LA_DIR" "$HOME/Library/Logs"
+
+# launchd only auto-starts agents from ~/Library/LaunchAgents, and on some
+# Macs an earlier installer created that folder (or our plist) as root.
+# Detect it up front and say exactly how to fix it, instead of dying on a
+# bare "Permission denied" halfway through.
+if [[ ! -w "$LA_DIR" || ( -e "$PLIST" && ! -w "$PLIST" ) ]]; then
+  echo "" >&2
+  echo "❌ Geen schrijfrechten in $LA_DIR" >&2
+  ls -ld "$LA_DIR" "$PLIST" >&2 2>/dev/null || true
+  echo "" >&2
+  echo "Die map hoort van jou ($(id -un)) te zijn. Herstel dat eenmalig met:" >&2
+  echo "" >&2
+  echo "    sudo chown -R \"$(id -un)\" \"$LA_DIR\"" >&2
+  echo "" >&2
+  echo "(vraagt het wachtwoord van deze Mac) en voer daarna dit installatiecommando opnieuw uit." >&2
+  exit 1
+fi
 
 # Media saving MUST be off on the CUPS queue: with it on, the C4000e skips
 # the last ~9mm of every job and the badge tail stays white.
