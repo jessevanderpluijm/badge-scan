@@ -21,14 +21,8 @@ export default async function TeamPage() {
   // Ensure the org exists (first visit) and scope everything to it.
   const { data: orgId } = await supabase.rpc("create_own_organization");
 
-  const [{ data: org }, { data: allMemberships }, { data: members }, { data: invites }] = await Promise.all([
+  const [{ data: org }, { data: members }, { data: invites }] = await Promise.all([
     supabase.from("organizations").select("id, name").eq("id", orgId).single(),
-    // Every org this user belongs to — a user can also be a member of
-    // someone else's organization via an invite.
-    supabase
-      .from("organization_members")
-      .select("organization_id, role, organizations(name)")
-      .eq("user_id", user!.id),
     supabase
       .from("organization_members")
       .select("id, member_email, role, user_id, created_at")
@@ -45,9 +39,6 @@ export default async function TeamPage() {
 
   const me = members?.find((m) => m.user_id === user?.id);
   const isOwner = me?.role === "owner";
-  const otherOrgs = (allMemberships ?? []).filter(
-    (m) => m.organization_id !== orgId,
-  );
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -100,27 +91,6 @@ export default async function TeamPage() {
           ))}
         </ul>
       </Card>
-
-      {otherOrgs.length > 0 && (
-        <Card className="p-5 space-y-2">
-          <h2 className="font-semibold">Ook lid van</h2>
-          <p className="text-xs text-muted-foreground">
-            Je bent via een uitnodiging ook lid van deze organisatie(s) — hun
-            events staan gewoon tussen jouw eventlijst.
-          </p>
-          <ul className="text-sm space-y-1">
-            {otherOrgs.map((m) => (
-              <li key={m.organization_id}>
-                {(m.organizations as unknown as { name: string } | null)
-                  ?.name ?? "Onbekende organisatie"}{" "}
-                <span className="text-muted-foreground">
-                  ({m.role === "owner" ? "eigenaar" : "lid"})
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
 
       {isOwner && (invites?.length ?? 0) > 0 && (
         <Card className="p-5 space-y-3">

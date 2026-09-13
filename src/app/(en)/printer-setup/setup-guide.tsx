@@ -6,6 +6,7 @@ import {
   Circle,
   Loader2,
   Printer,
+  RotateCcw,
   ScanLine,
   Sparkles,
 } from "lucide-react";
@@ -26,22 +27,6 @@ type StepDef = {
 };
 
 const STEPS: StepDef[] = [
-  {
-    id: "unpack",
-    title: "Printer uitpakken en inkt installeren",
-    body: (
-      <>
-        <p>
-          Verwijder al het blauwe transporttape — ook binnenin de printer.
-          Open de voorklep en klik de inktcartridge erin. Zet de printer aan
-          en wacht tot het opladen van de inkt klaar is (±10-15 minuten bij
-          de eerste keer; het lampje knippert zolang het bezig is).
-        </p>
-      </>
-    ),
-    task:
-      "Check: brandt het aan/uit-lampje continu blauw (niet knipperend) en toont het scherm “Gereed”?",
-  },
   {
     id: "media",
     title: "Badgerol laden",
@@ -170,6 +155,15 @@ export function SetupGuide() {
     };
   }, []);
 
+  function resetProgress() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+    setDone({});
+    setTestState("idle");
+    setTestError(null);
+  }
+
   function toggle(id: string) {
     setDone((d) => {
       const next = { ...d, [id]: !d[id] };
@@ -220,6 +214,16 @@ export function SetupGuide() {
         <span className="text-sm text-muted-foreground whitespace-nowrap">
           {completed} van {STEPS.length}
         </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={resetProgress}
+          title="Begin opnieuw"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          Opnieuw
+        </Button>
       </div>
 
       <ol className="space-y-3">
@@ -322,7 +326,7 @@ export function SetupGuide() {
         </Button>
         {!printerUp && (
           <p className="text-xs text-muted-foreground">
-            Beschikbaar zodra stap 5 en 6 groen zijn.
+            Beschikbaar zodra stap 4 en 5 groen zijn.
           </p>
         )}
       </Card>

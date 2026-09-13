@@ -355,3 +355,102 @@ create index if not exists org_invites_org_idx
   on public.organization_invites (organization_id);
 create index if not exists events_org_idx
   on public.events (organization_id);
+
+-- ===========================================================================
+-- One user = one organization
+-- ===========================================================================
+-- Multi-org membership turned out to be overkill: a user belongs to exactly
+-- one organization. Accepting an invite MOVES you into that team; your own
+-- organization is cleaned up automatically if it is empty (no events, no
+-- other members). A user with an org that has content cannot join another
+-- team — clear error instead of silent data mixing.
+
+-- Cleanup for existing multi-org users: keep the membership to the org with
+-- the most events (tie: oldest membership), drop the rest, and delete orgs
+-- that end up with no members at all.
+do $$
+declare
+  r record;
+  keep uuid;
+begin
+  for r in
+    select user_id from public.organization_members
+    group by user_id having count(*) > 1
+  loop
+    select m.organization_id into keep
+    from public.organization_members m
+    left join lateral (
+      select count(*) as c from public.events e
+      where e.organization_id = m.organization_id
+    ) ec on true
+    where m.user_id = r.user_id
+    order by ec.c desc, m.created_at asc
+    limit 1;
+    delete from public.organization_members
+    where user_id = r.user_id and organization_id <> keep;
+  end loop;
+  delete from public.organizations o
+  where not exists (
+    select 1 from public.organization_members m where m.organization_id = o.id
+  );
+end $$;
+
+alter table public.organization_members
+  drop constraint if exists organization_members_user_unique;
+alter table public.organization_members
+  add constraint organization_members_user_unique unique (user_id);
+
+-- join_organization now enforces the one-org rule: an empty personal org is
+-- silently replaced by the invited team; a non-empty one raises
+-- 'already_in_org'.
+create or replace function public.join_organization(p_token uuid)
+returns uuid
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_invite record;
+  v_email text;
+  v_member record;
+begin
+  if auth.uid() is null then
+    raise exception 'not_signed_in';
+  end if;
+  select email into v_email from auth.users where id = auth.uid();
+  select * into v_invite from organization_invites
+  where token = p_token and is_active;
+  if not found then
+    raise exception 'invite_invalid';
+  end if;
+  if v_invite.expires_at < now() then
+    update organization_invites set is_active = false where id = v_invite.id;
+    raise exception 'invite_expired';
+  end if;
+  if lower(v_invite.invited_email) <> lower(v_email) then
+    raise exception 'email_mismatch';
+  end if;
+
+  select * into v_member from organization_members where user_id = auth.uid();
+  if found and v_member.organization_id <> v_invite.organization_id then
+    if exists (
+      select 1 from events e
+      where e.organization_id = v_member.organization_id
+    ) or exists (
+      select 1 from organization_members m2
+      where m2.organization_id = v_member.organization_id
+        and m2.user_id <> auth.uid()
+    ) then
+      raise exception 'already_in_org';
+    end if;
+    -- Empty solo org: replace it by the invited team (cascade removes the
+    -- membership row).
+    delete from organizations where id = v_member.organization_id;
+  end if;
+
+  insert into organization_members (organization_id, user_id, member_email, role)
+  values (v_invite.organization_id, auth.uid(), v_email, 'member')
+  on conflict (organization_id, user_id) do nothing;
+  update organization_invites set is_active = false where id = v_invite.id;
+  return v_invite.organization_id;
+end;
+$$;
