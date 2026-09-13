@@ -45,8 +45,6 @@ const STEPS: StepDef[] = [
         <li>Voeg de badges toe via de achterkant.</li>
       </ul>
     ),
-    task:
-      "Opdracht: druk 1× op de ⤓-knop (Feed). Komt er precies één badge-label uit en stopt de printer dan netjes? Dan is de rol goed geladen.",
   },
   {
     id: "software",
