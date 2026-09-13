@@ -148,6 +148,21 @@ export const BLOCK_LABELS: Record<BadgeBlock, string> = {
   email: "Email",
 };
 
+// Small/medium/large per block. The name is the badge's headline and
+// scales differently from the detail lines; medium equals each block's
+// default size.
+export type SizePreset = "small" | "medium" | "large";
+
+export const SIZE_PRESETS: Record<
+  BadgeBlock,
+  Record<SizePreset, number>
+> = {
+  name: { small: 6, medium: 8, large: 10 },
+  company: { small: 3, medium: 3.5, large: 4.5 },
+  job_title: { small: 3, medium: 3.5, large: 4.5 },
+  email: { small: 3, medium: 3.5, large: 4.5 },
+};
+
 export type BadgeDesign = {
   type: BadgeType;
   background_color: string;
@@ -274,10 +289,9 @@ function normalizeTextStyle(
       : dflt;
   return {
     yMm: clamp(stored?.yMm, 0, 125, fallback.yMm),
-    // Text sizes are fixed by design (the size slider is retired): a
-    // user-cranked size could outgrow the badge, so stored values are
-    // ignored and every block renders at its default size.
-    sizeMm: fallback.sizeMm,
+    // Sizes come from the small/medium/large presets in the designer;
+    // clamp stored values so no design can outgrow the badge.
+    sizeMm: clamp(stored?.sizeMm, 2, 12, fallback.sizeMm),
     align: (["left", "center", "right"] as const).includes(
       stored?.align as TextAlign,
     )
