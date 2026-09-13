@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  AlertTriangle,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -286,27 +287,38 @@ export function SetupGuide() {
       </div>
 
       {safari && !agentUp && (
-        <Card className="p-5 border-warning/70 bg-warning/10 space-y-2">
-          <p className="font-semibold leading-tight">
-            Voor het printen van badges is Google Chrome nodig
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Je gebruikt nu Safari, en Safari kan geen verbinding maken met de
-            printerkoppeling. Inchecken werkt gewoon, printen niet. Installeer{" "}
-            <a
-              href="https://www.google.com/chrome/"
-              target="_blank"
-              rel="noreferrer"
-              className="underline hover:no-underline"
-            >
-              Google Chrome
-            </a>{" "}
-            en open daarin{" "}
-            <code className="text-xs select-all">
-              print-badges.com/printer-setup
-            </code>
-            .
-          </p>
+        <Card className="p-5 border-warning/70 bg-warning/10">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-6 w-6 flex-shrink-0 text-warning" />
+            <div className="min-w-0 space-y-2">
+              <h2 className="font-semibold leading-tight">
+                0. Installeer Google Chrome
+              </h2>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p>
+                  Je gebruikt nu Safari, en Safari kan geen verbinding maken
+                  met de printerkoppeling. Inchecken werkt gewoon, printen
+                  niet. Voor het printen van badges is{" "}
+                  <a
+                    href="https://www.google.com/chrome/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline hover:no-underline"
+                  >
+                    Google Chrome
+                  </a>{" "}
+                  nodig.
+                </p>
+              </div>
+              <p className="text-sm rounded-md px-3 py-2 border bg-background/60">
+                Open daarna in Chrome{" "}
+                <code className="text-xs select-all">
+                  print-badges.com/printer-setup
+                </code>{" "}
+                en ga verder met stap 1.
+              </p>
+            </div>
+          </div>
         </Card>
       )}
 
