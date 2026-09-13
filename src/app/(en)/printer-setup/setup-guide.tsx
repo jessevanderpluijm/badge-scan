@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   CheckCircle2,
+  ChevronDown,
   Circle,
   Loader2,
   Printer,
@@ -310,7 +311,28 @@ export function SetupGuide() {
   );
 }
 
-// Static reference section under the interactive guide: supplier details,
+// One collapsible documentation topic (native <details> — no state needed).
+function DocSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card className="p-0 overflow-hidden">
+      <details className="group">
+        <summary className="flex items-center justify-between gap-3 cursor-pointer select-none p-5 font-semibold list-none [&::-webkit-details-marker]:hidden">
+          {title}
+          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="px-5 pb-5 space-y-3">{children}</div>
+      </details>
+    </Card>
+  );
+}
+
+// Static documentation under the interactive guide: supplier details,
 // event-day routine and the complete panel settings list.
 function Reference() {
   const ext = (href: string, label: string) => (
@@ -326,10 +348,9 @@ function Reference() {
 
   return (
     <div className="space-y-4 pt-4">
-      <h2 className="text-lg font-semibold tracking-tight">Naslag</h2>
+      <h2 className="text-lg font-semibold tracking-tight">Documentatie</h2>
 
-      <Card className="p-5 space-y-3">
-        <h3 className="font-semibold">Hardware</h3>
+      <DocSection title="Hardware">
         <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
           <li>
             Leverancier: {ext("https://www.businesslabels.nl/", "businesslabels.nl")}
@@ -363,10 +384,9 @@ function Reference() {
             — 96 × 134 mm per label
           </li>
         </ul>
-      </Card>
+      </DocSection>
 
-      <Card className="p-5 space-y-3">
-        <h3 className="font-semibold">Op de eventdag</h3>
+      <DocSection title="Op de eventdag">
         <div className="text-sm text-muted-foreground space-y-3">
           <div>
             <p className="font-medium text-foreground mb-1">Opstarten</p>
@@ -385,10 +405,9 @@ function Reference() {
             </ul>
           </div>
         </div>
-      </Card>
+      </DocSection>
 
-      <Card className="p-5 space-y-3">
-        <h3 className="font-semibold">Printerinstellingen (volledig)</h3>
+      <DocSection title="Printerinstellingen (volledig)">
         <p className="text-sm rounded-md px-3 py-2 bg-muted/40">
           💡 Standaard staan de instellingen goed. Gaat er iets mis,
           controleer dan deze lijst.
@@ -438,16 +457,15 @@ function Reference() {
             </ul>
           </div>
         </div>
-      </Card>
+      </DocSection>
 
-      <Card className="p-5 space-y-3">
-        <h3 className="font-semibold">Inktcartridge vervangen</h3>
+      <DocSection title="Inktcartridge vervangen">
         <p className="text-sm text-muted-foreground">
           De printer toont zelf de instructies: <strong>Menu</strong> →{" "}
           <strong>Maintenance</strong> →{" "}
           <strong>Ink Cartridge Replacement</strong>.
         </p>
-      </Card>
+      </DocSection>
     </div>
   );
 }
