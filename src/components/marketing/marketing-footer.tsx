@@ -25,7 +25,7 @@ export function MarketingFooter({ locale = "en" }: { locale?: Locale }) {
             <div className="h-6 w-6 rounded-md bg-primary flex items-center justify-center">
               <ScanLine className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
-            <span className="text-sm font-semibold">Badge Scan</span>
+            <span className="text-sm font-semibold">PrintBadges</span>
           </div>
           <p className="text-xs text-muted-foreground max-w-xs">{t.tagline}</p>
         </div>

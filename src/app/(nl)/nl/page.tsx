@@ -19,13 +19,13 @@ import { localeAlternates } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Badge Scan — Badges printen voor evenementen en congressen",
+    absolute: "PrintBadges — Badges printen voor evenementen en congressen",
   },
   description:
     "De makkelijkste manier om naambadges te printen voor congressen, beurzen en netwerkevenementen. Upload je deelnemerslijst, ontwerp prachtige badges in minuten en print on demand bij de deur.",
   alternates: localeAlternates("nl", "/"),
   openGraph: {
-    title: "Badge Scan — Badges printen voor evenementen en congressen",
+    title: "PrintBadges — Badges printen voor evenementen en congressen",
     description:
       "Upload je deelnemerslijst, ontwerp badges in minuten en print on demand bij de deur — rechtstreeks vanuit je browser.",
     url: "/nl",
@@ -50,12 +50,12 @@ export default function MarketingPageNl() {
             {
               "@type": "Organization",
               "@id": `${SITE_URL}/#organization`,
-              name: "Badge Scan",
+              name: "PrintBadges",
               url: SITE_URL,
             },
             {
               "@type": "SoftwareApplication",
-              name: "Badge Scan",
+              name: "PrintBadges",
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               url: `${SITE_URL}/nl`,

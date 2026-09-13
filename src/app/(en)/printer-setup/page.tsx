@@ -6,7 +6,7 @@ import { SetupGuide } from "./setup-guide";
 export const metadata: Metadata = {
   title: "Printer installeren",
   description:
-    "Stap-voor-stap handleiding om de Epson ColorWorks C4000e klaar te maken voor badge printing met Badge Scan — met live controles per stap.",
+    "Stap-voor-stap handleiding om de Epson ColorWorks C4000e klaar te maken voor badge printing met PrintBadges — met live controles per stap.",
   robots: { index: false },
 };
 
@@ -19,7 +19,7 @@ export default function PrinterSetupPage() {
             <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
               <ScanLine className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold tracking-tight">Badge Scan</span>
+            <span className="font-semibold tracking-tight">PrintBadges</span>
           </Link>
         </div>
       </header>

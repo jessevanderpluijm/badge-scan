@@ -20,7 +20,7 @@ export const EVENT_TYPES: Record<string, EventType> = {
     oneLiner:
       "On-demand visitor badges for trade shows and trade fairs — from CSV to printer in minutes.",
     description:
-      "Trade shows mean unpredictable walk-ins, last-minute exhibitor staff, and the need to look polished from the first minute the doors open. Badge Scan prints clear, branded visitor badges at the entrance — no day-before mail-merge, no pre-printed waste, no spreadsheet acrobatics. Designed for organisers of beurzen and B2B expos.",
+      "Trade shows mean unpredictable walk-ins, last-minute exhibitor staff, and the need to look polished from the first minute the doors open. PrintBadges prints clear, branded visitor badges at the entrance — no day-before mail-merge, no pre-printed waste, no spreadsheet acrobatics. Designed for organisers of beurzen and B2B expos.",
     audience:
       "Built for organisers of international trade fairs, regional B2B expos, and exhibitor-driven shows in the Netherlands and beyond.",
     scenarios: [
@@ -32,11 +32,11 @@ export const EVENT_TYPES: Record<string, EventType> = {
     whyBullets: [
       {
         title: "Walk-in friendly",
-        body: "Half your visitors will register at the door. Badge Scan handles ad-hoc attendees the same way as pre-registered ones — scan a QR or type a barcode, print, done.",
+        body: "Half your visitors will register at the door. PrintBadges handles ad-hoc attendees the same way as pre-registered ones — scan a QR or type a barcode, print, done.",
       },
       {
         title: "Exhibitor + visitor badges side by side",
-        body: "Run two events in Badge Scan — one for visitors, one for exhibitor staff — each with its own design, attendee list, and scanner page.",
+        body: "Run two events in PrintBadges — one for visitors, one for exhibitor staff — each with its own design, attendee list, and scanner page.",
       },
       {
         title: "Zero pre-print waste",
@@ -45,19 +45,19 @@ export const EVENT_TYPES: Record<string, EventType> = {
     ],
     faq: [
       {
-        q: "Can Badge Scan handle 10,000+ trade show visitors?",
+        q: "Can PrintBadges handle 10,000+ trade show visitors?",
         a: "Yes. CSV imports are batched server-side and the scanner runs on a single index lookup per scan. Tested at 10k+ attendees with sub-second print times.",
       },
       {
         q: "Do I need different badges for visitors and exhibitors?",
-        a: "Yes — and Badge Scan lets you. Create two separate events (e.g. 'Trade Fair 2026 — Visitors' and 'Trade Fair 2026 — Exhibitors'), each with its own design and scanner station.",
+        a: "Yes — and PrintBadges lets you. Create two separate events (e.g. 'Trade Fair 2026 — Visitors' and 'Trade Fair 2026 — Exhibitors'), each with its own design and scanner station.",
       },
       {
         q: "Wat als bezoekers zonder ticket binnenkomen?",
-        a: "Voeg ze direct toe in Badge Scan met een eigen barcode (bijv. handmatig getypt of via een sticker-roll). De badge print uit zoals bij voorgeregistreerde bezoekers.",
+        a: "Voeg ze direct toe in PrintBadges met een eigen barcode (bijv. handmatig getypt of via een sticker-roll). De badge print uit zoals bij voorgeregistreerde bezoekers.",
       },
       {
-        q: "Is Badge Scan suitable for multi-day trade shows?",
+        q: "Is PrintBadges suitable for multi-day trade shows?",
         a: "Definitely. The 'used_at' flag tracks check-in time, and badges can be re-printed any time a visitor returns. Add a daily-pass design for shows that re-issue badges per day.",
       },
     ],
@@ -70,7 +70,7 @@ export const EVENT_TYPES: Record<string, EventType> = {
     oneLiner:
       "Print conference badges with company and function from your existing attendee list.",
     description:
-      "Conferences live and die by smooth check-in. Badge Scan keeps the queue moving: scan ticket, print badge, hand it over. The default butterfly badge with name, function and company is what professional conference attendees expect — and you can design it without a designer. For conferenties of any size.",
+      "Conferences live and die by smooth check-in. PrintBadges keeps the queue moving: scan ticket, print badge, hand it over. The default butterfly badge with name, function and company is what professional conference attendees expect — and you can design it without a designer. For conferenties of any size.",
     audience:
       "Used by conference producers running developer summits, fintech events, healthcare conferences, and corporate offsites.",
     scenarios: [
@@ -82,11 +82,11 @@ export const EVENT_TYPES: Record<string, EventType> = {
     whyBullets: [
       {
         title: "Name, function, company — done",
-        body: "These four fields are first-class in Badge Scan. The butterfly badge shows them in the layout conference attendees expect, with the right hierarchy.",
+        body: "These four fields are first-class in PrintBadges. The butterfly badge shows them in the layout conference attendees expect, with the right hierarchy.",
       },
       {
         title: "Speaker & VIP badges",
-        body: "Create a second event in Badge Scan with a distinct design (different background colour, accent stripe). Use the same workflow, different visual.",
+        body: "Create a second event in PrintBadges with a distinct design (different background colour, accent stripe). Use the same workflow, different visual.",
       },
       {
         title: "Look professional from minute one",
@@ -100,15 +100,15 @@ export const EVENT_TYPES: Record<string, EventType> = {
       },
       {
         q: "Can attendees print their own conference badge?",
-        a: "No — Badge Scan is organiser-driven by design. This keeps the badge layout consistent and prevents abuse (fake names, custom titles).",
+        a: "No — PrintBadges is organiser-driven by design. This keeps the badge layout consistent and prevents abuse (fake names, custom titles).",
       },
       {
-        q: "Does Badge Scan support multi-track conferences?",
+        q: "Does PrintBadges support multi-track conferences?",
         a: "Yes. Use the attendee CSV to encode track or session info in a custom column, then add it to the badge design as an extra field.",
       },
       {
         q: "Hoe snel kun je 200 conferentiebezoekers inchecken?",
-        a: "Met één scanner en één C4000 print je circa 40 badges per minuut. Voor grotere conferenties: meerdere stations parallel — Badge Scan loopt op iedere browser-tab tegelijk.",
+        a: "Met één scanner en één C4000 print je circa 40 badges per minuut. Voor grotere conferenties: meerdere stations parallel — PrintBadges loopt op iedere browser-tab tegelijk.",
       },
     ],
   },
@@ -120,7 +120,7 @@ export const EVENT_TYPES: Record<string, EventType> = {
     oneLiner:
       "Any event, any size — print attendee badges on demand from your existing ticket list.",
     description:
-      "Workshops, meetups, corporate events, awards nights, customer days, internal company gatherings — wherever attendees need a name on their chest, Badge Scan handles it. No new tools, no new training, no per-event setup. Voor evenementen van elke grootte.",
+      "Workshops, meetups, corporate events, awards nights, customer days, internal company gatherings — wherever attendees need a name on their chest, PrintBadges handles it. No new tools, no new training, no per-event setup. Voor evenementen van elke grootte.",
     audience:
       "Trusted by event managers running corporate events, workshops, awards nights, customer days, and brand activations.",
     scenarios: [
@@ -140,24 +140,24 @@ export const EVENT_TYPES: Record<string, EventType> = {
       },
       {
         title: "Works on any laptop + USB scanner + C4000",
-        body: "No app to install, no specific OS. If you have a browser, you have Badge Scan. Bring the Epson C4000 your venue or AV partner already supplies.",
+        body: "No app to install, no specific OS. If you have a browser, you have PrintBadges. Bring the Epson C4000 your venue or AV partner already supplies.",
       },
     ],
     faq: [
       {
-        q: "Is Badge Scan only for large events?",
+        q: "Is PrintBadges only for large events?",
         a: "No. We have customers running 20-person workshops and 5,000-person conferences. The flow is the same — only the printer count changes.",
       },
       {
-        q: "Kan Badge Scan ook bij kleine evenementen worden gebruikt?",
+        q: "Kan PrintBadges ook bij kleine evenementen worden gebruikt?",
         a: "Zeker. Voor kleine evenementen werkt het juist heel goed: één laptop, één scanner, één C4000, en je bent klaar. Geen overhead.",
       },
       {
         q: "Do I need internet at the venue?",
-        a: "Yes — the scanner queries Badge Scan live so revoked tickets stay revoked. Make sure your venue has stable wifi or a wired connection.",
+        a: "Yes — the scanner queries PrintBadges live so revoked tickets stay revoked. Make sure your venue has stable wifi or a wired connection.",
       },
       {
-        q: "Can I use Badge Scan for recurring events?",
+        q: "Can I use PrintBadges for recurring events?",
         a: "Yes. Create a new event for each edition and re-import that edition's attendee CSV. Re-using last year's badge design takes a minute — copy the colours and re-upload the logo.",
       },
     ],

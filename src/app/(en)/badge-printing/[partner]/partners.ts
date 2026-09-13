@@ -17,16 +17,16 @@ export const PARTNERS: Record<string, Partner> = {
     oneLiner:
       "Print conference and event badges from your WeTicket attendee list — without changing how you sell tickets.",
     description:
-      "Badge Scan reads your WeTicket attendee CSV, lets you design a professional badge in a browser, and prints on demand at the door on an Epson ColorWorks C4000. No new ticketing software to learn, no integrations to maintain.",
+      "PrintBadges reads your WeTicket attendee CSV, lets you design a professional badge in a browser, and prints on demand at the door on an Epson ColorWorks C4000. No new ticketing software to learn, no integrations to maintain.",
     exportSteps: [
       "In WeTicket, open the event and head to the attendee list.",
       "Use the export option and pick CSV. Include name, email and any custom fields you collected (company, function).",
-      "Drop the CSV into Badge Scan. Map columns once — first name, last name, company, function. We auto-detect Dutch headers like 'Voornaam' and 'Achternaam'.",
+      "Drop the CSV into PrintBadges. Map columns once — first name, last name, company, function. We auto-detect Dutch headers like 'Voornaam' and 'Achternaam'.",
     ],
     whyBullets: [
       {
         title: "No re-platforming",
-        body: "Keep selling tickets in WeTicket. Badge Scan only handles the badge step on the day itself.",
+        body: "Keep selling tickets in WeTicket. PrintBadges only handles the badge step on the day itself.",
       },
       {
         title: "Print at the door",
@@ -40,19 +40,19 @@ export const PARTNERS: Record<string, Partner> = {
     faq: [
       {
         q: "Do I need a WeTicket integration?",
-        a: "No. Badge Scan just reads your WeTicket attendee CSV export — the same file you can already download from your WeTicket dashboard.",
+        a: "No. PrintBadges just reads your WeTicket attendee CSV export — the same file you can already download from your WeTicket dashboard.",
       },
       {
-        q: "Which printer works with WeTicket badges via Badge Scan?",
+        q: "Which printer works with WeTicket badges via PrintBadges?",
         a: "Any printer that accepts PDF input at exact mm dimensions. We design and test against the Epson ColorWorks C4000 — the industry standard for on-demand event badges.",
       },
       {
         q: "Can I scan WeTicket barcodes at the entrance?",
-        a: "Yes. Plug any USB barcode scanner into your laptop, point it at the WeTicket QR or Code 128 on the visitor's ticket, and Badge Scan prints the matching badge in under a second.",
+        a: "Yes. Plug any USB barcode scanner into your laptop, point it at the WeTicket QR or Code 128 on the visitor's ticket, and PrintBadges prints the matching badge in under a second.",
       },
       {
-        q: "Does Badge Scan store my WeTicket attendee data?",
-        a: "Only inside your own private Badge Scan account, protected by row-level security. We never share data and you can delete an event (and all its attendees) with one click.",
+        q: "Does PrintBadges store my WeTicket attendee data?",
+        a: "Only inside your own private PrintBadges account, protected by row-level security. We never share data and you can delete an event (and all its attendees) with one click.",
       },
     ],
   },
@@ -63,11 +63,11 @@ export const PARTNERS: Record<string, Partner> = {
     oneLiner:
       "Print badges for your Weeztix event without spreadsheets, mail-merges, or pre-printed stickers.",
     description:
-      "Weeztix gets your visitors in. Badge Scan gets them badged. Export your Weeztix attendees as a CSV, design the badge once, then print on demand at check-in on your Epson ColorWorks C4000.",
+      "Weeztix gets your visitors in. PrintBadges gets them badged. Export your Weeztix attendees as a CSV, design the badge once, then print on demand at check-in on your Epson ColorWorks C4000.",
     exportSteps: [
       "In Weeztix, open your event's attendees view.",
       "Export attendees as CSV. Include first name, last name, email — and any custom checkout questions like company or function.",
-      "Upload the CSV into Badge Scan, map columns, and you're ready to scan-and-print.",
+      "Upload the CSV into PrintBadges, map columns, and you're ready to scan-and-print.",
     ],
     whyBullets: [
       {
@@ -76,7 +76,7 @@ export const PARTNERS: Record<string, Partner> = {
       },
       {
         title: "Works with Weeztix barcodes out of the box",
-        body: "Code 128 barcodes from Weeztix tickets scan correctly into Badge Scan — both at check-in and for bulk lookup.",
+        body: "Code 128 barcodes from Weeztix tickets scan correctly into PrintBadges — both at check-in and for bulk lookup.",
       },
       {
         title: "Beautiful default templates",
@@ -85,8 +85,8 @@ export const PARTNERS: Record<string, Partner> = {
     ],
     faq: [
       {
-        q: "Is Badge Scan a Weeztix add-on?",
-        a: "No — Badge Scan is a standalone tool. It just happens to work seamlessly with the CSV format Weeztix already exports.",
+        q: "Is PrintBadges a Weeztix add-on?",
+        a: "No — PrintBadges is a standalone tool. It just happens to work seamlessly with the CSV format Weeztix already exports.",
       },
       {
         q: "Can I print Weeztix badges in bulk before the event?",
@@ -94,10 +94,10 @@ export const PARTNERS: Record<string, Partner> = {
       },
       {
         q: "What if a visitor isn't in my Weeztix list?",
-        a: "Badge Scan shows a clear 'Invalid barcode' result at the scanner. Update your list in Weeztix, re-export the CSV, and re-upload — duplicates are skipped automatically.",
+        a: "PrintBadges shows a clear 'Invalid barcode' result at the scanner. Update your list in Weeztix, re-export the CSV, and re-upload — duplicates are skipped automatically.",
       },
       {
-        q: "Does Weeztix charge extra for using Badge Scan?",
+        q: "Does Weeztix charge extra for using PrintBadges?",
         a: "No. There's no API integration involved — just a CSV export, which is included in every Weeztix plan.",
       },
     ],
@@ -109,20 +109,20 @@ export const PARTNERS: Record<string, Partner> = {
     oneLiner:
       "Print conference badges from your Paylogic attendee data without writing a single line of code.",
     description:
-      "Paylogic handles ticketing for major international events. Badge Scan handles the badge printing — designed, previewed, and printed from a browser. Export your Paylogic attendee CSV, design once, print thousands.",
+      "Paylogic handles ticketing for major international events. PrintBadges handles the badge printing — designed, previewed, and printed from a browser. Export your Paylogic attendee CSV, design once, print thousands.",
     exportSteps: [
       "From the Paylogic dashboard, open the event and select the attendee report.",
       "Download as CSV. Include name fields plus any custom registration questions (company, function, country).",
-      "Upload to Badge Scan. The column mapper auto-detects standard Paylogic export headers.",
+      "Upload to PrintBadges. The column mapper auto-detects standard Paylogic export headers.",
     ],
     whyBullets: [
       {
         title: "Scale without rebuilding workflows",
-        body: "Whether you organise one event or thirty per year, the flow stays the same: export from Paylogic, drop into Badge Scan, print.",
+        body: "Whether you organise one event or thirty per year, the flow stays the same: export from Paylogic, drop into PrintBadges, print.",
       },
       {
         title: "Multi-event ready",
-        body: "Each event in Badge Scan has its own attendee list, design and scanner page — no risk of badges crossing events.",
+        body: "Each event in PrintBadges has its own attendee list, design and scanner page — no risk of badges crossing events.",
       },
       {
         title: "Print-perfect output",
@@ -132,19 +132,19 @@ export const PARTNERS: Record<string, Partner> = {
     faq: [
       {
         q: "Do I need IT to set up a Paylogic integration?",
-        a: "No. Badge Scan reads a standard Paylogic CSV export — no API key, no webhooks, no integration setup.",
+        a: "No. PrintBadges reads a standard Paylogic CSV export — no API key, no webhooks, no integration setup.",
       },
       {
         q: "Can I customise badges per Paylogic ticket type?",
         a: "Today the badge design is per event. If you need per-ticket-type designs (e.g. VIP vs general admission), let us know and we'll prioritise it.",
       },
       {
-        q: "Will Badge Scan handle 10,000+ attendees from Paylogic?",
+        q: "Will PrintBadges handle 10,000+ attendees from Paylogic?",
         a: "Yes. CSV imports are chunked into batches of 500 and unique-barcode constraints prevent duplicates, so even very large Paylogic exports import cleanly.",
       },
       {
-        q: "Does Badge Scan need internet at the door?",
-        a: "Yes — the scanner queries your Badge Scan account live so that revoked Paylogic tickets stay revoked. Make sure your venue has a stable wifi or ethernet connection.",
+        q: "Does PrintBadges need internet at the door?",
+        a: "Yes — the scanner queries your PrintBadges account live so that revoked Paylogic tickets stay revoked. Make sure your venue has a stable wifi or ethernet connection.",
       },
     ],
   },
@@ -155,30 +155,30 @@ export const PARTNERS: Record<string, Partner> = {
     oneLiner:
       "Turn your Momice registrations into printed conference badges in minutes.",
     description:
-      "Momice handles registrations and communication for your conference. Badge Scan adds the on-demand badge printing. Export your Momice attendees, design the badge once, print on the day on an Epson ColorWorks C4000.",
+      "Momice handles registrations and communication for your conference. PrintBadges adds the on-demand badge printing. Export your Momice attendees, design the badge once, print on the day on an Epson ColorWorks C4000.",
     exportSteps: [
       "In Momice, open your event and go to the participants list.",
       "Export as CSV. Be sure to include name, email, company and function fields if you've collected them.",
-      "Drop the file into Badge Scan. Map the Momice columns — common Dutch headers like 'Voornaam', 'Achternaam', 'Bedrijf' and 'Functie' are auto-recognised.",
+      "Drop the file into PrintBadges. Map the Momice columns — common Dutch headers like 'Voornaam', 'Achternaam', 'Bedrijf' and 'Functie' are auto-recognised.",
     ],
     whyBullets: [
       {
         title: "End-to-end Dutch conference flow",
-        body: "Momice for registrations, Badge Scan for badge printing — together you cover everything from sign-up to check-in without extra tooling.",
+        body: "Momice for registrations, PrintBadges for badge printing — together you cover everything from sign-up to check-in without extra tooling.",
       },
       {
         title: "Bedrijf + Functie supported out of the box",
-        body: "Most Momice events collect company and function. Badge Scan has these as first-class fields on the badge and in the attendee list.",
+        body: "Most Momice events collect company and function. PrintBadges has these as first-class fields on the badge and in the attendee list.",
       },
       {
         title: "Last-minute walk-ins handled",
-        body: "Add a one-off attendee with a custom barcode straight in Badge Scan — no need to round-trip through Momice for last-minute registrations.",
+        body: "Add a one-off attendee with a custom barcode straight in PrintBadges — no need to round-trip through Momice for last-minute registrations.",
       },
     ],
     faq: [
       {
-        q: "Is there an official Momice + Badge Scan integration?",
-        a: "Not yet — but you don't need one. The Momice CSV export contains everything Badge Scan needs.",
+        q: "Is there an official Momice + PrintBadges integration?",
+        a: "Not yet — but you don't need one. The Momice CSV export contains everything PrintBadges needs.",
       },
       {
         q: "Which Momice fields can I print on the badge?",
@@ -186,11 +186,11 @@ export const PARTNERS: Record<string, Partner> = {
       },
       {
         q: "Can attendees print their own Momice badge?",
-        a: "No — Badge Scan is built for organiser-driven, controlled printing at the venue with an Epson ColorWorks C4000. This keeps badges consistent and prevents abuse.",
+        a: "No — PrintBadges is built for organiser-driven, controlled printing at the venue with an Epson ColorWorks C4000. This keeps badges consistent and prevents abuse.",
       },
       {
-        q: "Does Badge Scan replace Momice?",
-        a: "No. Badge Scan only does the badge step. Keep using Momice for registrations, invitations and communication.",
+        q: "Does PrintBadges replace Momice?",
+        a: "No. PrintBadges only does the badge step. Keep using Momice for registrations, invitations and communication.",
       },
     ],
   },

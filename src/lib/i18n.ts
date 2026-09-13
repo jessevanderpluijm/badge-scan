@@ -132,11 +132,11 @@ export const dict: Record<Locale, Dictionary> = {
       badge: "Newly launched",
       heading: "No reviews to show off yet — here's the honest version.",
       intro:
-        "Badge Scan is new, so we'd rather not fill this space with testimonials we don't have. Instead, here's what you can actually count on right now.",
+        "PrintBadges is new, so we'd rather not fill this space with testimonials we don't have. Instead, here's what you can actually count on right now.",
       points: [
         {
           title: "You get the person who built it",
-          body: "Badge Scan is run by one person, not a support queue. Email lands with the maker — questions get answered the same way they get fixed.",
+          body: "PrintBadges is run by one person, not a support queue. Email lands with the maker — questions get answered the same way they get fixed.",
         },
         {
           title: "Built around real export files",
@@ -157,14 +157,14 @@ export const dict: Record<Locale, Dictionary> = {
       badgePrintingFor: (name) => `Badge printing for ${name}`,
       signIn: "Sign in",
       bookDemo: "Book a demo",
-      copyright: "Badge Scan",
+      copyright: "PrintBadges",
       madeFor: "Made for conference and event organizers.",
     },
     langSwitch: { en: "EN", nl: "NL", label: "Language" },
     demo: {
       title: "Book a demo.",
       intro:
-        "Tell us about your event and we'll walk you through check-in and on-demand badge printing with Badge Scan — and answer anything you need before your next event.",
+        "Tell us about your event and we'll walk you through check-in and on-demand badge printing with PrintBadges — and answer anything you need before your next event.",
       points: [
         "See the full CSV-to-printed-badge flow",
         "Works with your existing ticketing system",
@@ -190,7 +190,7 @@ export const dict: Record<Locale, Dictionary> = {
       meta: {
         title: "Book a demo",
         description:
-          "See how Badge Scan handles check-in and on-demand badge printing for your event. Tell us about your event and we'll set up a personal demo.",
+          "See how PrintBadges handles check-in and on-demand badge printing for your event. Tell us about your event and we'll set up a personal demo.",
       },
     },
     partnerPage: {
@@ -203,17 +203,17 @@ export const dict: Record<Locale, Dictionary> = {
         "Compatible with any C4000 printer",
         "Personal onboarding",
       ],
-      flowLabel: (name) => `${name} → Badge Scan → Printer`,
+      flowLabel: (name) => `${name} → PrintBadges → Printer`,
       exportTitle: (name) => `Export attendees from ${name}`,
-      mapTitle: "Map columns in Badge Scan",
+      mapTitle: "Map columns in PrintBadges",
       designTitle: "Design & print",
       whyHeading: (name) =>
-        `Why event organisers using ${name} pick Badge Scan`,
+        `Why event organisers using ${name} pick PrintBadges`,
       whySub: (name, origin) =>
-        `You already chose ${origin} for ticketing. Badge Scan only touches the badge step.`,
+        `You already chose ${origin} for ticketing. PrintBadges only touches the badge step.`,
       faqHeading: (name) => `${name} badge printing — FAQ`,
       faqSub:
-        "Everything event organisers usually ask before switching their badge flow to Badge Scan.",
+        "Everything event organisers usually ask before switching their badge flow to PrintBadges.",
       ctaHeading: (name) => `Ready to print ${name} badges?`,
       ctaBody: (name) =>
         `Book a demo and we'll walk you through the ${name} flow end to end — no integration required.`,
@@ -234,12 +234,12 @@ export const dict: Record<Locale, Dictionary> = {
       backLink: "← Back to home",
       seeHow: "See how it fits",
       scenariosHeading: (nameLower) =>
-        `Where Badge Scan fits in your ${nameLower}.`,
+        `Where PrintBadges fits in your ${nameLower}.`,
       scenariosSub:
-        "Common scenarios where event organisers turn to Badge Scan instead of pre-printing or stickers.",
+        "Common scenarios where event organisers turn to PrintBadges instead of pre-printing or stickers.",
       faqHeading: (name) => `${name} badge printing — FAQ`,
       faqSub: (nameLower) =>
-        `Questions event organisers ask before moving their ${nameLower} badge flow to Badge Scan.`,
+        `Questions event organisers ask before moving their ${nameLower} badge flow to PrintBadges.`,
       ctaHeading: (nameLower) =>
         `Print badges for your ${nameLower} the easy way.`,
       ctaBody: (nameLower) =>
@@ -274,11 +274,11 @@ export const dict: Record<Locale, Dictionary> = {
       badge: "Net gelanceerd",
       heading: "Nog geen reviews om mee te pronken — dit is de eerlijke versie.",
       intro:
-        "Badge Scan is nieuw, dus we vullen deze plek liever niet met reviews die we niet hebben. In plaats daarvan: dit is waar je nú op kunt rekenen.",
+        "PrintBadges is nieuw, dus we vullen deze plek liever niet met reviews die we niet hebben. In plaats daarvan: dit is waar je nú op kunt rekenen.",
       points: [
         {
           title: "Je hebt rechtstreeks contact met de maker",
-          body: "Badge Scan wordt gerund door één persoon, geen supportwachtrij. Je mail komt bij de maker binnen — vragen worden net zo snel beantwoord als opgelost.",
+          body: "PrintBadges wordt gerund door één persoon, geen supportwachtrij. Je mail komt bij de maker binnen — vragen worden net zo snel beantwoord als opgelost.",
         },
         {
           title: "Gebouwd rond echte exportbestanden",
@@ -299,14 +299,14 @@ export const dict: Record<Locale, Dictionary> = {
       badgePrintingFor: (name) => `Badges printen voor ${name}`,
       signIn: "Inloggen",
       bookDemo: "Demo aanvragen",
-      copyright: "Badge Scan",
+      copyright: "PrintBadges",
       madeFor: "Gemaakt voor organisatoren van conferenties en evenementen.",
     },
     langSwitch: { en: "EN", nl: "NL", label: "Taal" },
     demo: {
       title: "Vraag een demo aan.",
       intro:
-        "Vertel ons over je evenement en we lopen samen door incheck en on-demand badges printen met Badge Scan — en beantwoorden alles wat je wilt weten vóór je volgende evenement.",
+        "Vertel ons over je evenement en we lopen samen door incheck en on-demand badges printen met PrintBadges — en beantwoorden alles wat je wilt weten vóór je volgende evenement.",
       points: [
         "Zie de volledige flow van CSV tot geprinte badge",
         "Werkt met je bestaande ticketsysteem",
@@ -332,7 +332,7 @@ export const dict: Record<Locale, Dictionary> = {
       meta: {
         title: "Demo aanvragen",
         description:
-          "Ontdek hoe Badge Scan incheck en on-demand badges printen voor jouw evenement regelt. Vertel ons over je evenement en we zetten een persoonlijke demo voor je klaar.",
+          "Ontdek hoe PrintBadges incheck en on-demand badges printen voor jouw evenement regelt. Vertel ons over je evenement en we zetten een persoonlijke demo voor je klaar.",
       },
     },
     partnerPage: {
@@ -345,17 +345,17 @@ export const dict: Record<Locale, Dictionary> = {
         "Werkt met elke C4000-printer",
         "Persoonlijke onboarding",
       ],
-      flowLabel: (name) => `${name} → Badge Scan → Printer`,
+      flowLabel: (name) => `${name} → PrintBadges → Printer`,
       exportTitle: (name) => `Exporteer bezoekers uit ${name}`,
-      mapTitle: "Koppel kolommen in Badge Scan",
+      mapTitle: "Koppel kolommen in PrintBadges",
       designTitle: "Ontwerp & print",
       whyHeading: (name) =>
-        `Waarom organisatoren met ${name} voor Badge Scan kiezen`,
+        `Waarom organisatoren met ${name} voor PrintBadges kiezen`,
       whySub: (name, origin) =>
-        `Je koos al voor ${origin} voor ticketing. Badge Scan raakt alleen de badge-stap aan.`,
+        `Je koos al voor ${origin} voor ticketing. PrintBadges raakt alleen de badge-stap aan.`,
       faqHeading: (name) => `Badges printen voor ${name} — veelgestelde vragen`,
       faqSub:
-        "Alles wat organisatoren meestal vragen voordat ze hun badge-flow naar Badge Scan verhuizen.",
+        "Alles wat organisatoren meestal vragen voordat ze hun badge-flow naar PrintBadges verhuizen.",
       ctaHeading: (name) => `Klaar om ${name}-badges te printen?`,
       ctaBody: (name) =>
         `Vraag een demo aan en we lopen de ${name}-flow van begin tot eind met je door — geen integratie nodig.`,
@@ -376,12 +376,12 @@ export const dict: Record<Locale, Dictionary> = {
       backLink: "← Terug naar home",
       seeHow: "Bekijk hoe het past",
       scenariosHeading: (nameLower) =>
-        `Waar Badge Scan past bij jouw ${nameLower}.`,
+        `Waar PrintBadges past bij jouw ${nameLower}.`,
       scenariosSub:
-        "Veelvoorkomende situaties waarin organisatoren voor Badge Scan kiezen in plaats van voorprinten of stickers.",
+        "Veelvoorkomende situaties waarin organisatoren voor PrintBadges kiezen in plaats van voorprinten of stickers.",
       faqHeading: (name) => `Badges printen voor ${name} — veelgestelde vragen`,
       faqSub: (nameLower) =>
-        `Vragen die organisatoren stellen voordat ze hun badge-flow voor ${nameLower} naar Badge Scan verhuizen.`,
+        `Vragen die organisatoren stellen voordat ze hun badge-flow voor ${nameLower} naar PrintBadges verhuizen.`,
       ctaHeading: (nameLower) =>
         `Print badges voor je ${nameLower} op de makkelijke manier.`,
       ctaBody: (nameLower) =>

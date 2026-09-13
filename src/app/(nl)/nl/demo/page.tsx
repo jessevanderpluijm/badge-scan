@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: t.meta.description,
   alternates: localeAlternates("nl", "/demo"),
   openGraph: {
-    title: `${t.meta.title} | Badge Scan`,
+    title: `${t.meta.title} | PrintBadges`,
     description: t.meta.description,
     url: "/nl/demo",
     type: "website",

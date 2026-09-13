@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Badge Scan — On-demand event & conference badge printing";
+export const alt = "PrintBadges — On-demand event & conference badge printing";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -49,7 +49,7 @@ export default function OpengraphImage() {
               <path d="M7 12h10" />
             </svg>
           </div>
-          <div style={{ fontSize: "40px", fontWeight: 700 }}>Badge Scan</div>
+          <div style={{ fontSize: "40px", fontWeight: 700 }}>PrintBadges</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
