@@ -66,33 +66,25 @@ const STEPS: StepDef[] = [
     body: (
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          Media vorm: <strong>gestanst etiket</strong> (die-cut label)
+          Media Form: <strong>Die-cut Label</strong> · Media Detect:{" "}
+          <strong>Gap</strong> · Media Type: <strong>Synthetic</strong>
         </li>
         <li>
-          Media detectie: <strong>tussenruimte</strong> (gap)
+          Media Settings → <strong>Media Size Notice: Off</strong>
         </li>
         <li>
-          Papiertype: <strong>mat papier</strong>
+          Media Settings → Print Position Adjustment:{" "}
+          <strong>Top 3.1 mm · Left 0.7 mm</strong>. Wijkt de print op de
+          testbadge nog af, verschuif deze waardes dan per 0,5 mm bij.
         </li>
         <li>
-          Menu → General Settings → Media Settings →{" "}
-          <strong>Media Size Notice: Off</strong>
-        </li>
-        <li>
-          Menu → General Settings → Printer Settings → Print Options →{" "}
-          <strong>Cut Position: −1.0 mm</strong> — zo valt de snede exact op
-          de perforatie tussen twee badges
-        </li>
-        <li>
-          Menu → General Settings → Media Settings → Print Position
-          Adjustment: <strong>Top +2.5 mm · Left −0.5 mm</strong> als
-          startpunt. Wijkt de print op de testbadge nog af, verschuif deze
-          waardes dan per 0,5 mm bij.
+          De volledige instellingenlijst staat onderaan deze pagina als
+          naslagwerk.
         </li>
       </ul>
     ),
     task:
-      "Check: toont het startscherm van de printer “Mat Papier · Gap” met een breedte rond de 96 mm?",
+      "Check: toont het startscherm van de printer “Synthetic · Gap” met een breedte rond de 96 mm?",
   },
   {
     id: "driver",
@@ -333,6 +325,150 @@ export function SetupGuide() {
             Beschikbaar zodra stap 5 en 6 groen zijn.
           </p>
         )}
+      </Card>
+
+      <Reference />
+    </div>
+  );
+}
+
+// Static reference section under the interactive guide: supplier details,
+// event-day routine and the complete panel settings list.
+function Reference() {
+  const ext = (href: string, label: string) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="underline hover:no-underline"
+    >
+      {label}
+    </a>
+  );
+
+  return (
+    <div className="space-y-4 pt-4">
+      <h2 className="text-lg font-semibold tracking-tight">Naslag</h2>
+
+      <Card className="p-5 space-y-3">
+        <h3 className="font-semibold">Hardware</h3>
+        <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+          <li>
+            Leverancier: {ext("https://www.businesslabels.nl/", "businesslabels.nl")}
+            <ul className="list-disc pl-5 mt-1 space-y-0.5">
+              <li>Accountmanager: Egbert van Ark</li>
+              <li>
+                E-mail:{" "}
+                <a
+                  href="mailto:egbert@smart2b.nl"
+                  className="underline hover:no-underline"
+                >
+                  egbert@smart2b.nl
+                </a>
+              </li>
+              <li>Telefoon: +31 (0)318 590 212</li>
+            </ul>
+          </li>
+          <li>
+            Printer:{" "}
+            {ext(
+              "https://businesslabels.nl/product/colorworks-cw-c4000-mk/",
+              "Epson ColorWorks C4000e",
+            )}
+          </li>
+          <li>
+            Labels:{" "}
+            {ext(
+              "https://businesslabels.nl/product/expobadge-25350920-260t",
+              "ExpoBadge 260T",
+            )}{" "}
+            — 96 × 134 mm per label
+          </li>
+        </ul>
+      </Card>
+
+      <Card className="p-5 space-y-3">
+        <h3 className="font-semibold">Op de eventdag</h3>
+        <div className="text-sm text-muted-foreground space-y-3">
+          <div>
+            <p className="font-medium text-foreground mb-1">Opstarten</p>
+            <ol className="list-decimal pl-5 space-y-0.5">
+              <li>Sluit de printer aan op stroom.</li>
+              <li>Zet de printer aan.</li>
+              <li>Verbind de printer via USB met de laptop.</li>
+              <li>Voer de badges in via de achterkant.</li>
+            </ol>
+          </div>
+          <div>
+            <p className="font-medium text-foreground mb-1">Afsluiten</p>
+            <ul className="list-disc pl-5 space-y-0.5">
+              <li>Open de printer aan de voorkant via de grijze hendel.</li>
+              <li>Haal daarna de badges uit de printer.</li>
+            </ul>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-5 space-y-3">
+        <h3 className="font-semibold">Printerinstellingen (volledig)</h3>
+        <p className="text-sm rounded-md px-3 py-2 bg-muted/40">
+          💡 Standaard staan de instellingen goed. Gaat er iets mis,
+          controleer dan deze lijst.
+        </p>
+        <div className="text-sm text-muted-foreground space-y-3">
+          <div>
+            <p className="font-medium text-foreground mb-1">
+              Menu → Media Settings
+            </p>
+            <ul className="list-disc pl-5 space-y-0.5">
+              <li>Media Type = Synthetic</li>
+              <li>Media Form = Die-cut Label</li>
+              <li>Media Detect = Gap</li>
+              <li>Media Source = Rear Feed</li>
+              <li>Media Shape = Fanfold</li>
+              <li>Media Layout = 96 width, 134 length</li>
+              <li>
+                Print Position Adjustment = 3.1 mm Top Position, 0.7 mm Left
+                Position
+              </li>
+              <li>Media Size Notice = Off</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium text-foreground mb-1">
+              Menu → Print Settings
+            </p>
+            <ul className="list-disc pl-5 space-y-0.5">
+              <li>Media Type = Synthetic</li>
+              <li>Color Adjustment Mode = Epson Vivid Color</li>
+              <li>Quality = Normal</li>
+              <li>Resolution = 600 dpi</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium text-foreground mb-1">
+              Menu → General Settings → Printer Settings → Print Options
+            </p>
+            <ul className="list-disc pl-5 space-y-0.5">
+              <li>Print Mode = Cut</li>
+              <li>Cut Position = 0</li>
+              <li>Reprint = Enable</li>
+              <li>Media Hold Pressure = Auto</li>
+              <li>Cancel Action = Job Only</li>
+              <li>Actions when replacing Media = Feed without Cut</li>
+              <li>Actions on Power On = Not Feed</li>
+            </ul>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-5 space-y-3">
+        <h3 className="font-semibold">Inktcartridge vervangen</h3>
+        <p className="text-sm text-muted-foreground">
+          De printer toont zelf de instructies: <strong>Menu</strong> →{" "}
+          <strong>Maintenance</strong> →{" "}
+          <strong>Ink Cartridge Replacement</strong>.
+        </p>
       </Card>
     </div>
   );

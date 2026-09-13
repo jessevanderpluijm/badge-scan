@@ -60,13 +60,16 @@ er opent een venster dat je gewoon open laat staan tijdens het event.
 - CUPS-wachtrij (eenmalig): `lpadmin -p EPSON_CW_C4000e -o EPIJ_MdSv=0`
   — **mediabesparing moet uit**, anders print de kop de laatste ~9 mm van
   elke badge niet.
-- Printerconfiguratie op het paneel (eenmalig):
-  - Media vorm: gestanst etiket · detectie: gap · papier: mat
+- Printerconfiguratie op het paneel (eenmalig; volledige lijst op
+  /printer-setup onder "Naslag"):
+  - Media Form: Die-cut Label · Media Detect: Gap · Media Type: **Synthetic**
+    · Source: Rear Feed · Shape: Fanfold · Layout: 96 × 134
   - Media Settings → Media Size Notice: **Off**
-  - Media Settings → Print Position Adjustment: **Top +2.5 mm / Left −0.5 mm**
+  - Media Settings → Print Position Adjustment: **Top 3.1 mm / Left 0.7 mm**
     (kalibratiewaarden van onze printer; fijnslijpen met een testbadge)
-  - Printer Settings → Print Options → Cut Position: **−1.0 mm** (compenseert
-    de 1 mm extra paginalengte, zodat de snede exact op de perforatie valt)
+  - Printer Settings → Print Options → Cut Position: **0** · Print Mode: Cut
+    · Reprint: Enable · Actions when replacing Media: Feed without Cut
+    · Actions on Power On: Not Feed
 - Media-model: ExpoBadge 260T fanfold via achterinvoer. De labels liggen
   **rug-aan-rug** (alleen een perforatie, géén 3 mm tussenruimte): 134 mm
   per label, badge = exact 268 mm.
