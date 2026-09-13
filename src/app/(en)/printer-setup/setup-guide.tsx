@@ -47,25 +47,34 @@ const STEPS: StepDef[] = [
       "Opdracht: druk 1× op de ⤓-knop (Feed). Komt er precies één badge-label uit en stopt de printer dan netjes? Dan is de rol goed geladen.",
   },
   {
-    id: "driver",
-    title: "Printer aansluiten op de laptop",
+    id: "software",
+    title: "Installeer software",
     body: (
-      <>
-        <p>
-          Sluit de USB-kabel aan. Installeer de Epson-driver via{" "}
-          <a
-            href="https://support.epson.net/setupnavi/?PINF=swlist&OSC=MI&LG2=EN&MKN=CW-C4000e"
-            target="_blank"
-            rel="noreferrer"
-            className="underline hover:no-underline"
-          >
-            Epson Setup Navi
-          </a>{" "}
-          (kies macOS → Printer Driver). Voeg daarna de printer toe via
-          Systeeminstellingen → Printers en scanners; bij “Use:” hoort
-          automatisch <em>EPSON CW-C4000e</em> te staan.
-        </p>
-      </>
+      <p>
+        Installeer de Epson-driver via{" "}
+        <a
+          href="https://support.epson.net/setupnavi/?PINF=swlist&OSC=MI&LG2=EN&MKN=CW-C4000e"
+          target="_blank"
+          rel="noreferrer"
+          className="underline hover:no-underline"
+        >
+          Epson Setup Navi
+        </a>{" "}
+        (kies macOS → Printer Driver) en doorloop het installatieprogramma.
+      </p>
+    ),
+    task:
+      "Check: is de installatie afgerond zonder foutmelding?",
+  },
+  {
+    id: "connect",
+    title: "Verbind printer",
+    body: (
+      <p>
+        Sluit de USB-kabel aan tussen de printer en de laptop. Voeg daarna de
+        printer toe via Systeeminstellingen → Printers en scanners; bij
+        “Use:” hoort automatisch <em>EPSON CW-C4000e</em> te staan.
+      </p>
     ),
     task:
       "Check: staat EPSON CW-C4000e in de printerlijst van je Mac, zonder foutmelding?",
@@ -301,7 +310,7 @@ export function SetupGuide() {
         </Button>
         {!printerUp && (
           <p className="text-xs text-muted-foreground">
-            Beschikbaar zodra stap 3 en 4 groen zijn.
+            Beschikbaar zodra stap 4 en 5 groen zijn.
           </p>
         )}
       </Card>
