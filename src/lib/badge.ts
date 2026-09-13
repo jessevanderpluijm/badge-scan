@@ -623,8 +623,21 @@ export async function generateBadgePdf(
 
         if (panel.face === "back" && !design.back_same) {
           // Static back: just the uploaded image (or the plain background
-          // colour when none is set) — no attendee data.
-          if (backImage) drawCover(page, backImage, panelX, panelY);
+          // colour when none is set) — no attendee data. Unlike the
+          // attendee side (read by flipping the hanging badge UP), an
+          // uploaded back is read by turning the badge around — so it
+          // needs the opposite orientation: rotate 180° once more, which
+          // cancels the panel rotation.
+          if (backImage) {
+            const cx = panelX + panelW / 2;
+            const cy = panelY + panelH / 2;
+            page.pushOperators(
+              pushGraphicsState(),
+              concatTransformationMatrix(-1, 0, 0, -1, 2 * cx, 2 * cy),
+            );
+            drawCover(page, backImage, panelX, panelY);
+            page.pushOperators(popGraphicsState());
+          }
         } else {
           drawPanel({
             page,
