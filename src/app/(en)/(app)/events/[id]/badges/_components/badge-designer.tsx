@@ -481,13 +481,13 @@ export function BadgeDesigner({
                       type="button"
                       onClick={() =>
                         updateBlock(selectedBlock, {
-                          sizeMm: SIZE_PRESETS[selectedBlock][preset],
+                          sizeMm: SIZE_PRESETS[preset],
                         })
                       }
                       className={cn(
                         "px-3 h-9 rounded-md border text-sm transition-colors",
                         design.layout[selectedBlock].sizeMm ===
-                          SIZE_PRESETS[selectedBlock][preset]
+                          SIZE_PRESETS[preset]
                           ? "border-foreground/40 bg-muted font-medium"
                           : "border-input hover:bg-muted/40",
                       )}
