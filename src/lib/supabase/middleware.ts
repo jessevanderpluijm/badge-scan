@@ -10,6 +10,7 @@ export async function updateSession(request: NextRequest) {
     pathname === "/" ||
     pathname === "/demo" ||
     pathname === "/printer-setup" ||
+    pathname === "/join" ||
     pathname.startsWith("/badge-printing") ||
     pathname === "/nl" ||
     pathname.startsWith("/nl/");

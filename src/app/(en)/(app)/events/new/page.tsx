@@ -92,11 +92,22 @@ export default function NewEventPage() {
       setError("Not signed in.");
       return;
     }
+    // Events belong to the user's organization so team members share them;
+    // the RPC also creates the org on a brand-new account.
+    const { data: orgId, error: orgError } = await supabase.rpc(
+      "create_own_organization",
+    );
+    if (orgError || !orgId) {
+      setLoading(false);
+      setError(orgError?.message ?? "Could not resolve your organization.");
+      return;
+    }
     const { data, error } = await supabase
       .from("events")
       .insert({
         name: name.trim(),
         owner_id: user.id,
+        organization_id: orgId,
         start_date: startDate || null,
         end_date: endDate || null,
       })
