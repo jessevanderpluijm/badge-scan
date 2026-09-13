@@ -12,7 +12,11 @@ type State =
   | { kind: "working" }
   | { kind: "no-session" }
   | { kind: "joined" }
-  | { kind: "error"; code: "expired" | "invalid" | "mismatch" | "other"; detail?: string };
+  | {
+      kind: "error";
+      code: "expired" | "invalid" | "mismatch" | "already" | "other";
+      detail?: string;
+    };
 
 // Consumes the invite magic-link. The email link carries the session in the
 // URL FRAGMENT (implicit flow), so this page needs its own implicit-flow
@@ -85,7 +89,9 @@ export function JoinFlow() {
               ? "invalid"
               : msg.includes("email_mismatch")
                 ? "mismatch"
-                : "other",
+                : msg.includes("already_in_org")
+                  ? "already"
+                  : "other",
           detail: msg,
         });
         return;
@@ -159,7 +165,9 @@ export function JoinFlow() {
           ? "Deze uitnodiging is al gebruikt of ingetrokken."
           : state.code === "mismatch"
             ? "Je bent ingelogd met een ander e-mailadres dan waar deze uitnodiging voor is. Log uit en open de link opnieuw vanuit de mailbox waar de uitnodiging binnenkwam."
-            : `Er ging iets mis: ${state.detail}`;
+            : state.code === "already"
+              ? "Dit account heeft al een eigen organisatie met events. Een account kan maar bij één organisatie horen — gebruik een ander e-mailadres, of laat de eigenaar van je huidige organisatie je eerst verwijderen."
+              : `Er ging iets mis: ${state.detail}`;
 
   return (
     <Card className="p-6 space-y-4">
@@ -167,7 +175,8 @@ export function JoinFlow() {
         <AlertCircle className="h-5 w-5 text-warning" /> Uitnodiging
       </p>
       <p className="text-sm text-muted-foreground">{message}</p>
-      {state.kind !== "error" || state.code !== "mismatch" ? (
+      {state.kind !== "error" ||
+      (state.code !== "mismatch" && state.code !== "already") ? (
         <div className="space-y-2">
           <Button onClick={onResend} disabled={resending}>
             {resending ? (
