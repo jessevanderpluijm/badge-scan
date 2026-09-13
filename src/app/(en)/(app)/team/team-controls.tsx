@@ -4,69 +4,12 @@ import { useState, useTransition } from "react";
 import { AlertCircle, Loader2, MailPlus, RotateCw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import {
   inviteColleague,
   removeMember,
   resendInvite,
   revokeInvite,
 } from "@/lib/team-actions";
-
-export function OrgNameForm({
-  orgId,
-  initialName,
-}: {
-  orgId: string;
-  initialName: string;
-}) {
-  const router = useRouter();
-  const supabase = createClient();
-  const [name, setName] = useState(initialName);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const clean = name.trim();
-    if (!clean) return;
-    setSaving(true);
-    setError(null);
-    const { error } = await supabase
-      .from("organizations")
-      .update({ name: clean })
-      .eq("id", orgId);
-    setSaving(false);
-    if (error) return setError(error.message);
-    router.refresh();
-  }
-
-  return (
-    <form onSubmit={onSubmit} className="space-y-2">
-      <div className="flex gap-2">
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          maxLength={80}
-          required
-        />
-        <Button
-          type="submit"
-          variant="outline"
-          disabled={saving || name.trim() === initialName}
-        >
-          {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-          {saving ? "Opslaan…" : "Opslaan"}
-        </Button>
-      </div>
-      {error && (
-        <p className="text-sm text-destructive flex items-center gap-1.5">
-          <AlertCircle className="h-4 w-4" /> {error}
-        </p>
-      )}
-    </form>
-  );
-}
 
 export function InviteForm() {
   const [email, setEmail] = useState("");
