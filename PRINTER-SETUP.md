@@ -57,9 +57,13 @@ er opent een venster dat je gewoon open laat staan tijdens het event.
   snede valt).
 - Andere printer/queue? Zet env vars `PRINTER` en `MEDIA`.
 - Verwijderen: `bash scripts/install-print-agent.sh --uninstall`
-- CUPS-wachtrij (eenmalig): `lpadmin -p EPSON_CW_C4000e -o EPIJ_MdSv=0`
+- CUPS-wachtrij (het install-script zet dit zelf; handmatig:
+  `lpadmin -p EPSON_CW_C4000e -o EPIJ_MdSv=0 -o EPIJ_LbAc=0 -o EPIJ_DfltACut=0`)
   — **mediabesparing moet uit**, anders print de kop de laatste ~9 mm van
-  elke badge niet.
+  elke badge niet; **Auto Cut moet op 0**, anders (waarde 3/4/5 = "niet
+  knippen") stopt de badge bij de snijpositie zonder afgesneden te worden.
+  Een printdialoog kan deze waarden ongemerkt als wachtrij-standaard opslaan;
+  controleer met `lpoptions -p EPSON_CW_C4000e -l | grep -E 'LbAc|MdSv'`.
 - Printerconfiguratie op het paneel (eenmalig; volledige lijst op
   /printer-setup onder "Naslag"):
   - Media Form: Die-cut Label · Media Detect: Gap · Media Type: **Synthetic**

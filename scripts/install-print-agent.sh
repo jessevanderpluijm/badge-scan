@@ -126,10 +126,18 @@ if [[ ! -w "$LA_DIR" || ( -e "$PLIST" && ! -w "$PLIST" ) ]]; then
   exit 1
 fi
 
-# Media saving MUST be off on the CUPS queue: with it on, the C4000e skips
-# the last ~9mm of every job and the badge tail stays white.
+# Pin the CUPS queue options the badge depends on. A print dialog can silently
+# save other values as the queue default, and the agent itself never sends them.
+#   EPIJ_MdSv=0     media saving off: with it on, the C4000e skips the last ~9mm
+#                   of every job and the badge tail stays white.
+#   EPIJ_LbAc=0     auto cut after the last page: 3/4/5 mean "do not cut", so
+#                   the badge feeds to the cut position and just stops there.
+#   EPIJ_DfltACut=0 same setting under its second PPD name.
 if lpstat -p EPSON_CW_C4000e >/dev/null 2>&1; then
-  lpadmin -p EPSON_CW_C4000e -o EPIJ_MdSv=0 || true
+  lpadmin -p EPSON_CW_C4000e \
+    -o EPIJ_MdSv=0 \
+    -o EPIJ_LbAc=0 \
+    -o EPIJ_DfltACut=0 || true
 fi
 
 cat > "$PLIST" <<PLIST_EOF
