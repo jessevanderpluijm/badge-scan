@@ -128,10 +128,16 @@ export function PrinterControls({ className }: { className?: string }) {
                   handleiding
                 </a>
               </>
-            ) : autoPrint ? (
-              "Badges printen automatisch bij check-in"
             ) : (
-              "Automatisch printen staat uit"
+              <>
+                {autoPrint
+                  ? "Badges printen automatisch bij check-in"
+                  : "Automatisch printen staat uit"}{" "}
+                ·{" "}
+                <a href="/printer-setup" className="underline hover:no-underline">
+                  handleiding
+                </a>
+              </>
             )}
           </p>
         </div>
