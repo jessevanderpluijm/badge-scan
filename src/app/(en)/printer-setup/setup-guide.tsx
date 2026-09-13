@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  Check,
   CheckCircle2,
   ChevronDown,
   Circle,
+  Copy,
   Loader2,
   Printer,
   RotateCcw,
@@ -30,18 +32,13 @@ type StepDef = {
 const STEPS: StepDef[] = [
   {
     id: "media",
-    title: "Badgerol laden",
+    title: "Printer opstarten",
     body: (
-      <>
-        <p>
-          De ExpoBadge-badges zijn een gevouwen stapel (fanfold) en gaan via
-          de <strong>sleuf aan de achterkant</strong> de printer in — niet op
-          de rolhouder. Let op de printzijde: de kant waar je elke badge
-          afzonderlijk omlijnd ziet (met ronde hoeken) moet <strong>boven</strong>{" "}
-          liggen. Voer de eerste badge in de achtersleuf tot de printer hem
-          pakt.
-        </p>
-      </>
+      <ul className="list-disc pl-5 space-y-1">
+        <li>Sluit de printer aan op het stroom.</li>
+        <li>Zet de printer aan.</li>
+        <li>Voeg de badges toe via de achterkant.</li>
+      </ul>
     ),
     task:
       "Opdracht: druk 1× op de ⤓-knop (Feed). Komt er precies één badge-label uit en stopt de printer dan netjes? Dan is de rol goed geladen.",
@@ -63,8 +60,6 @@ const STEPS: StepDef[] = [
         (kies macOS → Printer Driver) en doorloop het installatieprogramma.
       </p>
     ),
-    task:
-      "Check: is de installatie afgerond zonder foutmelding?",
   },
   {
     id: "connect",
@@ -76,21 +71,24 @@ const STEPS: StepDef[] = [
         “Use:” hoort automatisch <em>EPSON CW-C4000e</em> te staan.
       </p>
     ),
-    task:
-      "Check: staat EPSON CW-C4000e in de printerlijst van je Mac, zonder foutmelding?",
   },
   {
     id: "agent",
-    title: "Printerkoppeling starten",
+    title: "Printerkoppeling installeren",
     auto: "agent",
     body: (
       <>
         <p>
-          De koppeling verbindt de PrintBadges-portal met de printer. Vraag de
-          beheerder om de eenmalige installatie
-          (<code className="text-xs">bash scripts/install-print-agent.sh</code>),
-          of dubbelklik het bestand <strong>Badge Printer.command</strong> en
-          laat het venster open staan.
+          De koppeling is een klein programma op deze laptop dat badges van
+          de PrintBadges-portal doorgeeft aan de printer. Je installeert hem
+          één keer; daarna start hij automatisch mee zodra de laptop aan
+          staat.
+        </p>
+        <InstallCommand />
+        <p className="text-xs">
+          Alternatief zonder installatie: dubbelklik{" "}
+          <strong>Badge Printer.command</strong> uit de projectmap en laat
+          het venster open staan.
         </p>
       </>
     ),
@@ -109,6 +107,77 @@ const STEPS: StepDef[] = [
     task: "Deze pagina checkt de printerverbinding automatisch.",
   },
 ];
+
+// A browser can't run a shell script on the Mac, so the closest thing to a
+// one-click install is: copy the one-liner, paste it in Terminal. The
+// command points at this same origin, so it also works on preview deploys
+// and localhost.
+function InstallCommand() {
+  const [origin, setOrigin] = useState<string | null>(null);
+  const [state, setState] = useState<"idle" | "copied" | "manual">("idle");
+  const codeRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  const command = `curl -fsSL ${origin ?? "https://print-badges.com"}/print-agent/install.sh | bash`;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(command);
+      setState("copied");
+    } catch {
+      // Clipboard API refused (older browser, embedded webview, permission
+      // denied): select the command so a plain ⌘+C still works.
+      const el = codeRef.current;
+      if (el) {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+      setState("manual");
+    }
+    setTimeout(() => setState("idle"), 3000);
+  }
+
+  return (
+    <div className="rounded-md border bg-background p-3 space-y-2">
+      <Button type="button" size="sm" onClick={copy} className="w-full sm:w-auto">
+        {state === "copied" ? (
+          <Check className="h-4 w-4" />
+        ) : (
+          <Copy className="h-4 w-4" />
+        )}
+        {state === "copied" ? "Gekopieerd!" : "Kopieer installatiecommando"}
+      </Button>
+      {state === "manual" && (
+        <p className="text-xs text-foreground">
+          Kopiëren lukte niet automatisch — het commando is geselecteerd, druk
+          op ⌘ + C.
+        </p>
+      )}
+      <ol className="list-decimal pl-5 space-y-0.5 text-xs">
+        <li>
+          Open <strong>Terminal</strong> (⌘ + spatie, typ “Terminal”, Enter).
+        </li>
+        <li>Plak het commando (⌘ + V) en druk op Enter.</li>
+        <li>
+          Wacht op het groene vinkje in Terminal; deze stap kleurt dan vanzelf
+          groen.
+        </li>
+      </ol>
+      <code
+        ref={codeRef}
+        className="block text-[11px] break-all text-muted-foreground select-all"
+      >
+        {command}
+      </code>
+    </div>
+  );
+}
 
 export function SetupGuide() {
   const [done, setDone] = useState<Record<string, boolean>>({});

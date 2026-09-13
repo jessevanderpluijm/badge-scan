@@ -22,8 +22,14 @@ export async function updateSession(request: NextRequest) {
     pathname === "/opengraph-image" ||
     pathname === "/twitter-image" ||
     pathname === "/icon.svg";
+  // Installer + agent download for the check-in laptop (curl | bash).
+  const isPrintAgentFile = pathname.startsWith("/print-agent/");
   const isPublic =
-    isAuthPage || isMarketing || isCrawlerFile || pathname.startsWith("/auth");
+    isAuthPage ||
+    isMarketing ||
+    isCrawlerFile ||
+    isPrintAgentFile ||
+    pathname.startsWith("/auth");
 
   // Public pages that aren't /login never need to know who the user is —
   // skip the Supabase auth round trip entirely. This shaves ~100-200ms
