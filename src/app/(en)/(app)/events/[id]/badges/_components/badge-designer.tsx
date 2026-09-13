@@ -24,6 +24,8 @@ import {
   BADGE_FONTS,
   BLOCK_LABELS,
   DEFAULT_LAYOUT,
+  SIZE_PRESETS,
+  type SizePreset,
   FIELD_LABELS,
   generateBadgePdf,
   type AttendeeForBadge,
@@ -436,9 +438,9 @@ export function BadgeDesigner({
           <div>
             <h2 className="font-semibold">3. Layout</h2>
             <p className="text-xs text-muted-foreground">
-              Drag text on the preview to move it. Click a block to change
-              its alignment. Text sizes are fixed — long names shrink
-              automatically to fit the badge.
+              Drag text on the preview to move it. Click a block to set its
+              size and alignment — too-long text still shrinks automatically
+              to fit the badge.
             </p>
           </div>
 
@@ -464,6 +466,38 @@ export function BadgeDesigner({
 
           {selectedBlock && blockVisible(selectedBlock) && (
             <div className="space-y-3">
+              <div className="space-y-2">
+                <Label>Text size</Label>
+                <div className="flex gap-1">
+                  {(
+                    [
+                      ["small", "Small"],
+                      ["medium", "Medium"],
+                      ["large", "Large"],
+                    ] as [SizePreset, string][]
+                  ).map(([preset, label]) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() =>
+                        updateBlock(selectedBlock, {
+                          sizeMm: SIZE_PRESETS[selectedBlock][preset],
+                        })
+                      }
+                      className={cn(
+                        "px-3 h-9 rounded-md border text-sm transition-colors",
+                        design.layout[selectedBlock].sizeMm ===
+                          SIZE_PRESETS[selectedBlock][preset]
+                          ? "border-foreground/40 bg-muted font-medium"
+                          : "border-input hover:bg-muted/40",
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label>Alignment</Label>
                 <div className="flex gap-1">
