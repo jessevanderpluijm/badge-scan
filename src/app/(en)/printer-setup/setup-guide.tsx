@@ -17,7 +17,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { DEFAULT_DESIGN } from "@/lib/badge";
-import { getPrinterStatus, printBadge } from "@/lib/print-agent";
+import {
+  browserBlocksLocalAgent,
+  getPrinterStatus,
+  printBadge,
+} from "@/lib/print-agent";
 
 const STORAGE_KEY = "badgescan-setup-progress";
 
@@ -183,6 +187,7 @@ export function SetupGuide() {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [agentUp, setAgentUp] = useState(false);
   const [printerUp, setPrinterUp] = useState(false);
+  const [safari, setSafari] = useState(false);
   const [testState, setTestState] = useState<
     "idle" | "printing" | "done" | "error"
   >("idle");
@@ -193,6 +198,7 @@ export function SetupGuide() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) setDone(JSON.parse(saved));
     } catch {}
+    setSafari(browserBlocksLocalAgent());
     let active = true;
     const ping = async () => {
       const status = await getPrinterStatus();
@@ -278,6 +284,33 @@ export function SetupGuide() {
           Opnieuw
         </Button>
       </div>
+
+      {safari && !agentUp && (
+        <Card className="p-5 border-warning/70 bg-warning/10 space-y-2">
+          <p className="font-semibold leading-tight">
+            Open deze pagina in Google Chrome
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Je gebruikt Safari. Safari staat niet toe dat deze pagina met de
+            printerkoppeling op de laptop praat, waardoor stap 4 en 5 hier
+            nooit groen worden en badges niet geprint kunnen worden.
+            Inchecken werkt wel. Gebruik voor het printen van badges{" "}
+            <a
+              href="https://www.google.com/chrome/"
+              target="_blank"
+              rel="noreferrer"
+              className="underline hover:no-underline"
+            >
+              Google Chrome
+            </a>{" "}
+            en open daarin{" "}
+            <code className="text-xs select-all">
+              print-badges.com/printer-setup
+            </code>
+            .
+          </p>
+        </Card>
+      )}
 
       <ol className="space-y-3">
         {STEPS.map((step, i) => {

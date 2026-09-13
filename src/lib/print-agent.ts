@@ -16,6 +16,20 @@ import {
 
 const AGENT_URL = "http://127.0.0.1:9123";
 
+// Safari refuses http://127.0.0.1 calls from an https page as mixed content,
+// so the agent is invisible there no matter what. Chrome and Firefox treat
+// loopback as trustworthy. Detect it so the UI can say "open this in Chrome"
+// instead of spinning forever.
+export function browserBlocksLocalAgent(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  return (
+    navigator.vendor === "Apple Computer, Inc." &&
+    /Safari/.test(ua) &&
+    !/Chrome|CriOS|Chromium|Edg|FxiOS/.test(ua)
+  );
+}
+
 export type PrintResult =
   | { ok: true; jobId: string }
   | { ok: false; error: string };

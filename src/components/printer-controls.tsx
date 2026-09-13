@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, Loader2, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getPrinterStatus, type PrinterStatus } from "@/lib/print-agent";
+import {
+  browserBlocksLocalAgent,
+  getPrinterStatus,
+  type PrinterStatus,
+} from "@/lib/print-agent";
 
 // One shared auto-print preference for the whole browser: the scanner page,
 // the attendee list and the manual check-in dialog all read the same value.
@@ -66,6 +70,8 @@ export function usePrinterStatus(pollMs = 10000): PrinterStatus | null {
 export function PrinterControls({ className }: { className?: string }) {
   const status = usePrinterStatus();
   const [autoPrint, toggleAutoPrint] = useAutoPrint();
+  const [safari, setSafari] = useState(false);
+  useEffect(() => setSafari(browserBlocksLocalAgent()), []);
 
   return (
     <div
@@ -101,7 +107,14 @@ export function PrinterControls({ className }: { className?: string }) {
                   : "Printerkoppeling niet actief"}
           </p>
           <p className="text-xs text-muted-foreground truncate">
-            {status === "no-agent" ? (
+            {status === "no-agent" && safari ? (
+              <>
+                Safari blokkeert de koppeling — open PrintBadges in Chrome ·{" "}
+                <a href="/printer-setup" className="underline hover:no-underline">
+                  handleiding
+                </a>
+              </>
+            ) : status === "no-agent" ? (
               <>
                 Check-in werkt door ·{" "}
                 <a href="/printer-setup" className="underline hover:no-underline">
