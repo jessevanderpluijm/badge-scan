@@ -20,8 +20,8 @@ import { BadgeDesigner } from "../[id]/badges/_components/badge-designer";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
-  { n: 1, label: "Event details" },
-  { n: 2, label: "Badge design" },
+  { n: 1, label: "Eventgegevens" },
+  { n: 2, label: "Badge-ontwerp" },
 ] as const;
 
 function Stepper({ current }: { current: 1 | 2 }) {
@@ -79,7 +79,7 @@ export default function NewEventPage() {
   async function onCreate(e: React.FormEvent) {
     e.preventDefault();
     if (startDate && endDate && endDate < startDate) {
-      setError("End date must be on or after the start date.");
+      setError("De einddatum moet op of na de startdatum liggen.");
       return;
     }
     setLoading(true);
@@ -89,7 +89,7 @@ export default function NewEventPage() {
     } = await supabase.auth.getUser();
     if (!user) {
       setLoading(false);
-      setError("Not signed in.");
+      setError("Je bent niet ingelogd.");
       return;
     }
     // Events belong to the user's organization so team members share them;
@@ -99,7 +99,7 @@ export default function NewEventPage() {
     );
     if (orgError || !orgId) {
       setLoading(false);
-      setError(orgError?.message ?? "Could not resolve your organization.");
+      setError(orgError?.message ?? "Kon je organisatie niet vinden.");
       return;
     }
     const { data, error } = await supabase
@@ -132,27 +132,27 @@ export default function NewEventPage() {
           href="/events"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to events
+          <ArrowLeft className="h-4 w-4" /> Terug naar events
         </Link>
 
         <Stepper current={1} />
 
         <Card>
           <CardHeader>
-            <CardTitle>Event details</CardTitle>
+            <CardTitle>Eventgegevens</CardTitle>
             <CardDescription>
-              Start with a name. You can rename it later.
+              Begin met een naam. Je kunt hem later nog aanpassen.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={onCreate} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Event name</Label>
+                <Label htmlFor="name">Eventnaam</Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Summer Conference 2026"
+                  placeholder="bijv. Zomercongres 2026"
                   required
                   autoFocus
                 />
@@ -160,9 +160,9 @@ export default function NewEventPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="start-date">
-                    Start date{" "}
+                    Startdatum{" "}
                     <span className="text-muted-foreground font-normal">
-                      (optional)
+                      (optioneel)
                     </span>
                   </Label>
                   <Input
@@ -174,9 +174,9 @@ export default function NewEventPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="end-date">
-                    End date{" "}
+                    Einddatum{" "}
                     <span className="text-muted-foreground font-normal">
-                      (optional)
+                      (optioneel)
                     </span>
                   </Label>
                   <Input
@@ -192,7 +192,7 @@ export default function NewEventPage() {
               <div className="flex justify-end">
                 <Button type="submit" disabled={loading || !name.trim()}>
                   {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {loading ? "Creating…" : "Continue"}
+                  {loading ? "Aanmaken…" : "Verder"}
                 </Button>
               </div>
             </form>
@@ -208,18 +208,18 @@ export default function NewEventPage() {
         href="/events"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="h-4 w-4" /> Back to events
+        <ArrowLeft className="h-4 w-4" /> Terug naar events
       </Link>
 
       <Stepper current={2} />
 
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
-          Badge design
+          Badge-ontwerp
         </h1>
         <p className="text-sm text-muted-foreground">
-          Set up how badges will look for <strong>{name}</strong>. You can
-          tweak this later from the event page.
+          Bepaal hoe de badges van <strong>{name}</strong> eruitzien. Dit
+          kun je later nog aanpassen vanaf de eventpagina.
         </p>
       </div>
 

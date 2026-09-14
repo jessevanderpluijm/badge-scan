@@ -57,10 +57,10 @@ export default async function BadgesPage({
           <ArrowLeft className="h-4 w-4" /> {event.name}
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">
-          Badge designer
+          Badge-ontwerp
         </h1>
         <p className="text-sm text-muted-foreground">
-          Design once, print one PDF for every attendee.
+          Eén keer ontwerpen — elke deelnemer krijgt zijn eigen badge.
         </p>
       </div>
 

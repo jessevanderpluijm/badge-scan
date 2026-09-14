@@ -37,7 +37,7 @@ export function AttendeeSearch({ initialQuery }: { initialQuery: string }) {
         type="search"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search"
+        placeholder="Zoeken"
         className="pl-8 pr-8 h-9"
       />
       {value && (
@@ -47,7 +47,7 @@ export function AttendeeSearch({ initialQuery }: { initialQuery: string }) {
           size="icon"
           onClick={() => setValue("")}
           className="absolute right-0.5 top-1/2 -translate-y-1/2 h-7 w-7"
-          aria-label="Clear search"
+          aria-label="Zoekopdracht wissen"
         >
           <X className="h-3.5 w-3.5" />
         </Button>

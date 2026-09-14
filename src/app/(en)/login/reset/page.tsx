@@ -47,10 +47,10 @@ export default function ResetPasswordPage() {
     setError(null);
 
     if (password.length < 8) {
-      return setError("Use at least 8 characters.");
+      return setError("Gebruik minimaal 8 tekens.");
     }
     if (password !== confirm) {
-      return setError("Passwords don't match.");
+      return setError("De wachtwoorden komen niet overeen.");
     }
 
     setLoading(true);
@@ -67,17 +67,17 @@ export default function ResetPasswordPage() {
     <div className="w-full max-w-sm">
       <Card>
         <CardHeader>
-          <CardTitle>Set a new password</CardTitle>
+          <CardTitle>Nieuw wachtwoord instellen</CardTitle>
           <CardDescription>
             {ready
-              ? "Choose a new password for your account."
-              : "Waiting for the recovery link to verify…"}
+              ? "Kies een nieuw wachtwoord voor je account."
+              : "De herstel-link wordt gecontroleerd…"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">New password</Label>
+              <Label htmlFor="password">Nieuw wachtwoord</Label>
               <Input
                 id="password"
                 type="password"
@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm">Confirm new password</Label>
+              <Label htmlFor="confirm">Herhaal nieuw wachtwoord</Label>
               <Input
                 id="confirm"
                 type="password"
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
               disabled={!ready || loading}
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loading ? "Saving…" : "Set new password"}
+              {loading ? "Opslaan…" : "Wachtwoord instellen"}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
@@ -119,7 +119,7 @@ export default function ResetPasswordPage() {
                 href="/login"
                 className="text-foreground underline hover:no-underline"
               >
-                Back to sign in
+                Terug naar inloggen
               </Link>
             </p>
           </form>

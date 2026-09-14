@@ -60,7 +60,7 @@ export function EventActions({
   async function saveEdit(e: React.FormEvent) {
     e.preventDefault();
     if (editStart && editEnd && editEnd < editStart) {
-      setEditError("End date must be on or after the start date.");
+      setEditError("De einddatum moet op of na de startdatum liggen.");
       return;
     }
     setEditError(null);
@@ -108,34 +108,34 @@ export function EventActions({
     <>
       <DropdownMenu
         trigger={
-          <Button variant="outline" size="icon" aria-label="Event actions">
+          <Button variant="outline" size="icon" aria-label="Event-acties">
             <MoreVertical className="h-4 w-4" />
           </Button>
         }
       >
         <DropdownMenuItem onClick={() => router.push(`/events/${id}/badges`)}>
-          <IdCard className="h-4 w-4" /> Design badges
+          <IdCard className="h-4 w-4" /> Badge ontwerpen
         </DropdownMenuItem>
         <DropdownMenuItem onClick={openEdit}>
-          <Pencil className="h-4 w-4" /> Edit event
+          <Pencil className="h-4 w-4" /> Event bewerken
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={openDelete} destructive>
-          <Trash2 className="h-4 w-4" /> Delete event
+          <Trash2 className="h-4 w-4" /> Event verwijderen
         </DropdownMenuItem>
       </DropdownMenu>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <form onSubmit={saveEdit}>
           <DialogHeader>
-            <DialogTitle>Edit event</DialogTitle>
+            <DialogTitle>Event bewerken</DialogTitle>
             <DialogDescription>
-              Update the name or the event dates.
+              Pas de naam of de datums van het event aan.
             </DialogDescription>
           </DialogHeader>
           <DialogBody className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-name">Event name</Label>
+              <Label htmlFor="edit-name">Eventnaam</Label>
               <Input
                 id="edit-name"
                 value={editName}
@@ -147,9 +147,9 @@ export function EventActions({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="edit-start">
-                  Start date{" "}
+                  Startdatum{" "}
                   <span className="text-muted-foreground font-normal">
-                    (optional)
+                    (optioneel)
                   </span>
                 </Label>
                 <Input
@@ -161,9 +161,9 @@ export function EventActions({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-end">
-                  End date{" "}
+                  Einddatum{" "}
                   <span className="text-muted-foreground font-normal">
-                    (optional)
+                    (optioneel)
                   </span>
                 </Label>
                 <Input
@@ -186,14 +186,14 @@ export function EventActions({
               onClick={() => setEditOpen(false)}
               disabled={saving}
             >
-              Cancel
+              Annuleren
             </Button>
             <Button
               type="submit"
               disabled={saving || !editName.trim() || !isDirty}
             >
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-              {saving ? "Saving…" : "Save changes"}
+              {saving ? "Opslaan…" : "Wijzigingen opslaan"}
             </Button>
           </DialogFooter>
         </form>
@@ -201,10 +201,10 @@ export function EventActions({
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogHeader>
-          <DialogTitle>Delete event?</DialogTitle>
+          <DialogTitle>Event verwijderen?</DialogTitle>
           <DialogDescription>
-            This will permanently delete <strong>{name}</strong> and all
-            attendees. This action cannot be undone.
+            Dit verwijdert <strong>{name}</strong> en alle deelnemers
+            definitief. Dit kan niet ongedaan worden gemaakt.
           </DialogDescription>
         </DialogHeader>
         {deleteError && (
@@ -219,7 +219,7 @@ export function EventActions({
             onClick={() => setDeleteOpen(false)}
             disabled={deleting}
           >
-            Cancel
+            Annuleren
           </Button>
           <Button
             type="button"
@@ -228,7 +228,7 @@ export function EventActions({
             disabled={deleting}
           >
             {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {deleting ? "Deleting…" : "Delete event"}
+            {deleting ? "Verwijderen…" : "Event verwijderen"}
           </Button>
         </DialogFooter>
       </Dialog>

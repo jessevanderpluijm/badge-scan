@@ -232,25 +232,25 @@ export function Scanner({
       bg: "bg-success",
       text: "text-success-foreground",
       Icon: CheckCircle2,
-      label: "Valid",
+      label: "Geldig",
     },
     used: {
       bg: "bg-warning",
       text: "text-warning-foreground",
       Icon: AlertTriangle,
-      label: "Already checked in",
+      label: "Al ingecheckt",
     },
     invalid: {
       bg: "bg-destructive",
       text: "text-destructive-foreground",
       Icon: XCircle,
-      label: "Invalid barcode",
+      label: "Ongeldige barcode",
     },
     idle: {
       bg: "bg-muted",
       text: "text-muted-foreground",
       Icon: ScanLine,
-      label: "Ready",
+      label: "Klaar om te scannen",
     },
   } as const;
 
@@ -287,7 +287,7 @@ export function Scanner({
               <p className="text-2xl sm:text-3xl font-semibold">
                 {[current.attendee.first_name, current.attendee.last_name]
                   .filter(Boolean)
-                  .join(" ") || "Attendee"}
+                  .join(" ") || "Deelnemer"}
               </p>
               {(current.attendee.job_title || current.attendee.company) && (
                 <p className="text-lg opacity-90">
@@ -309,20 +309,20 @@ export function Scanner({
               <p className="text-2xl sm:text-3xl font-semibold">
                 {[current.attendee.first_name, current.attendee.last_name]
                   .filter(Boolean)
-                  .join(" ") || "Attendee"}
+                  .join(" ") || "Deelnemer"}
               </p>
               <p className="text-base opacity-90">
-                Checked in at{" "}
+                Ingecheckt om{" "}
                 {current.previousUsedAt
-                  ? new Date(current.previousUsedAt).toLocaleTimeString()
-                  : "earlier"}
+                  ? new Date(current.previousUsedAt).toLocaleTimeString("nl-NL")
+                  : "eerder"}
               </p>
             </div>
           )}
 
           {current?.status === "invalid" && (
             <p className="mt-6 text-base opacity-90">
-              No attendee with this barcode exists for {eventName}.
+              Geen deelnemer met deze barcode gevonden voor {eventName}.
             </p>
           )}
 
@@ -358,8 +358,8 @@ export function Scanner({
                   >
                     <Printer className="h-4 w-4" />
                     {printState.state === "done" || current.status === "used"
-                      ? "Print badge opnieuw"
-                      : "Print badge"}
+                      ? "Badge opnieuw printen"
+                      : "Badge printen"}
                   </Button>
                 )}
               </div>
@@ -373,7 +373,7 @@ export function Scanner({
 
           {!current && (
             <p className="mt-6 text-sm opacity-80">
-              Scan a barcode to check in.
+              Scan een barcode om in te checken.
             </p>
           )}
         </div>
@@ -392,7 +392,7 @@ export function Scanner({
             ref={inputRef}
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="Waiting for scanner…"
+            placeholder="Wachten op de scanner…"
             className="h-12 text-center text-base font-mono"
             autoComplete="off"
             spellCheck={false}
@@ -401,15 +401,15 @@ export function Scanner({
           <div className="mt-3 flex items-center justify-center gap-4 text-xs text-muted-foreground flex-wrap">
             <span className="inline-flex items-center gap-1.5">
               <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-              <span>{stats.checkedIn} valid</span>
+              <span>{stats.checkedIn} geldig</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <AlertTriangle className="h-3.5 w-3.5 text-warning" />
-              <span>{stats.duplicate} duplicate</span>
+              <span>{stats.duplicate} dubbel</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <XCircle className="h-3.5 w-3.5 text-destructive" />
-              <span>{stats.invalid} invalid</span>
+              <span>{stats.invalid} ongeldig</span>
             </span>
           </div>
         </form>
@@ -417,7 +417,7 @@ export function Scanner({
         {history.length > 0 && (
           <div className="max-w-2xl mx-auto mt-5">
             <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
-              Recent
+              Recente scans
             </p>
             <ul className="space-y-1">
               {history.slice(0, 6).map((r) => (
@@ -447,7 +447,7 @@ export function Scanner({
                     </span>
                   </span>
                   <span className="text-xs text-muted-foreground flex-shrink-0">
-                    {new Date(r.at).toLocaleTimeString()}
+                    {new Date(r.at).toLocaleTimeString("nl-NL")}
                   </span>
                 </li>
               ))}

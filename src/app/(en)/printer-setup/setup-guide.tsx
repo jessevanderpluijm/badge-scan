@@ -32,7 +32,7 @@ type StepDef = {
   title: string;
   body: React.ReactNode;
   task?: string; // tussentijdse opdracht om de stap te verifiëren
-  auto?: "agent" | "printer"; // stap wordt automatisch afgevinkt via live detectie
+  auto?: "printer"; // stap wordt automatisch afgevinkt via live detectie
 };
 
 const STEPS: StepDef[] = [
@@ -247,7 +247,6 @@ export function SetupGuide() {
   }
 
   function isChecked(step: StepDef): boolean {
-    if (step.auto === "agent") return agentUp;
     if (step.auto === "printer") return printerUp;
     return !!done[step.id];
   }

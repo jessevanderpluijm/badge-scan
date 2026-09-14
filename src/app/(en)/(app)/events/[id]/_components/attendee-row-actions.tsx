@@ -84,7 +84,7 @@ export function AttendeeRowActions({
             variant="ghost"
             size="icon"
             className="h-7 w-7"
-            aria-label={`Actions for ${displayName}`}
+            aria-label={`Acties voor ${displayName}`}
           >
             {printing ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -95,7 +95,7 @@ export function AttendeeRowActions({
         }
       >
         <DropdownMenuItem onClick={() => void onPrint()}>
-          <Printer className="h-3.5 w-3.5" /> Print badge
+          <Printer className="h-3.5 w-3.5" /> Badge printen
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
@@ -104,17 +104,17 @@ export function AttendeeRowActions({
           }}
           destructive
         >
-          <Trash2 className="h-3.5 w-3.5" /> Delete attendee
+          <Trash2 className="h-3.5 w-3.5" /> Deelnemer verwijderen
         </DropdownMenuItem>
       </DropdownMenu>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogHeader>
-          <DialogTitle>Delete attendee?</DialogTitle>
+          <DialogTitle>Deelnemer verwijderen?</DialogTitle>
           <DialogDescription>
-            Permanently remove <strong>{displayName}</strong> from this
-            event. The barcode <code className="font-mono">{barcode}</code>{" "}
-            will no longer scan in.
+            Verwijder <strong>{displayName}</strong> definitief uit dit
+            event. De barcode <code className="font-mono">{barcode}</code>{" "}
+            kan daarna niet meer inchecken.
           </DialogDescription>
         </DialogHeader>
         {error && (
@@ -129,7 +129,7 @@ export function AttendeeRowActions({
             onClick={() => setOpen(false)}
             disabled={busy}
           >
-            Cancel
+            Annuleren
           </Button>
           <Button
             type="button"
@@ -138,7 +138,7 @@ export function AttendeeRowActions({
             disabled={busy}
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-            {busy ? "Deleting…" : "Delete attendee"}
+            {busy ? "Verwijderen…" : "Definitief verwijderen"}
           </Button>
         </DialogFooter>
       </Dialog>
