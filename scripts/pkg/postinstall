@@ -1,0 +1,61 @@
+#!/bin/bash
+# Runs as root at the end of the .pkg install. The payload has landed in
+# /Library/Application Support/PrintBadges (agent + bundled Node); this
+# script wires it up for the person sitting at the Mac: per-user launchd
+# agent, CUPS queue options, start it now.
+set -euo pipefail
+
+APP_DIR="/Library/Application Support/PrintBadges"
+LABEL="com.badgescan.print-agent"
+
+# The user who is actually logged in at the screen — the installer itself
+# runs as root.
+CONSOLE_USER="$(stat -f%Su /dev/console)"
+if [[ -z "$CONSOLE_USER" || "$CONSOLE_USER" == "root" ]]; then
+  echo "Geen ingelogde gebruiker gevonden; log in en installeer opnieuw." >&2
+  exit 1
+fi
+USER_UID="$(id -u "$CONSOLE_USER")"
+USER_HOME="$(dscl . -read "/Users/$CONSOLE_USER" NFSHomeDirectory | awk '{print $2}')"
+
+LA_DIR="$USER_HOME/Library/LaunchAgents"
+PLIST="$LA_DIR/$LABEL.plist"
+LOG="$USER_HOME/Library/Logs/badge-scan-print-agent.log"
+mkdir -p "$LA_DIR" "$USER_HOME/Library/Logs"
+
+cat > "$PLIST" <<PLIST_EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>$LABEL</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$APP_DIR/node</string>
+    <string>$APP_DIR/print-agent.mjs</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>$LOG</string>
+  <key>StandardErrorPath</key><string>$LOG</string>
+</dict>
+</plist>
+PLIST_EOF
+chown "$CONSOLE_USER:staff" "$PLIST"
+
+# Pin the CUPS queue options the badge depends on (same set as the shell
+# installer): media saving off, auto-cut after the job.
+if lpstat -p EPSON_CW_C4000e >/dev/null 2>&1; then
+  lpadmin -p EPSON_CW_C4000e \
+    -o EPIJ_MdSv=0 \
+    -o EPIJ_LbAc=0 \
+    -o EPIJ_DfltACut=0 || true
+fi
+
+# (Re)start the agent in the logged-in user's session. A previous install
+# (script or pkg) with the same label is superseded.
+launchctl bootout "gui/$USER_UID/$LABEL" 2>/dev/null || true
+launchctl bootstrap "gui/$USER_UID" "$PLIST" || true
+
+exit 0
