@@ -46,15 +46,15 @@ function LoginForm() {
     <div className="w-full max-w-sm">
       <Card>
           <CardHeader>
-            <CardTitle>Sign in</CardTitle>
+            <CardTitle>Inloggen</CardTitle>
             <CardDescription>
-              Use your account to manage events.
+              Log in om je events te beheren.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">E-mail</Label>
                 <Input
                   id="email"
                   type="email"
@@ -66,12 +66,12 @@ function LoginForm() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-baseline justify-between gap-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Wachtwoord</Label>
                   <Link
                     href="/login/forgot"
                     className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
                   >
-                    Forgot password?
+                    Wachtwoord vergeten?
                   </Link>
                 </div>
                 <Input
@@ -91,16 +91,16 @@ function LoginForm() {
 
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                {loading ? "Signing in…" : "Sign in"}
+                {loading ? "Inloggen…" : "Inloggen"}
               </Button>
 
               <p className="text-center text-sm text-muted-foreground">
-                Don&apos;t have an account?{" "}
+                Nog geen account?{" "}
                 <Link
                   href="/demo"
                   className="text-foreground underline hover:no-underline"
                 >
-                  Book a demo
+                  Plan een demo
                 </Link>
               </p>
             </form>

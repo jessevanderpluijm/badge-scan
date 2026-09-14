@@ -221,7 +221,7 @@ function BackFace({
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground">
           <ImageIcon className="h-8 w-8 opacity-40" />
           <p className="text-xs px-6 text-center">
-            No back image yet — upload one, or the back stays blank.
+            Nog geen afbeelding — upload er een, anders blijft de achterkant leeg.
           </p>
         </div>
       )}
@@ -248,7 +248,7 @@ export function BadgePreview({
     return (
       <div className="space-y-1.5">
         <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
-          Front &amp; back
+          Voor- &amp; achterkant
         </p>
         <FrontFace
           design={design}
@@ -265,7 +265,7 @@ export function BadgePreview({
     <div className="flex flex-wrap items-start justify-center gap-4">
       <div className="space-y-1.5">
         <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
-          Front
+          Voorkant
         </p>
         <FrontFace
           design={design}
@@ -277,7 +277,7 @@ export function BadgePreview({
       </div>
       <div className="space-y-1.5">
         <p className="text-[11px] uppercase tracking-wide text-muted-foreground text-center">
-          Back
+          Achterkant
         </p>
         <BackFace design={design} w={w} h={h} />
       </div>

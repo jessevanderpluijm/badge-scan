@@ -51,11 +51,11 @@ function fileToDataUrl(file: File): Promise<string> {
 }
 
 const SAMPLE_ATTENDEE: AttendeeForBadge = {
-  first_name: "Sample",
-  last_name: "Attendee",
+  first_name: "Anna",
+  last_name: "Voorbeeld",
   email: "sample@example.com",
-  company: "Acme Inc.",
-  job_title: "Product Manager",
+  company: "Voorbeeld B.V.",
+  job_title: "Productmanager",
   barcode: "1234567890",
 };
 
@@ -135,12 +135,12 @@ export function BadgeDesigner({
   ) {
     setImageError(null);
     if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
-      setImageError("Use a PNG, JPG, or WebP image.");
+      setImageError("Gebruik een PNG-, JPG- of WebP-afbeelding.");
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
       setImageError(
-        `Image is too large (${Math.round(file.size / 1024)} KB). Max 500 KB.`,
+        `Afbeelding is te groot (${Math.round(file.size / 1024)} KB). Maximaal 500 KB.`,
       );
       return;
     }
@@ -211,7 +211,7 @@ export function BadgeDesigner({
         .order("last_name", { ascending: true });
       if (error) throw error;
       if (!rows || rows.length === 0) {
-        throw new Error("No attendees to print. Upload a CSV first.");
+        throw new Error("Geen deelnemers om te printen. Upload eerst een CSV.");
       }
       await downloadPdf(rows as AttendeeForBadge[], `badges-${safeEventName}.pdf`);
     } catch (e) {
@@ -226,9 +226,9 @@ export function BadgeDesigner({
       <div className="space-y-4">
         <Card className="p-5 space-y-4">
           <div>
-            <h2 className="font-semibold">1. Branding</h2>
+            <h2 className="font-semibold">1. Huisstijl</h2>
             <p className="text-xs text-muted-foreground">
-              Logo, colors, and optional background.
+              Logo, kleuren en eventueel een achtergrond.
             </p>
           </div>
 
@@ -248,7 +248,7 @@ export function BadgeDesigner({
                     size="sm"
                     onClick={() => logoInputRef.current?.click()}
                   >
-                    Replace
+                    Vervangen
                   </Button>
                   <Button
                     type="button"
@@ -267,7 +267,7 @@ export function BadgeDesigner({
                   onClick={() => logoInputRef.current?.click()}
                 >
                   <Upload className="h-4 w-4" />
-                  Upload logo
+                  Logo uploaden
                 </Button>
               )}
               <input
@@ -291,7 +291,7 @@ export function BadgeDesigner({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="badge-font">Font</Label>
+            <Label htmlFor="badge-font">Lettertype</Label>
             <select
               id="badge-font"
               value={design.font}
@@ -307,7 +307,7 @@ export function BadgeDesigner({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bg-color">Background</Label>
+            <Label htmlFor="bg-color">Achtergrond</Label>
             {design.background_image ? (
               // An image replaces the colour entirely (the PDF paints the
               // image over the colour), so show only one control at a time.
@@ -359,7 +359,7 @@ export function BadgeDesigner({
                   onClick={() => bgInputRef.current?.click()}
                 >
                   <Upload className="h-4 w-4" />
-                  Use image
+                  Afbeelding gebruiken
                 </Button>
               </div>
             )}
@@ -378,7 +378,7 @@ export function BadgeDesigner({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="text-color">Text color</Label>
+              <Label htmlFor="text-color">Tekstkleur</Label>
               <div className="flex items-center gap-2">
                 <input
                   id="text-color"
@@ -403,9 +403,9 @@ export function BadgeDesigner({
 
         <Card className="p-5 space-y-4">
           <div>
-            <h2 className="font-semibold">2. Fields</h2>
+            <h2 className="font-semibold">2. Velden</h2>
             <p className="text-xs text-muted-foreground">
-              Which attendee data to show on the badge.
+              Welke deelnemergegevens op de badge komen.
             </p>
           </div>
           <div className="space-y-2">
@@ -436,11 +436,11 @@ export function BadgeDesigner({
 
         <Card className="p-5 space-y-4">
           <div>
-            <h2 className="font-semibold">3. Layout</h2>
+            <h2 className="font-semibold">3. Indeling</h2>
             <p className="text-xs text-muted-foreground">
-              Drag text on the preview to move it. Click a block to set its
-              size and alignment — too-long text still shrinks automatically
-              to fit the badge.
+              Versleep tekst in het voorbeeld om hem te verplaatsen. Klik op
+              een blok voor grootte en uitlijning — te lange tekst krimpt
+              automatisch zodat hij past.
             </p>
           </div>
 
@@ -467,13 +467,13 @@ export function BadgeDesigner({
           {selectedBlock && blockVisible(selectedBlock) && (
             <div className="space-y-3">
               <div className="space-y-2">
-                <Label>Text size</Label>
+                <Label>Tekstgrootte</Label>
                 <div className="flex gap-1">
                   {(
                     [
-                      ["small", "Small"],
-                      ["medium", "Medium"],
-                      ["large", "Large"],
+                      ["small", "Klein"],
+                      ["medium", "Normaal"],
+                      ["large", "Groot"],
                     ] as [SizePreset, string][]
                   ).map(([preset, label]) => (
                     <button
@@ -499,7 +499,7 @@ export function BadgeDesigner({
               </div>
 
               <div className="space-y-2">
-                <Label>Alignment</Label>
+                <Label>Uitlijning</Label>
                 <div className="flex gap-1">
                   {(
                     [
@@ -518,7 +518,7 @@ export function BadgeDesigner({
                           ? "border-foreground/40 bg-muted"
                           : "border-input hover:bg-muted/40",
                       )}
-                      aria-label={`Align ${a}`}
+                      aria-label={`Lijn ${a} uit`}
                     >
                       <Icon className="h-4 w-4" />
                     </button>
@@ -538,15 +538,15 @@ export function BadgeDesigner({
             }}
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            Reset layout
+            Indeling herstellen
           </Button>
         </Card>
 
         <Card className="p-5 space-y-4">
           <div>
-            <h2 className="font-semibold">4. Back side</h2>
+            <h2 className="font-semibold">4. Achterkant</h2>
             <p className="text-xs text-muted-foreground">
-              The badge is double-sided after folding.
+              Na het vouwen is de badge dubbelzijdig.
             </p>
           </div>
 
@@ -564,12 +564,12 @@ export function BadgeDesigner({
               checked={design.back_same}
               onChange={() => update("back_same", !design.back_same)}
             />
-            <span className="text-sm">Back is the same as the front</span>
+            <span className="text-sm">Achterkant is gelijk aan de voorkant</span>
           </label>
 
           {!design.back_same && (
             <div className="space-y-2">
-              <Label>Back image</Label>
+              <Label>Afbeelding voor de achterkant</Label>
               <div className="flex items-center gap-2">
                 {design.back_image ? (
                   <>
@@ -603,7 +603,7 @@ export function BadgeDesigner({
                     onClick={() => backInputRef.current?.click()}
                   >
                     <Upload className="h-4 w-4" />
-                    Upload back image
+                    Afbeelding uploaden
                   </Button>
                 )}
                 <input
@@ -619,9 +619,9 @@ export function BadgeDesigner({
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                A static image printed on every badge back — e.g. the day's
-                programme, a floor plan, or the wifi code. Portrait works
-                best (96 × 133 mm).
+                Een vaste afbeelding op de achterkant van elke badge — bijv.
+                het programma, een plattegrond of de wifi-code. Staand
+                formaat werkt het best (96 × 134 mm).
               </p>
             </div>
           )}
@@ -645,11 +645,11 @@ export function BadgeDesigner({
                 onClick={() => onFinish?.()}
                 disabled={saving}
               >
-                Skip for now
+                Nu overslaan
               </Button>
               <Button onClick={onSaveAndFinish} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {saving ? "Saving…" : "Save & finish"}
+                {saving ? "Opslaan…" : "Opslaan en afronden"}
               </Button>
             </div>
           ) : (
@@ -658,10 +658,10 @@ export function BadgeDesigner({
                 <Button onClick={onSave} disabled={saving || !isDirty}>
                   {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                   {saving
-                    ? "Saving…"
+                    ? "Opslaan…"
                     : savedAt && !isDirty
-                      ? "Saved"
-                      : "Save design"}
+                      ? "Opgeslagen"
+                      : "Ontwerp opslaan"}
                 </Button>
                 <Button
                   variant="outline"
@@ -674,13 +674,13 @@ export function BadgeDesigner({
                     <Download className="h-4 w-4" />
                   )}
                   {generating
-                    ? "Generating…"
-                    : `Download all (${attendeeCount} ${attendeeCount === 1 ? "badge" : "badges"})`}
+                    ? "Genereren…"
+                    : `Alles downloaden (${attendeeCount} ${attendeeCount === 1 ? "badge" : "badges"})`}
                 </Button>
               </div>
               {attendeeCount === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  Upload a CSV to enable the full batch download.
+                  Upload een CSV om alle badges in één keer te kunnen downloaden.
                 </p>
               )}
             </>
@@ -693,12 +693,12 @@ export function BadgeDesigner({
           <Card className="p-6 bg-muted/30">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-semibold text-sm">Live preview</h3>
+                <h3 className="font-semibold text-sm">Live voorbeeld</h3>
                 <p className="text-xs text-muted-foreground">
                   {BADGE_DIMENSIONS_MM[design.type].label}
                   {sampleAttendee
-                    ? " · using first attendee as sample"
-                    : " · using placeholder data"}
+                    ? " · met je eerste deelnemer als voorbeeld"
+                    : " · met voorbeeldgegevens"}
                 </p>
               </div>
             </div>
@@ -714,8 +714,8 @@ export function BadgeDesigner({
               />
             </div>
             <p className="text-xs text-muted-foreground mt-4 text-center">
-              Output: PDF, exact mm dimensions, one badge per page —
-              ready for the Epson ColorWorks C4000.
+              Wat je ziet is wat er print — op maat voor de Epson
+              ColorWorks C4000.
             </p>
           </Card>
         </div>

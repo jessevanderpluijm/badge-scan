@@ -43,32 +43,32 @@ export default function ForgotPasswordPage() {
     <div className="w-full max-w-sm">
       <Card>
         <CardHeader>
-          <CardTitle>Forgot your password?</CardTitle>
+          <CardTitle>Wachtwoord vergeten?</CardTitle>
           <CardDescription>
-            We&apos;ll email you a link to set a new one.
+            We mailen je een link om een nieuw wachtwoord in te stellen.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {sent ? (
             <div className="space-y-3 text-sm">
               <p>
-                If an account exists for <strong>{email}</strong>, a reset
-                link is on its way. Check your inbox (and spam folder).
+                Als er een account bestaat voor <strong>{email}</strong>, is
+                er een herstel-link onderweg. Check je inbox (en je spam).
               </p>
               <p className="text-muted-foreground">
-                The link expires in an hour.
+                De link is een uur geldig.
               </p>
               <Link
                 href="/login"
                 className="block text-center text-foreground underline hover:no-underline pt-2"
               >
-                Back to sign in
+                Terug naar inloggen
               </Link>
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">E-mail</Label>
                 <Input
                   id="email"
                   type="email"
@@ -86,16 +86,16 @@ export default function ForgotPasswordPage() {
 
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                {loading ? "Sending…" : "Send reset link"}
+                {loading ? "Versturen…" : "Verstuur herstel-link"}
               </Button>
 
               <p className="text-center text-sm text-muted-foreground">
-                Remembered it?{" "}
+                Weet je hem weer?{" "}
                 <Link
                   href="/login"
                   className="text-foreground underline hover:no-underline"
                 >
-                  Sign in
+                  Inloggen
                 </Link>
               </p>
             </form>

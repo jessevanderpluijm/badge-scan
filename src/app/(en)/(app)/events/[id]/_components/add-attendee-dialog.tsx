@@ -70,7 +70,7 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
     e.preventDefault();
     const barcode = form.barcode.trim();
     if (!barcode) {
-      setError("A barcode is required. Click the refresh icon to generate one.");
+      setError("Een barcode is verplicht. Klik op het ververs-icoontje om er een te genereren.");
       return;
     }
     setSaving(true);
@@ -89,7 +89,7 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
     if (error) {
       if (error.code === "23505") {
         setError(
-          "That barcode is already used for this event. Generate a new one.",
+          "Deze barcode is al in gebruik voor dit event. Genereer een nieuwe.",
         );
       } else {
         setError(error.message);
@@ -104,21 +104,21 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
     <>
       <Button variant="outline" onClick={openDialog}>
         <UserPlus className="h-4 w-4" />
-        <span className="hidden sm:inline">Add manually</span>
+        <span className="hidden sm:inline">Handmatig toevoegen</span>
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <form onSubmit={onSubmit}>
           <DialogHeader>
-            <DialogTitle>Add attendee</DialogTitle>
+            <DialogTitle>Deelnemer toevoegen</DialogTitle>
             <DialogDescription>
-              All fields except the barcode are optional.
+              Alle velden behalve de barcode zijn optioneel.
             </DialogDescription>
           </DialogHeader>
           <DialogBody className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="add-first">First name</Label>
+                <Label htmlFor="add-first">Voornaam</Label>
                 <Input
                   id="add-first"
                   value={form.first_name}
@@ -127,7 +127,7 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="add-last">Last name</Label>
+                <Label htmlFor="add-last">Achternaam</Label>
                 <Input
                   id="add-last"
                   value={form.last_name}
@@ -137,7 +137,7 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="add-email">Email</Label>
+              <Label htmlFor="add-email">E-mail</Label>
               <Input
                 id="add-email"
                 type="email"
@@ -148,7 +148,7 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="add-company">Company</Label>
+                <Label htmlFor="add-company">Bedrijf</Label>
                 <Input
                   id="add-company"
                   value={form.company}
@@ -156,7 +156,7 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="add-function">Function</Label>
+                <Label htmlFor="add-function">Functie</Label>
                 <Input
                   id="add-function"
                   value={form.job_title}
@@ -184,15 +184,15 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
                   onClick={() =>
                     setForm((f) => ({ ...f, barcode: generateBarcode() }))
                   }
-                  aria-label="Generate a new barcode"
-                  title="Generate new"
+                  aria-label="Nieuwe barcode genereren"
+                  title="Nieuwe genereren"
                 >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Auto-generated for walk-ins. Overwrite with a ticket barcode if
-                the visitor has one.
+                Automatisch gegenereerd voor walk-ins. Overschrijf met de
+                ticketbarcode als de bezoeker er een heeft.
               </p>
             </div>
 
@@ -205,11 +205,11 @@ export function AddAttendeeDialog({ eventId }: { eventId: string }) {
               onClick={() => setOpen(false)}
               disabled={saving}
             >
-              Cancel
+              Annuleren
             </Button>
             <Button type="submit" disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-              {saving ? "Adding…" : "Add attendee"}
+              {saving ? "Toevoegen…" : "Deelnemer toevoegen"}
             </Button>
           </DialogFooter>
         </form>

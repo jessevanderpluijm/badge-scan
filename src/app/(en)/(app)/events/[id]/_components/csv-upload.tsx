@@ -20,11 +20,11 @@ type FieldKey =
 
 const FIELDS: { key: FieldKey; label: string; required: boolean }[] = [
   { key: "barcode", label: "Barcode", required: true },
-  { key: "first_name", label: "First name", required: false },
-  { key: "last_name", label: "Last name", required: false },
-  { key: "email", label: "Email", required: false },
-  { key: "company", label: "Company", required: false },
-  { key: "job_title", label: "Function", required: false },
+  { key: "first_name", label: "Voornaam", required: false },
+  { key: "last_name", label: "Achternaam", required: false },
+  { key: "email", label: "E-mail", required: false },
+  { key: "company", label: "Bedrijf", required: false },
+  { key: "job_title", label: "Functie", required: false },
 ];
 
 type ParsedCsv = {
@@ -96,7 +96,7 @@ export function CsvUpload({
       complete: (res) => {
         const headers = res.meta.fields ?? [];
         if (headers.length === 0) {
-          setError("CSV has no columns. Make sure the first row has headers.");
+          setError("De CSV heeft geen kolommen. Zorg dat de eerste rij kolomkoppen bevat.");
           return;
         }
         const rows = res.data.filter((r) =>
@@ -134,7 +134,7 @@ export function CsvUpload({
   async function onImport() {
     if (!parsed) return;
     if (!mapping.barcode) {
-      setError("Please map the Barcode column — it's required.");
+      setError("Koppel de Barcode-kolom — die is verplicht.");
       return;
     }
     setImporting(true);
@@ -170,7 +170,7 @@ export function CsvUpload({
     }
 
     if (records.length === 0) {
-      setError("No rows with a barcode found.");
+      setError("Geen rijen met een barcode gevonden.");
       setImporting(false);
       return;
     }
@@ -232,8 +232,8 @@ export function CsvUpload({
             <div className="min-w-0">
               <p className="font-medium truncate">{parsed.fileName}</p>
               <p className="text-xs text-muted-foreground">
-                {totalRows} {totalRows === 1 ? "row" : "rows"} ·{" "}
-                {parsed.headers.length} columns
+                {totalRows} {totalRows === 1 ? "rij" : "rijen"} ·{" "}
+                {parsed.headers.length} kolommen
               </p>
             </div>
           </div>
@@ -249,7 +249,7 @@ export function CsvUpload({
 
         <div>
           <h3 className="font-medium text-sm mb-3">
-            Map columns to attendee fields
+            Koppel kolommen aan deelnemervelden
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
             {FIELDS.map((f) => (
@@ -266,7 +266,7 @@ export function CsvUpload({
                     setMapping({ ...mapping, [f.key]: e.target.value })
                   }
                 >
-                  <option value="">— Don't import —</option>
+                  <option value="">— Niet importeren —</option>
                   {parsed.headers.map((h) => (
                     <option key={h} value={h}>
                       {h}
@@ -281,7 +281,7 @@ export function CsvUpload({
         {parsed.rows.length > 0 && mapping.barcode && (
           <div>
             <p className="text-xs text-muted-foreground mb-2">
-              Preview (first 3 rows)
+              Voorbeeld (eerste 3 rijen)
             </p>
             <div className="border rounded-md overflow-x-auto">
               <table className="w-full text-sm">
@@ -332,18 +332,16 @@ export function CsvUpload({
             <span>
               {result.imported > 0 && (
                 <>
-                  Imported {result.imported}{" "}
-                  {result.imported === 1 ? "attendee" : "attendees"}
+                  {result.imported}{" "}
+                  {result.imported === 1 ? "deelnemer" : "deelnemers"} geïmporteerd
                 </>
               )}
               {result.imported > 0 && result.updated > 0 && " · "}
               {result.updated > 0 && (
                 <>
-                  Updated {result.updated}{" "}
-                  {result.updated === 1
-                    ? "existing attendee"
-                    : "existing attendees"}{" "}
-                  (check-ins kept)
+                  {result.updated} bestaande{" "}
+                  {result.updated === 1 ? "deelnemer" : "deelnemers"}{" "}
+                  bijgewerkt (check-ins behouden)
                 </>
               )}
             </span>
@@ -354,9 +352,9 @@ export function CsvUpload({
           {result ? (
             <>
               <Button variant="outline" onClick={reset}>
-                Upload another
+                Nog een CSV uploaden
               </Button>
-              <Button onClick={() => onComplete?.()}>Done</Button>
+              <Button onClick={() => onComplete?.()}>Klaar</Button>
             </>
           ) : (
             <>
@@ -365,7 +363,7 @@ export function CsvUpload({
                 onClick={reset}
                 disabled={importing}
               >
-                Cancel
+                Annuleren
               </Button>
               <Button
                 onClick={onImport}
@@ -373,8 +371,8 @@ export function CsvUpload({
               >
                 {importing && <Loader2 className="h-4 w-4 animate-spin" />}
                 {importing
-                  ? "Importing…"
-                  : `Import ${totalRows} ${totalRows === 1 ? "row" : "rows"}`}
+                  ? "Importeren…"
+                  : `${totalRows} ${totalRows === 1 ? "rij" : "rijen"} importeren`}
               </Button>
             </>
           )}
@@ -404,9 +402,9 @@ export function CsvUpload({
       <div className="mx-auto h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-3">
         <Upload className="h-5 w-5 text-muted-foreground" />
       </div>
-      <h3 className="font-medium">Drop your CSV here</h3>
+      <h3 className="font-medium">Sleep je CSV hierheen</h3>
       <p className="text-sm text-muted-foreground mt-1 mb-4">
-        First row should contain column headers. You'll map columns next.
+        De eerste rij moet kolomkoppen bevatten; daarna koppel je de kolommen.
       </p>
       <input
         ref={inputRef}
@@ -419,7 +417,7 @@ export function CsvUpload({
         }}
       />
       <Button variant="outline" onClick={() => inputRef.current?.click()}>
-        Choose CSV file
+        Kies een CSV-bestand
       </Button>
       {error && (
         <p className="text-sm text-destructive mt-3">{error}</p>

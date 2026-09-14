@@ -31,7 +31,7 @@ export function SignOutButton() {
         <LogOut className="h-4 w-4" />
       )}
       <span className="hidden sm:inline">
-        {signingOut ? "Signing out…" : "Sign out"}
+        {signingOut ? "Uitloggen…" : "Uitloggen"}
       </span>
     </Button>
   );

@@ -19,13 +19,13 @@ export function UploadCsvDialog({ eventId }: { eventId: string }) {
     <>
       <Button variant="outline" onClick={() => setOpen(true)}>
         <Upload className="h-4 w-4" />
-        <span className="hidden sm:inline">Upload CSV</span>
+        <span className="hidden sm:inline">CSV uploaden</span>
       </Button>
       <Dialog open={open} onOpenChange={setOpen} className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Upload attendees</DialogTitle>
+          <DialogTitle>Deelnemers uploaden</DialogTitle>
           <DialogDescription>
-            Add attendees to this event from a CSV file.
+            Voeg deelnemers toe aan dit event vanuit een CSV-bestand.
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="pb-6">

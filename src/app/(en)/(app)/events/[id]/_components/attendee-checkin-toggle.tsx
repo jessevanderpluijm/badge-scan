@@ -99,7 +99,7 @@ export function AttendeeCheckinToggle({
             : "text-muted-foreground hover:text-foreground",
         )}
         aria-label={
-          isCheckedIn ? `Un-check ${displayName}` : `Check in ${displayName}`
+          isCheckedIn ? `Check-in van ${displayName} ongedaan maken` : `${displayName} inchecken`
         }
       >
         {isCheckedIn ? (
@@ -112,18 +112,18 @@ export function AttendeeCheckinToggle({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogHeader>
           <DialogTitle>
-            {isCheckedIn ? "Un-check attendee?" : "Check in attendee?"}
+            {isCheckedIn ? "Check-in ongedaan maken?" : "Deelnemer inchecken?"}
           </DialogTitle>
           <DialogDescription>
             {isCheckedIn ? (
               <>
-                Mark <strong>{displayName}</strong> as no longer checked in?
-                They will be able to scan in again.
+                De check-in van <strong>{displayName}</strong> ongedaan maken?
+                Diegene kan daarna opnieuw scannen.
               </>
             ) : (
               <>
-                Mark <strong>{displayName}</strong> as checked in? Normally
-                check-ins happen automatically when a barcode is scanned.
+                <strong>{displayName}</strong> markeren als ingecheckt? Normaal
+                gebeurt inchecken automatisch bij het scannen van de barcode.
               </>
             )}
           </DialogDescription>
@@ -140,7 +140,7 @@ export function AttendeeCheckinToggle({
             onClick={() => setOpen(false)}
             disabled={busy}
           >
-            Cancel
+            Annuleren
           </Button>
           <Button
             type="button"
@@ -150,10 +150,10 @@ export function AttendeeCheckinToggle({
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" />}
             {busy
-              ? "Saving…"
+              ? "Opslaan…"
               : isCheckedIn
-                ? "Un-check"
-                : "Check in"}
+                ? "Ongedaan maken"
+                : "Inchecken"}
           </Button>
         </DialogFooter>
       </Dialog>

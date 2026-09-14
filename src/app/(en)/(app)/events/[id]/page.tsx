@@ -30,7 +30,7 @@ function pageHref(eventId: string, page: number, q: string): string {
 function formatDateRange(start: string | null, end: string | null): string | null {
   if (!start && !end) return null;
   const fmt = (d: string) =>
-    new Date(d).toLocaleDateString(undefined, {
+    new Date(d).toLocaleDateString("nl-NL", {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -134,7 +134,7 @@ export default async function EventPage({
                   {" · "}
                 </>
               )}
-              {total} {total === 1 ? "attendee" : "attendees"}
+              {total} {total === 1 ? "deelnemer" : "deelnemers"}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -144,7 +144,7 @@ export default async function EventPage({
               href={`/events/${event.id}/scan`}
               className={buttonVariants()}
             >
-              <ScanLine className="h-4 w-4" /> Open scanner
+              <ScanLine className="h-4 w-4" /> Scanner openen
             </Link>
             <EventActions
               id={event.id}
@@ -160,17 +160,17 @@ export default async function EventPage({
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="p-5">
-          <p className="text-sm text-muted-foreground">Total</p>
+          <p className="text-sm text-muted-foreground">Totaal</p>
           <p className="text-2xl font-semibold mt-1">{total}</p>
         </Card>
         <Card className="p-5">
-          <p className="text-sm text-muted-foreground">Checked in</p>
+          <p className="text-sm text-muted-foreground">Ingecheckt</p>
           <p className="text-2xl font-semibold mt-1 text-success">
             {checkedIn}
           </p>
         </Card>
         <Card className="p-5">
-          <p className="text-sm text-muted-foreground">Remaining</p>
+          <p className="text-sm text-muted-foreground">Nog verwacht</p>
           <p className="text-2xl font-semibold mt-1">{total - checkedIn}</p>
         </Card>
       </div>
@@ -178,13 +178,13 @@ export default async function EventPage({
       <Card>
         <div className="p-4 sm:p-6 border-b flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="font-semibold">Attendees</h2>
+            <h2 className="font-semibold">Deelnemers</h2>
             {total > 0 && (
               <p className="text-xs text-muted-foreground">
-                Showing {firstShown}–{lastShown} of {total}
+                {firstShown}–{lastShown} van {total}
                 {searchQuery && (
                   <>
-                    {" · matching "}
+                    {" · zoekterm "}
                     <span className="font-medium text-foreground">
                       &ldquo;{searchQuery}&rdquo;
                     </span>
@@ -199,7 +199,7 @@ export default async function EventPage({
           <div className="p-12 text-center text-sm text-muted-foreground">
             {searchQuery ? (
               <>
-                No attendees match{" "}
+                Geen deelnemers gevonden voor{" "}
                 <span className="font-medium text-foreground">
                   &ldquo;{searchQuery}&rdquo;
                 </span>
@@ -207,8 +207,8 @@ export default async function EventPage({
               </>
             ) : (
               <>
-                No attendees yet. Click <strong>Upload CSV</strong> or{" "}
-                <strong>Add manually</strong> above to add some.
+                Nog geen deelnemers. Gebruik <strong>CSV uploaden</strong> of{" "}
+                <strong>Handmatig toevoegen</strong> hierboven.
               </>
             )}
           </div>
@@ -219,16 +219,16 @@ export default async function EventPage({
                 <tr className="text-left">
                   <th className="py-2.5 px-4 font-medium text-muted-foreground w-8"></th>
                   <th className="py-2.5 px-4 font-medium text-muted-foreground">
-                    Name
+                    Naam
                   </th>
                   <th className="py-2.5 px-4 font-medium text-muted-foreground">
-                    Company
+                    Bedrijf
                   </th>
                   <th className="py-2.5 px-4 font-medium text-muted-foreground">
-                    Function
+                    Functie
                   </th>
                   <th className="py-2.5 px-4 font-medium text-muted-foreground">
-                    Email
+                    E-mail
                   </th>
                   <th className="py-2.5 px-4 font-medium text-muted-foreground font-mono">
                     Barcode
@@ -292,7 +292,7 @@ export default async function EventPage({
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-4 py-3 border-t text-sm">
                 <span className="text-muted-foreground">
-                  Page {page} of {totalPages}
+                  Pagina {page} van {totalPages}
                 </span>
                 <div className="flex items-center gap-1">
                   <Link
@@ -304,7 +304,7 @@ export default async function EventPage({
                       page <= 1 && "pointer-events-none opacity-40",
                     )}
                   >
-                    <ChevronLeft className="h-4 w-4" /> Prev
+                    <ChevronLeft className="h-4 w-4" /> Vorige
                   </Link>
                   <Link
                     href={pageHref(event.id, page + 1, searchQuery)}
@@ -315,7 +315,7 @@ export default async function EventPage({
                       page >= totalPages && "pointer-events-none opacity-40",
                     )}
                   >
-                    Next <ChevronRight className="h-4 w-4" />
+                    Volgende <ChevronRight className="h-4 w-4" />
                   </Link>
                 </div>
               </div>

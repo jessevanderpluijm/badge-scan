@@ -20,7 +20,7 @@ export default async function EventsPage() {
   function formatRange(start: string | null, end: string | null): string | null {
     if (!start && !end) return null;
     const fmt = (d: string) =>
-      new Date(d).toLocaleDateString(undefined, {
+      new Date(d).toLocaleDateString("nl-NL", {
         day: "numeric",
         month: "short",
         year: "numeric",
@@ -36,7 +36,7 @@ export default async function EventsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Events</h1>
         </div>
         <Link href="/events/new" className={buttonVariants()}>
-          <Plus className="h-4 w-4" /> New event
+          <Plus className="h-4 w-4" /> Nieuw event
         </Link>
       </div>
 
@@ -45,12 +45,12 @@ export default async function EventsPage() {
           <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
             <Calendar className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h2 className="font-semibold">No events yet</h2>
+          <h2 className="font-semibold">Nog geen events</h2>
           <p className="text-sm text-muted-foreground mt-1 mb-4">
-            Create your first event to get started.
+            Maak je eerste event aan om te beginnen.
           </p>
           <Link href="/events/new" className={buttonVariants()}>
-            <Plus className="h-4 w-4" /> New event
+            <Plus className="h-4 w-4" /> Nieuw event
           </Link>
         </Card>
       ) : (
@@ -66,14 +66,14 @@ export default async function EventsPage() {
                     <div className="min-w-0">
                       <h3 className="font-semibold truncate">{e.name}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {count} {count === 1 ? "attendee" : "attendees"}
+                        {count} {count === 1 ? "deelnemer" : "deelnemers"}
                       </p>
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                   </div>
                   <p className="text-xs text-muted-foreground mt-4">
                     {formatRange(e.start_date, e.end_date) ??
-                      `Created ${new Date(e.created_at).toLocaleDateString()}`}
+                      `Aangemaakt op ${new Date(e.created_at).toLocaleDateString("nl-NL")}`}
                   </p>
                 </Card>
               </Link>

@@ -142,10 +142,10 @@ export const DEFAULT_LAYOUT: BadgeLayout = {
 };
 
 export const BLOCK_LABELS: Record<BadgeBlock, string> = {
-  name: "Name",
-  company: "Company",
-  job_title: "Function",
-  email: "Email",
+  name: "Naam",
+  company: "Bedrijf",
+  job_title: "Functie",
+  email: "E-mail",
 };
 
 // One uniform small/medium/large scale for every text block (per Jesse:
@@ -245,11 +245,11 @@ export const BADGE_DIMENSIONS_MM: Record<
 };
 
 export const FIELD_LABELS: Record<BadgeField, string> = {
-  first_name: "First name",
-  last_name: "Last name",
-  company: "Company",
-  job_title: "Function",
-  email: "Email",
+  first_name: "Voornaam",
+  last_name: "Achternaam",
+  company: "Bedrijf",
+  job_title: "Functie",
+  email: "E-mail",
 };
 
 export const ALL_FIELDS: BadgeField[] = [
