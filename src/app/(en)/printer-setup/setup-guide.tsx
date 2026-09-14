@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Circle,
   Copy,
+  Download,
   Loader2,
   Printer,
   RotateCcw,
@@ -78,26 +79,33 @@ const STEPS: StepDef[] = [
     ),
   },
   {
-    id: "agent",
-    title: "Printerkoppeling installeren",
-    auto: "agent",
+    id: "app",
+    title: "Download de PrintBadges-app",
     body: (
       <>
         <p>
-          De koppeling is een klein programma op deze laptop dat badges van
-          de PrintBadges-portal doorgeeft aan de printer. Je installeert hem
-          één keer; daarna start hij automatisch mee zodra de laptop aan
-          staat.
+          De PrintBadges-app is het check-in-station voor de eventdag: de
+          portal en het printen in één venster, zonder browser.
         </p>
-        <InstallCommand />
-        <p className="text-xs">
-          Alternatief zonder installatie: dubbelklik{" "}
-          <strong>Badge Printer.command</strong> uit de projectmap en laat
-          het venster open staan.
+        <p>
+          <a
+            href="/downloads/PrintBadges.zip"
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <Download className="h-4 w-4" /> Download PrintBadges voor Mac
+          </a>
         </p>
+        <ol className="list-decimal pl-5 space-y-0.5">
+          <li>Open het gedownloade bestand — de app pakt zichzelf uit.</li>
+          <li>
+            Sleep <strong>PrintBadges</strong> naar de map Programma&apos;s
+            (mag, hoeft niet) en open de app.
+          </li>
+          <li>Log in met je PrintBadges-account.</li>
+        </ol>
       </>
     ),
-    task: "Deze pagina detecteert de koppeling automatisch zodra hij draait.",
+    task: "Check: opent de app en zie je de portal?",
   },
   {
     id: "printer-online",
@@ -105,8 +113,10 @@ const STEPS: StepDef[] = [
     auto: "printer",
     body: (
       <p>
-        Zodra de koppeling draait én de printer aan staat met de USB-kabel
-        erin, kleurt deze stap vanzelf groen.
+        Open deze handleiding ook eens ín de app (klik op
+        &ldquo;handleiding&rdquo; bij de printerstatus): zodra de app de
+        printer ziet — aan, USB-kabel erin — kleurt deze stap vanzelf
+        groen.
       </p>
     ),
     task: "Deze pagina checkt de printerverbinding automatisch.",
@@ -292,30 +302,12 @@ export function SetupGuide() {
             <AlertTriangle className="mt-0.5 h-6 w-6 flex-shrink-0 text-warning" />
             <div className="min-w-0 space-y-2">
               <h2 className="font-semibold leading-tight">
-                0. Installeer Google Chrome
+                Goed om te weten: printen werkt niet vanuit Safari
               </h2>
-              <div className="text-sm text-muted-foreground space-y-2">
-                <p>
-                  Je gebruikt nu Safari, en Safari kan geen verbinding maken
-                  met de printerkoppeling. Inchecken werkt gewoon, printen
-                  niet. Voor het printen van badges is{" "}
-                  <a
-                    href="https://www.google.com/chrome/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline hover:no-underline"
-                  >
-                    Google Chrome
-                  </a>{" "}
-                  nodig.
-                </p>
-              </div>
-              <p className="text-sm rounded-md px-3 py-2 border bg-background/60">
-                Open daarna in Chrome{" "}
-                <code className="text-xs select-all">
-                  print-badges.com/printer-setup
-                </code>{" "}
-                en ga verder met stap 1.
+              <p className="text-sm text-muted-foreground">
+                Deze handleiding lezen kan hier prima, maar op de eventdag
+                gebruik je de <strong>PrintBadges-app</strong> (stap 4) —
+                daarin werkt alles, printen incluis.
               </p>
             </div>
           </div>
@@ -422,7 +414,8 @@ export function SetupGuide() {
         </Button>
         {!printerUp && (
           <p className="text-xs text-muted-foreground">
-            Beschikbaar zodra stap 4 en 5 groen zijn.
+            Beschikbaar zodra stap 5 groen is — open deze pagina in de
+            PrintBadges-app.
           </p>
         )}
       </Card>
@@ -577,6 +570,23 @@ function Reference() {
               <li>Actions on Power On = Not Feed</li>
             </ul>
           </div>
+        </div>
+      </DocSection>
+
+      <DocSection title="Zonder app: losse printerkoppeling (Chrome)">
+        <div className="text-sm text-muted-foreground space-y-2">
+          <p>
+            Wil je de portal liever in Chrome gebruiken in plaats van de
+            PrintBadges-app? Installeer dan de losse printerkoppeling: een
+            klein achtergrondprogramma dat automatisch meestart met de Mac.
+          </p>
+          <InstallCommand />
+          <p className="text-xs">
+            Alternatief zonder installatie: dubbelklik{" "}
+            <strong>Badge Printer.command</strong> uit de projectmap en laat
+            het venster open staan. Let op: in Safari werkt printen nooit —
+            dat is een beperking van Safari zelf.
+          </p>
         </div>
       </DocSection>
 
