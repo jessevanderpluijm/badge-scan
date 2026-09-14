@@ -89,19 +89,21 @@ const STEPS: StepDef[] = [
         </p>
         <p>
           <a
-            href="/downloads/PrintBadges.zip"
+            href="/downloads/PrintBadges.pkg"
             className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             <Download className="h-4 w-4" /> Download PrintBadges voor Mac
           </a>
         </p>
         <ol className="list-decimal pl-5 space-y-0.5">
-          <li>Open het gedownloade bestand — de app pakt zichzelf uit.</li>
           <li>
-            Sleep <strong>PrintBadges</strong> naar de map Programma&apos;s
-            (mag, hoeft niet) en open de app.
+            Open het gedownloade bestand en doorloop de installatie (je Mac
+            vraagt één keer om je wachtwoord).
           </li>
-          <li>Log in met je PrintBadges-account.</li>
+          <li>
+            De app opent daarna vanzelf en staat voortaan in je map
+            Programma&apos;s. Log in met je PrintBadges-account.
+          </li>
         </ol>
       </>
     ),

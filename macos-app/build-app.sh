@@ -108,5 +108,42 @@ fi
 
 # ── 4. Distributable zip ────────────────────────────────────────────
 ditto -c -k --keepParent "$APP" "$DIST/PrintBadges.zip"
+
+# ── 5. Installer .pkg: puts the app in /Applications and opens it ───
+if security find-identity -v | grep -q "Developer ID Installer"; then
+  PKG_WORK="$(mktemp -d)"
+  mkdir -p "$PKG_WORK/scripts"
+  cat > "$PKG_WORK/scripts/postinstall" <<'POST_EOF'
+#!/bin/bash
+# Open the freshly installed app for the person at the screen, so the
+# install flow ends inside PrintBadges instead of at a Finder window.
+CONSOLE_USER="$(stat -f%Su /dev/console)"
+if [[ -n "$CONSOLE_USER" && "$CONSOLE_USER" != "root" ]]; then
+  sudo -u "$CONSOLE_USER" /usr/bin/open "/Applications/PrintBadges.app" || true
+fi
+exit 0
+POST_EOF
+  chmod 755 "$PKG_WORK/scripts/postinstall"
+  pkgbuild \
+    --component "$APP" \
+    --install-location /Applications \
+    --scripts "$PKG_WORK/scripts" \
+    --identifier "$IDENTIFIER" \
+    --version "$VERSION" \
+    "$PKG_WORK/unsigned.pkg" >/dev/null
+  productsign --sign "Developer ID Installer" \
+    "$PKG_WORK/unsigned.pkg" "$DIST/PrintBadges.pkg" >/dev/null
+  rm -rf "$PKG_WORK"
+  if [[ "${SKIP_NOTARIZE:-}" != "1" ]]; then
+    echo "Installer notariseren bij Apple …"
+    xcrun notarytool submit "$DIST/PrintBadges.pkg" \
+      --keychain-profile "$NOTARY_PROFILE" --wait
+    xcrun stapler staple "$DIST/PrintBadges.pkg"
+    echo "✅ Installer ondertekend, genotariseerd en gestapled."
+  fi
+else
+  echo "ℹ️  Geen 'Developer ID Installer'-certificaat — .pkg overgeslagen."
+fi
+
 echo "Klaar: $APP"
-du -h "$DIST/PrintBadges.zip" | cut -f1
+ls -lh "$DIST"/PrintBadges.zip "$DIST"/PrintBadges.pkg 2>/dev/null | awk '{print $9, $5}'
