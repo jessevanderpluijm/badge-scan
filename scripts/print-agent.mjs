@@ -141,6 +141,13 @@ const server = createServer(async (req, res) => {
         "-d", PRINTER,
         "-o", `media=${MEDIA}`,
         "-o", "fit-to-page=false",
+        // Cut after the job and media saving off, explicitly per job: a
+        // print dialog or reinstall can silently change the queue
+        // defaults, and without these the badge stops at the cut
+        // position uncut (or loses its last 9mm).
+        "-o", "EPIJ_LbAc=0",
+        "-o", "EPIJ_DfltACut=0",
+        "-o", "EPIJ_MdSv=0",
         file,
       ]);
       const jobId = /request id is (\S+)/.exec(out)?.[1] ?? out;

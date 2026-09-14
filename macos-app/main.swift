@@ -72,6 +72,12 @@ func printPdf(base64: String) -> [String: Any] {
     "-d", printerQueue,
     "-o", "media=\(printMedia)",
     "-o", "fit-to-page=false",
+    // Cut after the job and media saving off, explicitly per job — queue
+    // defaults can drift (print dialogs save silently) and without these
+    // the badge stops at the cut position uncut.
+    "-o", "EPIJ_LbAc=0",
+    "-o", "EPIJ_DfltACut=0",
+    "-o", "EPIJ_MdSv=0",
     tmp.path,
   ])
   if lp.status != 0 {
