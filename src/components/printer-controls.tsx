@@ -116,7 +116,7 @@ export function PrinterControls({ className }: { className?: string }) {
               </>
             ) : status === "no-agent" ? (
               <>
-                Check-in werkt door ·{" "}
+                Check-in werkt door — open de PrintBadges-app om te printen ·{" "}
                 <a href="/printer-setup" className="underline hover:no-underline">
                   handleiding
                 </a>

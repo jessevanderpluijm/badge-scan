@@ -23,7 +23,9 @@ export async function updateSession(request: NextRequest) {
     pathname === "/twitter-image" ||
     pathname === "/icon.svg";
   // Installer + agent download for the check-in laptop (curl | bash).
-  const isPrintAgentFile = pathname.startsWith("/print-agent/");
+  const isPrintAgentFile =
+    pathname.startsWith("/print-agent/") ||
+    pathname.startsWith("/downloads/");
   const isPublic =
     isAuthPage ||
     isMarketing ||
