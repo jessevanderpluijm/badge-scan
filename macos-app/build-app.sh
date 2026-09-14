@@ -124,8 +124,18 @@ fi
 exit 0
 POST_EOF
   chmod 755 "$PKG_WORK/scripts/postinstall"
+  # BundleIsRelocatable must be OFF: with it on (the default), Installer
+  # "updates" any existing copy of the app it finds elsewhere on the Mac
+  # instead of installing into /Applications.
+  STAGE="$PKG_WORK/stage"
+  mkdir -p "$STAGE"
+  cp -R "$APP" "$STAGE/"
+  pkgbuild --analyze --root "$STAGE" "$PKG_WORK/component.plist" >/dev/null
+  /usr/libexec/PlistBuddy -c "Set :0:BundleIsRelocatable false" \
+    "$PKG_WORK/component.plist"
   pkgbuild \
-    --component "$APP" \
+    --root "$STAGE" \
+    --component-plist "$PKG_WORK/component.plist" \
     --install-location /Applications \
     --scripts "$PKG_WORK/scripts" \
     --identifier "$IDENTIFIER" \
