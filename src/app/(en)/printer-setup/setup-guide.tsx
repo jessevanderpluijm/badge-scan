@@ -23,6 +23,7 @@ import {
   browserBlocksLocalAgent,
   getPrinterStatus,
   printBadge,
+  runsInDesktopApp,
 } from "@/lib/print-agent";
 
 const STORAGE_KEY = "badgescan-setup-progress";
@@ -32,10 +33,33 @@ type StepDef = {
   title: string;
   body: React.ReactNode;
   task?: string; // tussentijdse opdracht om de stap te verifiëren
-  auto?: "printer"; // stap wordt automatisch afgevinkt via live detectie
+  auto?: "printer" | "app"; // stap wordt automatisch afgevinkt via live detectie
 };
 
 const STEPS: StepDef[] = [
+  {
+    id: "app",
+    title: "Download de PrintBadges-app",
+    auto: "app",
+    body: (
+      <>
+        <p>
+          <a
+            href="/downloads/PrintBadges.pkg"
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <Download className="h-4 w-4" /> Download PrintBadges voor Mac
+          </a>
+        </p>
+        <p>
+          Open het gedownloade bestand en doorloop de installatie. De app
+          opent daarna vanzelf — log in, open dáár deze handleiding (klik op
+          &ldquo;handleiding&rdquo; bij de printerstatus) en deze stap vinkt
+          zichzelf af.
+        </p>
+      </>
+    ),
+  },
   {
     id: "media",
     title: "Printer opstarten",
@@ -75,27 +99,6 @@ const STEPS: StepDef[] = [
         Systeeminstellingen → Printers en scanners.
       </p>
     ),
-  },
-  {
-    id: "app",
-    title: "Download de PrintBadges-app",
-    body: (
-      <>
-        <p>
-          <a
-            href="/downloads/PrintBadges.pkg"
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Download className="h-4 w-4" /> Download PrintBadges voor Mac
-          </a>
-        </p>
-        <p>
-          Open het gedownloade bestand en doorloop de installatie. De app
-          opent daarna vanzelf — log in en je bent er.
-        </p>
-      </>
-    ),
-    task: "Check: opent de app en kun je inloggen?",
   },
   {
     id: "printer-online",
@@ -185,6 +188,7 @@ function InstallCommand() {
 export function SetupGuide() {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [agentUp, setAgentUp] = useState(false);
+  const [inApp, setInApp] = useState(false);
   const [printerUp, setPrinterUp] = useState(false);
   const [safari, setSafari] = useState(false);
   const [testState, setTestState] = useState<
@@ -198,6 +202,7 @@ export function SetupGuide() {
       if (saved) setDone(JSON.parse(saved));
     } catch {}
     setSafari(browserBlocksLocalAgent());
+    setInApp(runsInDesktopApp());
     let active = true;
     const ping = async () => {
       const status = await getPrinterStatus();
@@ -234,6 +239,7 @@ export function SetupGuide() {
 
   function isChecked(step: StepDef): boolean {
     if (step.auto === "printer") return printerUp;
+    if (step.auto === "app") return inApp;
     return !!done[step.id];
   }
 
@@ -293,7 +299,7 @@ export function SetupGuide() {
               </h2>
               <p className="text-sm text-muted-foreground">
                 Deze handleiding lezen kan hier prima, maar op de eventdag
-                gebruik je de <strong>PrintBadges-app</strong> (stap 4) —
+                gebruik je de <strong>PrintBadges-app</strong> (stap 1) —
                 daarin werkt alles, printen incluis.
               </p>
             </div>
