@@ -30,9 +30,8 @@ export default function PrinterSetupPage() {
             Printer installeren
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Zet de Epson ColorWorks C4000e stap voor stap klaar voor badge
-            printing. Deze pagina controleert een aantal stappen automatisch —
-            open haar dus op de laptop waar de printer aan hangt.
+            In vijf stappen klaar om badges te printen. Doe dit op de laptop
+            waar de printer aan komt te hangen.
           </p>
         </div>
         <SetupGuide />

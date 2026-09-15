@@ -41,13 +41,12 @@ const STEPS: StepDef[] = [
     title: "Printer opstarten",
     body: (
       <ul className="list-disc pl-5 space-y-1">
-        <li>Sluit de printer aan op het stroom.</li>
-        <li>Zet de printer aan.</li>
-        <li>Voeg de badges toe via de achterkant.</li>
+        <li>Stroomkabel erin en printer aan.</li>
+        <li>Voer de badgestapel in via de sleuf aan de achterkant.</li>
       </ul>
     ),
     task:
-      "Opdracht: druk 1× op de ⤓-knop (Feed). Komt er precies één badge-label uit en stopt de printer dan netjes? Dan is de rol goed geladen.",
+      "Check: druk 1× op ⤓ (Feed). Komt er precies één label uit? Dan zit de rol goed.",
   },
   {
     id: "software",
@@ -63,7 +62,7 @@ const STEPS: StepDef[] = [
         >
           Epson Setup Navi
         </a>{" "}
-        (kies macOS → Printer Driver) en doorloop het installatieprogramma.
+        (kies macOS → Printer Driver).
       </p>
     ),
   },
@@ -72,9 +71,8 @@ const STEPS: StepDef[] = [
     title: "Verbind printer",
     body: (
       <p>
-        Sluit de USB-kabel aan tussen de printer en de laptop. Voeg daarna de
-        printer toe via Systeeminstellingen → Printers en scanners; bij
-        “Use:” hoort automatisch <em>EPSON CW-C4000e</em> te staan.
+        USB-kabel tussen printer en laptop, en voeg de printer toe via
+        Systeeminstellingen → Printers en scanners.
       </p>
     ),
   },
@@ -84,10 +82,6 @@ const STEPS: StepDef[] = [
     body: (
       <>
         <p>
-          De PrintBadges-app is het check-in-station voor de eventdag: de
-          portal en het printen in één venster, zonder browser.
-        </p>
-        <p>
           <a
             href="/downloads/PrintBadges.pkg"
             className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -95,19 +89,13 @@ const STEPS: StepDef[] = [
             <Download className="h-4 w-4" /> Download PrintBadges voor Mac
           </a>
         </p>
-        <ol className="list-decimal pl-5 space-y-0.5">
-          <li>
-            Open het gedownloade bestand en doorloop de installatie (je Mac
-            vraagt één keer om je wachtwoord).
-          </li>
-          <li>
-            De app opent daarna vanzelf en staat voortaan in je map
-            Programma&apos;s. Log in met je PrintBadges-account.
-          </li>
-        </ol>
+        <p>
+          Open het gedownloade bestand en doorloop de installatie. De app
+          opent daarna vanzelf — log in en je bent er.
+        </p>
       </>
     ),
-    task: "Check: opent de app en zie je de portal?",
+    task: "Check: opent de app en kun je inloggen?",
   },
   {
     id: "printer-online",
@@ -115,13 +103,11 @@ const STEPS: StepDef[] = [
     auto: "printer",
     body: (
       <p>
-        Open deze handleiding ook eens ín de app (klik op
-        &ldquo;handleiding&rdquo; bij de printerstatus): zodra de app de
-        printer ziet — aan, USB-kabel erin — kleurt deze stap vanzelf
-        groen.
+        Deze stap kleurt vanzelf groen zodra de app de printer ziet. Blijft
+        hij grijs? Open deze pagina dan ín de app (via
+        &ldquo;handleiding&rdquo; bij de printerstatus).
       </p>
     ),
-    task: "Deze pagina checkt de printerverbinding automatisch.",
   },
 ];
 
@@ -387,10 +373,10 @@ export function SetupGuide() {
             <Printer className="h-5 w-5 text-primary" />
           )}
         </div>
-        <h2 className="font-semibold">Eindopdracht: print een testbadge</h2>
+        <h2 className="font-semibold">Print een testbadge</h2>
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          Rolt er een badge uit met “Test Geslaagd” erop — op beide helften,
-          netjes afgeknipt? Dan is de printer klaar voor het echte werk.
+          Rolt er een afgeknipte badge uit met “Test Geslaagd” erop? Dan ben
+          je klaar voor het echte werk.
         </p>
         {testError && <p className="text-sm text-destructive">{testError}</p>}
         {testState === "done" && (
@@ -583,10 +569,8 @@ function Reference() {
           </p>
           <InstallCommand />
           <p className="text-xs">
-            Alternatief zonder installatie: dubbelklik{" "}
-            <strong>Badge Printer.command</strong> uit de projectmap en laat
-            het venster open staan. Let op: in Safari werkt printen nooit —
-            dat is een beperking van Safari zelf.
+            Let op: in Safari werkt printen nooit — dat is een beperking van
+            Safari zelf.
           </p>
         </div>
       </DocSection>
